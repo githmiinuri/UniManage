@@ -1,0 +1,38 @@
+@{
+    Layout = null;
+    ViewData["Title"] = "Admin - Plain";
+}
+
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"]</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+    <style>
+        body{font-family:Segoe UI, Roboto, Arial; background:#f5f7fb}
+        .box{max-width:1100px;margin:32px auto;padding:20px;background:white;border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,0.06)}
+        .sidebar{width:220px;padding:18px;background:linear-gradient(135deg,#0b4f8a,#6d28d9);color:#eaf4ff;border-radius:8px}
+        .content{margin-left:260px;padding:18px}
+    </style>
+</head>
+<body>
+    <div class="box d-flex" role="main">
+        <div class="sidebar">
+            <h4>UniManage</h4>
+            <ul class="list-unstyled mt-3">
+                <li class="mb-2">Dashboard</li>
+                <li class="mb-2">User Management</li>
+                <li class="mb-2">Students</li>
+                <li class="mb-2">Lecturers</li>
+                <li class="mb-2">Courses</li>
+            </ul>
+        </div>
+        <div class="content flex-fill">
+            <h2>Admin Dashboard (Plain)</h2>
+            <p>If you see this page, the Admin view is rendering correctly without the shared layout. Use this to diagnose rendering issues.</p>
+        </div>
+    </div>
+</body>
+</html>

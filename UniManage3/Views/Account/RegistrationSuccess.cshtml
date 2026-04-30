@@ -1,0 +1,73 @@
+@{
+    Layout = null;
+    var role = ViewData["Role"] as string ?? "User";
+}
+
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Registration Successful - UniManage</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body{background:linear-gradient(135deg,#071124 0%, #0b4f8a 45%, #6d28d9 100%);min-height:100vh;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+        .card{max-width:720px;width:100%;background:transparent;border-radius:12px;padding:0;box-shadow:0 10px 30px rgba(0,0,0,.12);text-align:center;position:relative;overflow:visible}
+        .card-inner{background:rgba(255,255,255,0.96);border-radius:12px;padding:4.5rem 2.5rem 2.5rem;position:relative;overflow:hidden}
+        .logo{width:84px;height:84px;position:absolute;left:50%;top:-42px;transform:translateX(-50%);background:#fff;border-radius:14px;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 20px rgba(11,79,138,0.12);z-index:6}
+        .title{font-size:1.5rem;color:#0b4f8a;font-weight:600}
+        .subtitle{color:#6ea8fe;margin-top:.25rem}
+        .role-badge{display:inline-block;margin-top:1rem;padding:.5rem 1rem;border-radius:999px;background:linear-gradient(90deg,#0b4f8a,#6ea8fe);color:white;font-weight:600}
+        .btn-primary-gradient{background:linear-gradient(90deg,#0b4f8a,#6ea8fe);color:#fff;border:none;padding:.75rem 1rem;border-radius:.5rem}
+        .card-waves{position:absolute;left:0;width:100%;height:96px;overflow:hidden;pointer-events:none;z-index:0}
+        .card-waves svg{display:block;height:96px;position:absolute;left:-10%;top:0;width:120%;}
+        .card-waves.top{top:0}
+        .card-waves.bottom{bottom:0}
+        .card-waves.bottom svg{top:auto;bottom:0;width:120%;left:-10%;}
+    </style>
+</head>
+<body style="min-height:100vh;display:flex;flex-direction:column;">
+    <main style="flex:1 0 auto; display:flex; align-items:center; justify-content:center;">
+    <div class="card">
+        <div class="logo">
+            <svg width="56" height="56" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <rect width="64" height="64" rx="12" fill="white"/>
+                <path d="M32 4 L12 14 L32 24 L52 14 L32 4 Z" fill="#0b4f8a"/>
+                <path d="M20 30 C24 34, 28 36, 32 36 C36 36,40 34,44 30 V46 C44 50,40 54,32 54 C24 54,20 50,20 46 V30 Z" fill="#6ea8fe" opacity="0.95"/>
+                <path d="M32 34 C28 34,24 32,20 28" stroke="rgba(11,79,138,0.9)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                <path d="M14 20 L32 30 L50 20" stroke="white" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.6"/>
+            </svg>
+        </div>
+        <div class="card-inner">
+            <div class="card-waves top" aria-hidden="true">
+                <svg viewBox="0 0 600 96" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M0 36 C120 8 240 60 360 38 C440 24 520 14 600 30 L600 0 L0 0 Z" fill="#6ea8fe"></path>
+                    <path d="M0 22 C160 48 260 6 420 30 C520 46 560 26 600 8 L600 0 L0 0 Z" fill="#1a6ea8" opacity="0.9"></path>
+                </svg>
+            </div>
+            
+            <div class="card-content" style="position:relative; z-index:2; padding:20px 10px 0;">
+                <div class="title">Registration Successful</div>
+                <div class="subtitle">Your account has been created.</div>
+
+                <div class="role-badge">@role</div>
+
+                <p class="mt-4">Return to the login page and sign in using the email and password you provided during registration to access your @role dashboard.</p>
+
+                <div class="mt-3" style="padding-bottom:30px;">
+                    <a href="/Account/Login" class="btn btn-primary-gradient" style="position:relative; z-index:3;">Go to Login</a>
+                </div>
+            </div>
+
+            <div class="card-waves bottom" aria-hidden="true">
+                <svg viewBox="0 0 600 96" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M0 56 C120 32 240 84 360 62 C440 48 520 38 600 54 L600 96 L0 96 Z" fill="#6ea8fe"></path>
+                    <path d="M0 48 C160 76 260 34 420 58 C520 74 560 54 600 36 L600 96 L0 96 Z" fill="#1a6ea8" opacity="0.9"></path>
+                </svg>
+            </div>
+        </div>
+    </div>
+    </main>
+    @await Html.PartialAsync("_Footer")
+</body>
+</html>

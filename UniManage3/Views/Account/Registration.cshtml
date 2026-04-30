@@ -2,9 +2,11 @@
     Layout = null;
     ViewData["Title"] = "Create Account";
 }
+@model UniManage3.Models.RegistrationViewModel
 
 <!doctype html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -14,32 +16,135 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
     <style>
-        :root{ --bg: linear-gradient(135deg,#071124 0%, #0b4f8a 45%, #6d28d9 100%); --sapphire:#0b4f8a; --whisper:#6ea8fe; --card-shadow:0 10px 30px rgba(0,0,0,0.05); --font-stack:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif }
-        html,body{height:100%}
-        body{margin:0;font-family:var(--font-stack);background:var(--bg);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
-        .auth-viewport{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem}
-        .card-container{position:relative;width:100%;max-width:520px}
-        .auth-card{width:100%;background:#fff;border-radius:12px;box-shadow:var(--card-shadow);padding:2rem;padding-top:2.5rem;position:relative;overflow:hidden}
-        .logo-wrap{position:absolute;left:50%;top:-64px;transform:translateX(-50%);display:flex;justify-content:center;margin-bottom:0;z-index:3}
-        .brand-title{color:var(--sapphire);font-weight:600;font-size:1.25rem;margin-top:0.5rem}
-        .brand-sub{color:rgba(110,168,254,0.95)}
-        .card-waves{position:absolute;left:0;width:100%;height:96px;overflow:hidden;pointer-events:none;z-index:0}
-        .card-waves svg{display:block;height:96px;position:absolute;left:0;top:0}
-        .card-waves.top{top:0}
-        .card-waves.bottom{bottom:0}
-        .card-waves.bottom svg{top:auto;bottom:0}
-        /* bottom wave matches card width so it aligns with card corners */
-        .card-waves.bottom svg{width:100%;left:0}
-        .auth-card > :not(.card-waves){position:relative;z-index:2}
-        /* ensure buttons and interactive elements sit above waves */
-        .auth-card .btn{position:relative;z-index:3}
-        .form-check-label{color:rgba(110,168,254,0.9)}
-        .btn-primary-gradient{background:linear-gradient(90deg,var(--sapphire),var(--whisper));color:#fff;border:none;padding:.75rem 1rem;border-radius:.5rem}
+        :root {
+            --bg: linear-gradient(135deg, #071124 0%, #0b4f8a 45%, #6d28d9 100%);
+            --sapphire: #0b4f8a;
+            --whisper: #6ea8fe;
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif
+        }
+
+        html,
+        body {
+            height: 100%
+        }
+
+        body {
+            margin: 0;
+            font-family: var(--font-stack);
+            background: var(--bg);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            /* allow vertical scrolling because the form is long, but prevent horizontal overflow */
+            overflow-y:auto; overflow-x:hidden;
+        }
+
+        .auth-viewport {
+            min-height: calc(100vh - 28px); /* leave room for footer */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem; overflow-x:hidden;
+        }
+
+        .card-container {
+            position: relative;
+            width: 100%;
+            max-width: 720px
+        }
+
+        .auth-card {
+            width: 100%;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            padding: 2.5rem;
+            position: relative;
+            overflow: hidden
+        }
+
+        .logo-wrap {
+            position: absolute;
+            left: 50%;
+            top: -48px;
+            transform: translateX(-50%);
+            display: flex;
+            justify-content: center;
+            margin-bottom: 0;
+            z-index: 3
+        }
+
+        .brand-title {
+            color: var(--sapphire);
+            font-weight: 600;
+            font-size: 1.5rem;
+            margin-top: 0.5rem
+        }
+
+        .brand-sub {
+            color: rgba(110, 168, 254, 0.95)
+        }
+
+        .card-waves {
+            position: absolute;
+            left: 0;
+            width: 100%;
+            height: 96px;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 0
+        }
+
+        .card-waves svg {
+            display: block;
+            height: 96px;
+            position: absolute;
+            left: -10%;
+            top: 0;
+            width: 120%;
+        }
+
+        .card-waves.top {
+            top: 0
+        }
+
+        .card-waves.bottom {
+            bottom: 0
+        }
+
+        .auth-card> :not(.card-waves) {
+            position: relative;
+            z-index: 2
+        }
+
+        .auth-card .btn {
+            position: relative;
+            z-index: 3
+        }
+
+        .form-check-label {
+            color: rgba(110, 168, 254, 0.9)
+        }
+
+        .btn-primary-gradient {
+            background: linear-gradient(90deg, var(--sapphire), var(--whisper));
+            color: #fff;
+            border: none;
+            padding: .75rem 1rem;
+            border-radius: .5rem
+        }
+
+        .text-danger {
+            font-size: .9rem
+        }
+        /* Make icons blue outlined to match the Login page style */
+        .input-group-text i { color: transparent; -webkit-text-stroke: 1.2px rgba(106,168,254,0.95); text-stroke: 1.2px rgba(106,168,254,0.95); font-size:1rem }
     </style>
 </head>
-<body>
 
-    <main class="auth-viewport">
+<body style="min-height:100vh;display:flex;flex-direction:column;">
+
+    <main class="auth-viewport" style="flex:1 0 auto; overflow:auto;">
         <div class="card-container">
             <div class="logo-wrap">
                 <div style="background:#fff;border-radius:12px;padding:12px;box-shadow:0 6px 18px rgba(11,79,138,0.12);">
@@ -47,6 +152,8 @@
                         <rect width="64" height="64" rx="12" fill="white"/>
                         <path d="M32 4 L12 14 L32 24 L52 14 L32 4 Z" fill="var(--sapphire)"/>
                         <path d="M20 30 C24 34, 28 36, 32 36 C36 36,40 34,44 30 V46 C44 50,40 54,32 54 C24 54,20 50,20 46 V30 Z" fill="var(--whisper)" opacity="0.95"/>
+                        <path d="M32 34 C28 34,24 32,20 28" stroke="rgba(11,79,138,0.9)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                        <path d="M14 20 L32 30 L50 20" stroke="white" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.6"/>
                     </svg>
                 </div>
             </div>
@@ -55,97 +162,164 @@
                 <div class="card-waves top" aria-hidden="true">
                     <svg viewBox="0 0 600 96" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M0 36 C120 8 240 60 360 38 C440 24 520 14 600 30 L600 0 L0 0 Z" fill="#6ea8fe"></path>
-                        <path d="M0 22 C160 48 260 6 420 30 C520 46 560 26 600 8 L600 0 L0 0 Z" fill="#1a6ea8" opacity="0.9"></path>
+                        <path d="M0 22 C160 48 260 6 420 30 C520 46 560 26 600 8 L600 0 L0 0 Z" fill="#1a6ea8"
+                            opacity="0.9"></path>
                     </svg>
                 </div>
 
-                <div class="text-center mt-3 mb-4">
+                <div class="text-center mb-4">
                     <div class="brand-title">Create Account</div>
                     <div class="brand-sub">Join UniManage *university email required*</div>
                 </div>
 
-                <form method="post" action="/Account/Registration">
+                <form method="post" asp-action="Registration">
                     @Html.AntiForgeryToken()
-                    <div class="mb-3">
-                        <label for="email" class="form-label visually-hidden">University Email</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-white" aria-hidden="true">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                                    <path d="M4 4h16v16H4z" stroke="#6ea8fe" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-                                    <path d="M4 6l8 5 8-5" stroke="#0b4f8a" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                            </span>
-                            <input id="email" name="email" type="email" class="form-control" placeholder="University email" required>
+
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="row g-2">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label visually-hidden" for="firstName">First Name</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white"><i class="fa fa-user"></i></span>
+                                    <input asp-for="FirstName" class="form-control" placeholder="First Name" />
+                                </div>
+                                <span asp-validation-for="FirstName" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label visually-hidden" for="lastName">Last Name</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white"><i class="fa fa-user"></i></span>
+                                    <input asp-for="LastName" class="form-control" placeholder="Last Name" />
+                                </div>
+                                <span asp-validation-for="LastName" class="text-danger"></span>
+                            </div>
                         </div>
                     </div>
 
                     <div class="mb-3">
-                        <label for="role" class="form-label visually-hidden">Role</label>
+                        <label class="form-label visually-hidden" for="email">University Email</label>
                         <div class="input-group">
-                        <span class="input-group-text bg-white" aria-hidden="true">
-                            <!-- role/person icon -->
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M12 12a4 4 0 100-8 4 4 0 000 8z" stroke="#6ea8fe" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M4 20c0-3 4-5 8-5s8 2 8 5" stroke="#0b4f8a" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </span>
-                            <select id="role" name="role" class="form-select">
+                            <span class="input-group-text bg-white"><i class="fa fa-envelope"></i></span>
+                            <input asp-for="Email" class="form-control" placeholder="University email" />
+                        </div>
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label visually-hidden" for="role">Role</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white"><i class="fa fa-user-tag"></i></span>
+                            <select asp-for="Role" class="form-select">
                                 <option value="Student">Student</option>
                                 <option value="Lecturer">Lecturer</option>
+                                <option value="Administrator">Administrator</option>
                             </select>
                         </div>
+                        <span asp-validation-for="Role" class="text-danger"></span>
                     </div>
 
                     <div class="mb-3">
-                        <label for="password" class="form-label visually-hidden">Password</label>
+                        <label class="form-label visually-hidden" for="address1">Address Line 1</label>
                         <div class="input-group">
-                            <span class="input-group-text bg-white" aria-hidden="true">
-                                <!-- changed to shield icon to match confirm password -->
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M12 2l7 4v6c0 5-3.5 9-7 10-3.5-1-7-5-7-10V6l7-4z" stroke="#6ea8fe" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                            </span>
-                            <!-- show typed text by default to match login behavior -->
-                            <input id="password" name="password" type="text" class="form-control" placeholder="Password" required>
-                            <button class="btn btn-outline-secondary" type="button" id="togglePassword" aria-label="Toggle password visibility" title="Hide password">
-                                <svg class="eye d-none" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                                    <path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z" stroke="#495057" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-                                    <circle cx="12" cy="12" r="3" stroke="#495057" stroke-width="1.2" fill="none"/>
-                                </svg>
-                                <svg class="eye-slash" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                                    <path d="M17.94 17.94A10.06 10.06 0 0112 19c-6 0-10-7-10-7a19.7 19.7 0 014.12-4.8" stroke="#495057" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-                                    <path d="M1 1l22 22" stroke="#495057" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                            </button>
+                            <span class="input-group-text bg-white"><i class="fa fa-home"></i></span>
+                            <input asp-for="AddressLine1" class="form-control" placeholder="Address Line 1" />
+                        </div>
+                        <span asp-validation-for="AddressLine1" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label visually-hidden" for="address2">Address Line 2</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white"><i class="fa fa-map"></i></span>
+                            <input asp-for="AddressLine2" class="form-control" placeholder="Address Line 2" />
+                        </div>
+                        <span asp-validation-for="AddressLine2" class="text-danger"></span>
+                    </div>
+
+                    <div class="row g-2">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white"><i class="fa fa-globe"></i></span>
+                                    <input asp-for="Province" class="form-control" placeholder="Province" />
+                                </div>
+                                <span asp-validation-for="Province" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white"><i class="fa fa-city"></i></span>
+                                    <input asp-for="City" class="form-control" placeholder="City" />
+                                </div>
+                                <span asp-validation-for="City" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white"><i class="fa fa-mail-bulk"></i></span>
+                                    <input asp-for="ZipCode" class="form-control" placeholder="Zip Code" />
+                                </div>
+                                <span asp-validation-for="ZipCode" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-2">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white"><i class="fa fa-phone"></i></span>
+                                    <input asp-for="ContactNumber" class="form-control" placeholder="Contact Number" />
+                                </div>
+                                <span asp-validation-for="ContactNumber" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white"><i class="fa fa-id-card"></i></span>
+                                    <input asp-for="NICNumber" class="form-control" placeholder="NIC Number" />
+                                </div>
+                                <span asp-validation-for="NICNumber" class="text-danger"></span>
+                            </div>
                         </div>
                     </div>
 
                     <div class="mb-3">
-                        <label for="confirmPassword" class="form-label visually-hidden">Confirm Password</label>
+                        <label class="form-label visually-hidden" for="Password">Password</label>
                         <div class="input-group">
-                            <span class="input-group-text bg-white" aria-hidden="true">
-                                <!-- shield icon -->
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M12 2l7 4v6c0 5-3.5 9-7 10-3.5-1-7-5-7-10V6l7-4z" stroke="#6ea8fe" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                            </span>
-                            <!-- show typed text by default to match login behavior -->
-                            <input id="confirmPassword" name="confirmPassword" type="text" class="form-control" placeholder="Confirm Password" required>
-                            <button class="btn btn-outline-secondary" type="button" id="toggleConfirmPassword" aria-label="Toggle confirm password visibility" title="Hide confirm password">
-                                <svg class="eye d-none" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                                    <path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z" stroke="#495057" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-                                    <circle cx="12" cy="12" r="3" stroke="#495057" stroke-width="1.2" fill="none"/>
-                                </svg>
-                                <svg class="eye-slash" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                                    <path d="M17.94 17.94A10.06 10.06 0 0112 19c-6 0-10-7-10-7a19.7 19.7 0 014.12-4.8" stroke="#495057" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-                                    <path d="M1 1l22 22" stroke="#495057" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
+                            <span class="input-group-text bg-white" aria-hidden="true"><i class="fa fa-shield-alt"></i></span>
+                            <input asp-for="Password" id="Password" class="form-control" placeholder="Password" />
+                            <button class="btn btn-outline-secondary" type="button" id="togglePasswordReg" aria-label="Toggle password visibility" title="Hide password">
+                                <svg class="eye d-none" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z" stroke="#495057" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="12" cy="12" r="3" stroke="#495057" stroke-width="1.2" fill="none"/></svg>
+                                <svg class="eye-slash" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M17.94 17.94A10.06 10.06 0 0112 19c-6 0-10-7-10-7a19.7 19.7 0 014.12-4.8" stroke="#495057" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M1 1l22 22" stroke="#495057" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
                             </button>
                         </div>
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label visually-hidden" for="ConfirmPassword">Confirm Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white" aria-hidden="true"><i class="fa fa-check"></i></span>
+                            <input asp-for="ConfirmPassword" id="ConfirmPassword" class="form-control" placeholder="Confirm Password" />
+                            <button class="btn btn-outline-secondary" type="button" id="toggleConfirmPasswordReg" aria-label="Toggle confirm password visibility" title="Hide password">
+                                <svg class="eye d-none" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z" stroke="#495057" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="12" cy="12" r="3" stroke="#495057" stroke-width="1.2" fill="none"/></svg>
+                                <svg class="eye-slash" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M17.94 17.94A10.06 10.06 0 0112 19c-6 0-10-7-10-7a19.7 19.7 0 014.12-4.8" stroke="#495057" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M1 1l22 22" stroke="#495057" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </button>
+                        </div>
+                        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
                     </div>
 
                     <div class="mb-3 text-end">
-                        <span class="text-muted">Already have an account? Log in </span><a href="/Account/Login" class="text-decoration-none">here</a>.
+                        <span class="text-muted">Already have an account? Log in </span><a href="/Account/Login"
+                            class="text-decoration-none">here</a>.
                     </div>
 
                     <div class="d-grid mb-4">
@@ -157,42 +331,94 @@
                 <div class="card-waves bottom" aria-hidden="true">
                     <svg viewBox="0 0 600 96" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M0 56 C120 32 240 84 360 62 C440 48 520 38 600 54 L600 96 L0 96 Z" fill="#6ea8fe"></path>
-                        <path d="M0 48 C160 76 260 34 420 58 C520 74 560 54 600 36 L600 96 L0 96 Z" fill="#1a6ea8" opacity="0.9"></path>
+                        <path d="M0 48 C160 76 260 34 420 58 C520 74 560 54 600 36 L600 96 L0 96 Z" fill="#1a6ea8"
+                            opacity="0.9"></path>
                     </svg>
                 </div>
             </div>
-            
+
         </div>
     </main>
 
+    @await Html.PartialAsync("_Footer")
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate-unobtrusive/4.0.0/jquery.validate.unobtrusive.min.js">
+    </script>
     <script>
         (function(){
-            function wireToggle(btnId, inputId){
-                var btn = document.getElementById(btnId);
-                if (!btn) return;
-                var input = document.getElementById(inputId);
-                var eye = btn.querySelector('.eye');
-                var eyeSlash = btn.querySelector('.eye-slash');
-                btn.addEventListener('click', function(){
-                    if (input.type === 'password'){
-                        input.type = 'text';
-                        if (eye) eye.classList.add('d-none');
-                        if (eyeSlash) eyeSlash.classList.remove('d-none');
-                        btn.title = 'Hide password';
+            // phone mask
+            var phone = document.querySelector('input[name="ContactNumber"]');
+            if (phone){
+                phone.addEventListener('input', function(){
+                    var digits = this.value.replace(/\D/g,'').slice(0,15);
+                    if (digits.length > 6) {
+                        this.value = '(' + digits.slice(0,3) + ') ' + digits.slice(3,6) + '-' + digits.slice(6);
+                    } else if (digits.length > 3) {
+                        this.value = '(' + digits.slice(0,3) + ') ' + digits.slice(3);
                     } else {
-                        input.type = 'password';
-                        if (eye) eye.classList.remove('d-none');
-                        if (eyeSlash) eyeSlash.classList.add('d-none');
-                        btn.title = 'Show password';
+                        this.value = digits;
                     }
-                    input.focus();
                 });
             }
 
-            wireToggle('togglePassword', 'password');
-            wireToggle('toggleConfirmPassword', 'confirmPassword');
+            // On submit, strip formatting from phone and zip so server receives digits-only
+            var form = document.querySelector('form[asp-action="Registration"]') || document.querySelector('form');
+            if (form){
+                form.addEventListener('submit', function(){
+                    var p = document.querySelector('input[name="ContactNumber"]');
+                    if (p) p.value = p.value.replace(/\D/g,'');
+                    var z = document.querySelector('input[name="ZipCode"]');
+                    if (z) z.value = z.value.replace(/\D/g,'');
+                });
+            }
+
+            // Password toggle for registration fields
+            var togglePwd = document.getElementById('togglePasswordReg');
+            if (togglePwd){
+                var pwdInput = document.getElementById('Password');
+                var eye = togglePwd.querySelector('.eye');
+                var eyeSlash = togglePwd.querySelector('.eye-slash');
+                togglePwd.addEventListener('click', function(){
+                    if (pwdInput.type === 'password'){
+                        pwdInput.type = 'text';
+                        if (eye) eye.classList.add('d-none');
+                        if (eyeSlash) eyeSlash.classList.remove('d-none');
+                        togglePwd.title = 'Hide password';
+                    } else {
+                        pwdInput.type = 'password';
+                        if (eye) eye.classList.remove('d-none');
+                        if (eyeSlash) eyeSlash.classList.add('d-none');
+                        togglePwd.title = 'Show password';
+                    }
+                    pwdInput.focus();
+                });
+            }
+
+            var toggleConfirm = document.getElementById('toggleConfirmPasswordReg');
+            if (toggleConfirm){
+                var confirmInput = document.getElementById('ConfirmPassword');
+                var eyeC = toggleConfirm.querySelector('.eye');
+                var eyeSlashC = toggleConfirm.querySelector('.eye-slash');
+                toggleConfirm.addEventListener('click', function(){
+                    if (confirmInput.type === 'password'){
+                        confirmInput.type = 'text';
+                        if (eyeC) eyeC.classList.add('d-none');
+                        if (eyeSlashC) eyeSlashC.classList.remove('d-none');
+                        toggleConfirm.title = 'Hide password';
+                    } else {
+                        confirmInput.type = 'password';
+                        if (eyeC) eyeC.classList.remove('d-none');
+                        if (eyeSlashC) eyeSlashC.classList.add('d-none');
+                        toggleConfirm.title = 'Show password';
+                    }
+                    confirmInput.focus();
+                });
+            }
         })();
     </script>
 </body>
+
 </html>

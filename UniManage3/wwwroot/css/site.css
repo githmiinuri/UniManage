@@ -18,5 +18,6 @@ html {
 }
 
 body {
-  margin-bottom: 60px;
+  /* remove artificial bottom margin so fixed footer overlays the page cleanly */
+  margin-bottom: 0;
 }
