@@ -1,97 +1,192 @@
+@using System.Linq
+@inject UniManage3.Data.ApplicationDbContext _db
 @{
     Layout = "_Layout";
     ViewData["Title"] = "Admin Dashboard";
+    var email = User?.Identity?.Name;
+    var fullName = _db.Users.FirstOrDefault(u => u.Email == email)?.FullName ?? email ?? "Administrator";
 }
 
 <style>
-        :root{
-            --gradient: linear-gradient(135deg, #0b4f8a 0%, #6d28d9 100%);
-            --sidebar-width: 260px;
-            --sidebar-collapsed: 64px;
-            --accent-blue: #0b4f8a;
-            --light-blue: #9fc8ff;
-            --muted: #6c757d;
-            --card-shadow: 0 8px 20px rgba(12,42,80,0.06);
-            --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
-        }
-        body{font-family:var(--font-stack);background:#f8fafc;color:#0b2b4a}
-        .admin-shell{display:flex;min-height:100vh}
-        /* left bar */
-        .left-bar{width:var(--sidebar-width);background:var(--gradient);color:#eaf4ff;padding:18px 12px;position:fixed;left:0;top:0;bottom:0;transition:width .25s ease-in-out;overflow:hidden}
-        .left-bar.collapsed{width:var(--sidebar-collapsed)}
-        .left-bar .logo-top{display:flex;align-items:center;gap:8px;padding:6px 8px}
-        .left-bar .logo-top .bars{margin-left:auto;cursor:pointer}
-        .logo-mark{display:flex;align-items:center;gap:10px}
-        .logo-mark svg{background:transparent}
-        .brand-name{font-weight:700;color:#eafbff}
-        .logo-username{font-size:.9rem;color:rgba(255,255,255,0.9);margin-top:12px}
-        .menu{margin-top:20px}
-        .menu .section{margin-bottom:12px}
-        .menu a{display:flex;align-items:center;gap:12px;padding:8px 10px;border-radius:8px;color:rgba(255,255,255,0.92);text-decoration:none;margin-bottom:6px}
-        .menu a .icon{width:26px;height:26px;display:flex;align-items:center;justify-content:center;border-radius:6px}
-        .menu a:hover{background:rgba(255,255,255,0.06);color:#eaf4ff}
-        .menu a.active{background:rgba(255,255,255,0.12);box-shadow:var(--card-shadow)}
-        .menu .small{font-size:.85rem;color:rgba(255,255,255,0.85)}
-        .menu .sep{height:1px;background:rgba(255,255,255,0.06);margin:12px 0;border-radius:2px}
-        .bottom-actions{position:absolute;bottom:18px;left:12px;right:12px;padding-right:8px}
-        .bottom-actions a{display:flex;align-items:center;gap:10px;padding:8px;border-radius:8px;color:rgba(255,255,255,0.9);text-decoration:none}
-        .content-wrap{margin-left:var(--sidebar-width);flex:1;padding:28px;transition:margin-left .25s ease-in-out}
-        .left-bar.collapsed + .content-wrap{margin-left:var(--sidebar-collapsed)}
+:root{
+    --gradient: linear-gradient(135deg, #0b4f8a 0%, #6d28d9 100%);
+    --sidebar-width: 260px;
+    --sidebar-collapsed: 64px;
+    --accent-blue: #0b4f8a;
+    --light-blue: #9fc8ff;
+    --muted: #6c757d;
+    --card-shadow: 0 8px 20px rgba(12,42,80,0.06);
+    --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+}
+body{font-family:var(--font-stack);background:#f8fafc;color:#0b2b4a}
+.admin-shell{display:flex;min-height:100vh}
+/* left bar */
+.left-bar{width:var(--sidebar-width);background:var(--gradient);color:#eaf4ff;padding:18px 12px;position:fixed;left:0;top:0;bottom:0;transition:width .25s ease-in-out}
+.left-bar.collapsed{width:var(--sidebar-collapsed)}
+.left-bar .logo-top{display:flex;align-items:center;gap:8px;padding:6px 8px}
+.logo-mark{display:flex;align-items:center;gap:10px}
+.logo-mark svg{background:transparent}
+.brand-name{font-weight:700;color:#eafbff}
+.logo-username{font-size:.9rem;color:rgba(255,255,255,0.9);margin-top:12px}
+.menu{margin-top:20px}
+.menu .section{margin-bottom:12px}
+.menu a{display:flex;align-items:center;gap:12px;padding:8px 10px;border-radius:8px;color:rgba(255,255,255,0.92);text-decoration:none;margin-bottom:6px}
+.menu a .icon{width:26px;height:26px;display:flex;align-items:center;justify-content:center;border-radius:6px}
+.menu a:hover{background:rgba(255,255,255,0.06);color:#eaf4ff}
+.menu a.active{background:rgba(255,255,255,0.12);box-shadow:var(--card-shadow)}
+.menu .small{font-size:.85rem;color:rgba(255,255,255,0.85)}
+.menu .sep{height:1px;background:rgba(255,255,255,0.06);margin:12px 0;border-radius:2px}
+.bottom-actions{position:absolute;bottom:18px;left:12px;right:12px;padding-right:8px}
+.bottom-actions a{display:flex;align-items:center;gap:10px;padding:8px;border-radius:8px;color:rgba(255,255,255,0.9);text-decoration:none}
+/* hide native scrollbar but allow programmatic scrolling */
+.menu-inner { max-height: calc(100vh - 240px); overflow: auto; scrollbar-width: none; -ms-overflow-style: none; }
+.menu-inner::-webkit-scrollbar { display: none; }
+.content-wrap{margin-left:var(--sidebar-width);flex:1;padding:28px;transition:margin-left .25s ease-in-out}
+.left-bar.collapsed + .content-wrap{margin-left:var(--sidebar-collapsed)}
 
-        /* page header */
-        .page-header{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:18px}
-        .page-title{font-size:1.4rem;font-weight:700;color:var(--accent-blue)}
-        .page-actions{display:flex;align-items:center;gap:12px}
-        .card{background:#fff;border-radius:12px;padding:16px;box-shadow:var(--card-shadow)}
+/* page header */
+.page-header{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:18px}
+.page-title{font-size:1.4rem;font-weight:700;color:var(--accent-blue)}
+.page-actions{display:flex;align-items:center;gap:12px}
+.card{background:#fff;border-radius:12px;padding:16px;box-shadow:var(--card-shadow)}
 
-        /* responsive */
-        @@media (max-width:900px){
-            .left-bar{position:relative;width:100%;height:auto}
-            .content-wrap{margin-left:0;padding:12px}
-        }
-    </style>
-    
-    <!-- Admin page content (renders inside shared layout) -->
-    <div class="admin-shell">
-        <aside class="left-bar" id="leftBar">
-            <div class="logo-top">
-                <div class="logo-mark">
-                    <div style="width:42px;height:42px;border-radius:10px;background:white;display:flex;align-items:center;justify-content:center">
-                        <!-- reuse login svg logo -->
-                        <svg width="28" height="28" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <rect width="64" height="64" rx="12" fill="white"/>
-                            <path d="M32 4 L12 14 L32 24 L52 14 L32 4 Z" fill="#0b4f8a"/>
-                            <path d="M20 30 C24 34, 28 36, 32 36 C36 36,40 34,44 30 V46 C44 50,40 54,32 54 C24 54,20 50,20 46 V30 Z" fill="#9fc8ff" opacity="0.95"/>
-                        </svg>
-                    </div>
-                    <div class="brand-name">UniManage</div>
+/* responsive */
+@@media (max-width:900px){
+    .left-bar{position:relative;width:100%;height:auto}
+    .content-wrap{margin-left:0;padding:12px}
+}
+</style>
+
+<div class="admin-shell">
+    <aside class="left-bar" id="leftBar">
+        <div class="logo-top">
+            <div class="logo-mark">
+                <div style="width:56px;height:56px;border-radius:12px;background:white;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(11,79,138,0.12);">
+                    <!-- exact login logo SVG -->
+                    <svg width="56" height="56" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <rect width="64" height="64" rx="12" fill="white"/>
+                        <path d="M32 4 L12 14 L32 24 L52 14 L32 4 Z" fill="#0b4f8a"/>
+                        <path d="M20 30 C24 34, 28 36, 32 36 C36 36,40 34,44 30 V46 C44 50,40 54,32 54 C24 54,20 50,20 46 V30 Z" fill="#6ea8fe" opacity="0.95"/>
+                        <path d="M32 34 C28 34,24 32,20 28" stroke="#0b4f8a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                    </svg>
                 </div>
-                <div class="bars" id="menuToggle" title="Toggle menu">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 6h18" stroke="#eaf4ff" stroke-width="1.8" stroke-linecap="round"/><path d="M3 12h18" stroke="#eaf4ff" stroke-width="1.8" stroke-linecap="round"/><path d="M3 18h18" stroke="#eaf4ff" stroke-width="1.8" stroke-linecap="round"/></svg>
-                </div>
+                <div class="brand-name">UniManage</div>
             </div>
-            <div class="logo-username">Administrator</div>
+        </div>
+        <div class="logo-username" style="display:flex;align-items:center;gap:8px;margin-top:12px">
+            <!-- profile icon + full name -->
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" style="flex:0 0 32px;border-radius:50%;background:rgba(255,255,255,0.06);padding:4px">
+                <path d="M12 12a4 4 0 100-8 4 4 0 000 8z" stroke="#eaf4ff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M4 20v-1c0-2.2 3.6-4 8-4s8 1.8 8 4v1" stroke="#eaf4ff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <div style="color:rgba(255,255,255,0.95);font-weight:600">@fullName</div>
+        </div>
 
-            <nav class="menu">
+        <nav class="menu">
+            <div class="menu-inner" id="menuInner">
                 <div class="section">
                     <a href="#" class="active"><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 13h8V3H3v10zM13 21h8v-6h-8v6zM13 3v6h8V3h-8zM3 21h8v-8H3v8z" stroke="#9fc8ff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="small">Dashboard</span></a>
-                    <a href="#"><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16 4.5 20l2-7L1 9h7l3-7z" stroke="#9fc8ff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="small">User Management</span></a>
-                    <a href="#"><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M16 11c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM8 11c1.657 0 3-1.343 3-3S9.657 5 8 5 5 6.343 5 8s1.343 3 3 3zM8 13c-2.667 0-8 1.333-8 4v2h16v-2c0-2.667-5.333-4-8-4zm8 0c-.293 0-.582.01-.867.03 1.125.905 1.867 2.21 1.867 3.97v2h6v-2c0-2.667-5.333-4-8-4z" stroke="#9fc8ff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="small">Students</span></a>
-                    <a href="#"><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zM4 20v-1c0-2.21 3.58-4 8-4s8 1.79 8 4v1" stroke="#9fc8ff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="small">Lecturers</span></a>
-                    <a href="#"><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21 15V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10" stroke="#9fc8ff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 21h10" stroke="#9fc8ff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="small">Courses</span></a>
+                    <a href="#"><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M16 11c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM8 11c1.657 0 3-1.343 3-3S9.657 5 8 5 5 6.343 5 8s1.343 3 3 3zM8 13c-2.667 0-8 1.333-8 4v2h16v-2c0-2.667-5.333-4-8-4z" stroke="#9fc8ff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="small">User Management</span></a>
+                    <a href="#"><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" stroke="#9fc8ff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="7" r="4" stroke="#9fc8ff" stroke-width="1.2"/></svg></span><span class="small">Students</span></a>
+                    <a href="#"><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z" stroke="#9fc8ff" stroke-width="1.2"/><path d="M4 20v-1c0-2.21 3.58-4 8-4s8 1.79 8 4v1" stroke="#9fc8ff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="small">Lecturers</span></a>
+                    <a href="#"><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="14" rx="2" stroke="#9fc8ff" stroke-width="1.2"/><path d="M7 8h10" stroke="#9fc8ff" stroke-width="1.2" stroke-linecap="round"/></svg></span><span class="small">Courses</span></a>
                     <a href="#"><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 6h18" stroke="#9fc8ff" stroke-width="1.4" stroke-linecap="round"/><path d="M12 6v14" stroke="#9fc8ff" stroke-width="1.4" stroke-linecap="round"/></svg></span><span class="small">Classes</span></a>
-                    <a href="#"><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21 16V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8" stroke="#9fc8ff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 21h10" stroke="#9fc8ff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="small">Events</span></a>
+                    <a href="#"><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="14" rx="2" stroke="#9fc8ff" stroke-width="1.2"/><path d="M7 21h10" stroke="#9fc8ff" stroke-width="1.2" stroke-linecap="round"/></svg></span><span class="small">Events</span></a>
                     <a href="#"><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 3h18v18H3z" stroke="#9fc8ff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="small">Library</span></a>
                     <a href="#"><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 3v18h18" stroke="#9fc8ff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="small">Enrollment Statistics</span></a>
-                    <a href="#"><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 3h18v18H3z" stroke="#9fc8ff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="small">Reports</span></a>
+                    <a href="#"><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="2" stroke="#9fc8ff" stroke-width="1.2"/><path d="M7 7h10v10H7z" stroke="#9fc8ff" stroke-width="1.0"/></svg></span><span class="small">Reports</span></a>
                     <a href="#"><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2l9 21H3L12 2z" stroke="#9fc8ff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="small">Performance</span></a>
                 </div>
-                <div class="sep"></div>
-                <div class="section bottom">
-                    <!-- bottom menu items -> placed lower in markup but styled absolute bottom -->
-                </div>
-            </nav>
+                
+            </div>
+        </nav>
 
-            <div class="bottom-actions">
-                <a href="#"><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 12a5 5 0 100-10 5 5 0 000 10zM21 21v-2a4 4 0 00-4-4H7a4 4 0 00-4 4v2" stroke="#9fc8ff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="small">Account</span></a>
-                <a href="#"><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24`
+        <div style="position:absolute;left:12px;right:12px;bottom:18px">
+            <div style="display:flex;flex-direction:column;gap:8px">
+                <a href="#" class="" style="display:flex;align-items:center;gap:12px;padding:8px 10px;border-radius:8px;color:rgba(255,255,255,0.92);text-decoration:none"><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z" stroke="#9fc8ff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" stroke="#9fc8ff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span><span class="small">Edit Profile</span></a>
+                <form asp-controller="Account" asp-action="Logout" method="post" style="margin:0">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn" style="width:100%;background:#ff4d4f;color:white;border-radius:8px;padding:8px;border:none">Logout</button>
+                </form>
+            </div>
+        </div>
+    </aside>
+
+    <main class="content-wrap">
+        <div class="page-header">
+            <div>
+                <div class="page-title">Dashboard</div>
+                <div class="text-muted">@DateTime.UtcNow.ToString("MMMM d, dddd")</div>
+            </div>
+            <div class="page-actions">
+            </div>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-12 col-md-3">
+                <div class="card">
+                    <div class="small text-muted">Students</div>
+                    <div style="font-weight:700;font-size:1.6rem;color:var(--accent-blue)">5,699</div>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="card">
+                    <div class="small text-muted">Lecturers</div>
+                    <div style="font-weight:700;font-size:1.6rem;color:var(--accent-blue)">297</div>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="card">
+                    <div class="small text-muted">Awards</div>
+                    <div style="font-weight:700;font-size:1.6rem;color:var(--accent-blue)">368</div>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="card">
+                    <div class="small text-muted">Revenue</div>
+                    <div style="font-weight:700;font-size:1.6rem;color:var(--accent-blue)">$87,395</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3 mt-3">
+            <div class="col-12 col-lg-8">
+                <div class="card" style="height:280px;display:flex;align-items:center;justify-content:center;color:var(--muted)">Academic Performance Chart (placeholder)</div>
+            </div>
+            <div class="col-12 col-lg-4">
+                <div class="card" style="height:280px;display:flex;align-items:center;justify-content:center;color:var(--muted)">Earnings Chart (placeholder)</div>
+            </div>
+        </div>
+
+        <div class="row g-3 mt-3">
+            <div class="col-12 col-md-6">
+                <div class="card" style="height:200px;">Messages (placeholder)</div>
+            </div>
+            <div class="col-12 col-md-6">
+                <div class="card" style="height:200px;">Students Summary (placeholder)</div>
+            </div>
+        </div>
+    </main>
+</div>
+
+@section Scripts {
+    <script>
+        (function(){
+            var leftBar = document.getElementById('leftBar');
+            var menuInner = document.getElementById('menuInner');
+            // make sidebar respond to cursor position for reveal
+            if (menuInner) {
+                menuInner.addEventListener('mousemove', function(e){
+                    var rect = this.getBoundingClientRect();
+                    var y = e.clientY - rect.top; // 0..height
+                    var ratio = Math.max(0, Math.min(1, y / rect.height));
+                    this.scrollTop = (this.scrollHeight - this.clientHeight) * ratio;
+                });
+                // also allow wheel scrolling
+                menuInner.addEventListener('wheel', function(e){
+                    this.scrollTop += e.deltaY;
+                }, { passive: true });
+            }
+        })();
+    </script>
+}

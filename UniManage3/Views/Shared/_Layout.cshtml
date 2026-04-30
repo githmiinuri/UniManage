@@ -37,12 +37,7 @@
                             <li class="nav-item">
                                 <span class="navbar-text ms-2">(@roleClaim)</span>
                             </li>
-                            <li class="nav-item ms-3">
-                                <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
-                                    @Html.AntiForgeryToken()
-                                    <button type="submit" class="btn btn-link nav-link" style="display:inline; padding:0;">Logout</button>
-                                </form>
-                            </li>
+                            <!-- Logout removed from top-right; available in admin sidebar -->
                         }
                         else
                         {
