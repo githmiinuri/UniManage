@@ -1,0 +1,26 @@
+﻿@model UniManage3.Models.CourseMaterial
+
+@{
+    ViewData["Title"] = "Delete Course Material";
+}
+
+<h1 class="mb-4">Delete Course Material</h1>
+
+<div class="alert alert-danger" role="alert">
+    <h4 class="alert-heading">Warning!</h4>
+    <p>This will permanently delete the file from the server and remove the record from the database. This action cannot be undone.</p>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">@Model.MaterialName</h5>
+        <p class="mb-2"><strong>Module:</strong> @Model.Module?.ModuleName</p>
+        <p class="mb-2"><strong>File:</strong> @(!string.IsNullOrEmpty(Model.FilePath) ? System.IO.Path.GetFileName(Model.FilePath) : "-")</p>
+
+        <form asp-action="Delete" method="post">
+            <input type="hidden" asp-for="Id" />
+            <button type="submit" class="btn btn-danger">Yes, delete permanently</button>
+            <a asp-action="Index" class="btn btn-secondary ms-2">Cancel</a>
+        </form>
+    </div>
+</div>

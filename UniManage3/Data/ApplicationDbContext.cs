@@ -14,6 +14,10 @@ namespace UniManage3.Data
         public DbSet<Lecturer> Lecturers { get; set; }
         public DbSet<Student> Students { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<Course> Courses { get; set; }
+        public DbSet<Module> Modules { get; set; }
+        public DbSet<CourseMaterial> CourseMaterials { get; set; }
+        public DbSet<Assignment> Assignments { get; set; }
 
         public DbSet<Department> Departments { get; set; }
         public DbSet<Course> Courses { get; set; }
@@ -22,6 +26,7 @@ namespace UniManage3.Data
         public DbSet<Module> Modules { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<Role>().HasData(
@@ -29,6 +34,21 @@ namespace UniManage3.Data
                 new Role { Id = 2, Name = "Lecturer" },
                 new Role { Id = 3, Name = "Student" }
             );
+
+            // Ensure enum is stored as string to match existing varchar column in the database
+            modelBuilder.Entity<CourseMaterial>(b =>
+            {
+                b.Property(cm => cm.MaterialType)
+                    .HasConversion<string>()
+                    .HasMaxLength(50)
+                    .HasColumnType("varchar(50)");
+
+                b.Property(cm => cm.MaterialName).IsRequired().HasMaxLength(255).HasColumnType("varchar(255)");
+                b.Property(cm => cm.FilePath).IsRequired().HasColumnType("longtext");
+                b.Property(cm => cm.Description).HasColumnType("longtext");
+                b.Property(cm => cm.Duration).HasMaxLength(50).HasColumnType("varchar(50)");
+            });
+
 
             modelBuilder.Entity<Administrator>(b =>
             {
@@ -50,9 +70,16 @@ namespace UniManage3.Data
             modelBuilder.Entity<Lecturer>(b =>
             {
                 b.HasKey(l => l.Id);
+<<<<<<< HEAD
                 b.Property(l => l.UserId).HasColumnType("int");
                 b.HasIndex(l => l.UserId).IsUnique();
                 b.HasOne(l => l.User).WithMany().HasForeignKey(l => l.UserId).OnDelete(DeleteBehavior.Cascade);
+=======
+                b.HasOne(l => l.User)
+                    .WithMany()
+                    .HasForeignKey(l => l.UserId)
+                    .IsRequired();
+>>>>>>> 355f77b (#1 feat: Implement the lecturer flow)
                 b.Property(l => l.FirstName).HasMaxLength(128).HasColumnType("varchar(128)");
                 b.Property(l => l.LastName).HasMaxLength(128).HasColumnType("varchar(128)");
                 b.Property(l => l.AddressLine1).HasMaxLength(256).HasColumnType("varchar(256)");

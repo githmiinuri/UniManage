@@ -1,0 +1,252 @@
+﻿@model UniManage3.Models.ViewModels.LectureDashboardViewModel
+
+@{
+    ViewData["Title"] = "Lecturer Dashboard";
+}
+
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="bg-light p-4 rounded shadow-sm">
+                <h1 class="display-5">Welcome, @Model.LecturerName!</h1>
+                <p class="text-muted">Overview of your teaching activities and quick actions.</p>
+            </div>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="row mb-3">
+            <div class="col-12">
+                <div class="alert alert-warning">@Model.ErrorMessage</div>
+            </div>
+        </div>
+    }
+
+    <div class="row g-3 mb-4">
+        <div class="col-auto">
+            <a class="btn btn-outline-primary btn-lg" href="@Url.Action("Create", "CourseMaterials")">Upload Materials</a>
+            <a class="btn btn-outline-primary btn-lg" href="@Url.Action("Index", "Modules")">View Modules</a>
+        </div>
+        <div class="col-auto">
+            <a class="btn btn-outline-success btn-lg" href="@Url.Action("Index", "Assignments")">Manage Assignments</a>
+        </div>
+    </div>
+
+    <!-- KPI Row -->
+    <div class="row gy-3 mb-4">
+        <div class="col-sm-6 col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted">Total Enrolled Students</h6>
+                    <h3 class="card-title">@Model.TotalEnrolledStudents</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted">Ongoing Assignments</h6>
+                    <h3 class="card-title">@Model.OngoingAssignments</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted">Modules Assigned</h6>
+                    <h3 class="card-title">@Model.TotalModulesAssigned</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Assigned Courses -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <strong>Assigned Courses</strong>
+                </div>
+                <div class="card-body">
+                    @if (Model.AssignedCourses != null && Model.AssignedCourses.Any())
+                    {
+                        <div>
+                            @foreach (var course in Model.AssignedCourses)
+                            {
+                                <span class="badge bg-primary me-2 mb-2">@course.CourseCode - @course.CourseName</span>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted">No courses assigned yet.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Assigned Modules Grid -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="mb-0">Assigned Modules</h4>
+                <a class="btn btn-sm btn-outline-primary" href="@Url.Action("Index", "Modules")">View Modules</a>
+            </div>
+
+            @if (Model.AssignedModules != null && Model.AssignedModules.Any())
+            {
+                <div class="row row-cols-1 row-cols-md-3 g-3">
+                    @foreach (var mod in Model.AssignedModules)
+                    {
+                        <div class="col">
+                            <div class="card h-100 shadow-sm">
+                                <div class="card-body d-flex flex-column">
+                                    <h5 class="card-title">@mod.ModuleCode</h5>
+                                    <h6 class="card-subtitle mb-2 text-muted">@mod.ModuleName</h6>
+                                    <p class="mb-2 text-muted small">Course: @mod.Course?.CourseName</p>
+
+                                    <div class="mt-auto d-flex justify-content-between align-items-center">
+                                        <a class="btn btn-sm btn-outline-secondary" href="@Url.Action("Details", "Modules", new { id = mod.Id })">View</a>
+                                        <a class="btn btn-sm btn-primary" href="@Url.Action("Index", "CourseMaterials", new { moduleId = mod.Id })">Manage Materials</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <p class="text-muted">No modules assigned to you yet.</p>
+            }
+        </div>
+    </div>
+
+    <!-- Ongoing Assignments -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <strong>Ongoing Assignments</strong>
+                    <a class="btn btn-sm btn-outline-secondary" href="@Url.Action("Index", "Assignments")">View All Assignments</a>
+                </div>
+                <div class="card-body">
+                    @{
+                        var upcoming = Model.AssignedModules?
+                            .SelectMany(m => m.Assignments ?? new System.Collections.Generic.List<UniManage3.Models.Assignment>())
+                            .Where(a => a.DeadlineDate >= DateTime.Now)
+                            .OrderBy(a => a.DeadlineDate)
+                            .ToList();
+                    }
+
+                    @if (upcoming != null && upcoming.Any())
+                    {
+                        <div class="row row-cols-1 row-cols-md-3 g-3">
+                            @foreach (var a in upcoming)
+                            {
+                                <div class="col">
+                                    <div class="card h-100">
+                                        <div class="card-body">
+                                            <h6 class="card-title">@a.AssignmentName</h6>
+                                            <p class="card-text small text-muted">Module: @a.Module?.ModuleName</p>
+                                            <p class="mb-1"><strong>Due:</strong> @a.DeadlineDate.ToString("yyyy-MM-dd HH:mm")</p>
+                                            <p class="text-danger small">Time left: @((a.DeadlineDate - DateTime.Now).Days) days</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted">No ongoing assignments.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Student Submissions -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <strong>Recent Student Submissions</strong>
+                    <a class="btn btn-sm btn-outline-secondary" href="#">View All Submissions</a>
+                </div>
+                <div class="card-body p-0">
+                    @if (Model.RecentSubmissions != null && Model.RecentSubmissions.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Student</th>
+                                        <th>Assignment</th>
+                                        <th>Module</th>
+                                        <th>Submitted</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var s in Model.RecentSubmissions)
+                                    {
+                                        <tr>
+                                            <td>@s.StudentName</td>
+                                            <td>@s.AssignmentName</td>
+                                            <td>@s.ModuleName</td>
+                                            <td>@s.SubmittedDate.ToString("yyyy-MM-dd HH:mm")</td>
+                                            <td>@s.Status</td>
+                                            <td><button class="btn btn-sm btn-outline-primary" disabled>Review</button></td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted p-3 m-0">No recent submissions.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Grading Summaries -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <strong>Grading Summaries</strong>
+                </div>
+                <div class="card-body">
+                    @if (Model.GradingSummaries != null && Model.GradingSummaries.Any())
+                    {
+                        @foreach (var g in Model.GradingSummaries)
+                        {
+                            var pct = g.TotalSubmissions == 0 ? 0 : (int)Math.Round((double)g.GradedCount / g.TotalSubmissions * 100);
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between">
+                                    <div><strong>@g.ModuleName</strong> <span class="text-muted small">(@g.GradedCount / @g.TotalSubmissions graded)</span></div>
+                                    <div class="text-muted small">Avg: @g.AverageScore</div>
+                                </div>
+                                <div class="progress mt-2" style="height:14px;">
+                                    <div class="progress-bar" role="progressbar" style="width:@pct%" aria-valuenow="@pct" aria-valuemin="0" aria-valuemax="100">@pct%</div>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted">No grading summaries available.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

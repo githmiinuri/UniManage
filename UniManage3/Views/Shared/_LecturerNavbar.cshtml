@@ -1,0 +1,53 @@
+﻿@using System.Security.Claims
+<nav class= "navbar navbar-expand-lg navbar-light bg-white border-bottom" >
+    <div class="container-fluid">
+        <a class="navbar-brand" asp-controller="LectureDashboard" asp-action="Index">UniManage</a> <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#lecturerNavbar" aria-controls="lecturerNavbar" aria-expanded="false" aria-label="Toggle navigation"> <span class="navbar-toggler-icon"></span> </button>
+        <div class="collapse navbar-collapse" id="lecturerNavbar">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="LectureDashboard" asp-action="Index">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Modules" asp-action="Index">Modules</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="CourseMaterials" asp-action="Index">Materials</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Assignments" asp-action="Index">Assignments</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Reports" asp-action="Index">Reports</a>
+                </li>
+            </ul>
+
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="lecturerProfileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span class="me-2"><i class="bi bi-person-circle" aria-hidden="true"></i></span>
+                        <span class="d-none d-lg-inline">@User?.Identity?.Name</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="lecturerProfileDropdown">
+                        <li>
+                            <div class="px-3 py-2">
+                                <div class="fw-semibold">@User?.Identity?.Name</div>
+                                <div class="text-muted small">Role: Lecturer</div>
+                            </div>
+                        </li>
+                        <li><hr class="dropdown-divider" /></li>
+                        <li>
+                            <a class="dropdown-item" asp-controller="Account" asp-action="ManageProfile">Profile Management</a>
+                        </li>
+                        <li>
+                            @using (Html.BeginForm("Logout", "Account", FormMethod.Post, new { id = "logoutForm", @class = "navbar-right" }))
+                            {
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="dropdown-item">Logout</button>
+                            }
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>

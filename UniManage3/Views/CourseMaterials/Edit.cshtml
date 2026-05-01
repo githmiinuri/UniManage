@@ -1,0 +1,74 @@
+﻿@model UniManage3.Models.CourseMaterialUploadViewModel
+
+@{
+    ViewData["Title"] = "Edit Course Material";
+}
+
+<h1 class="mb-4">Edit Course Material</h1>
+
+<div class="row">
+    <div class="col-md-8">
+        <form asp-action="Edit" enctype="multipart/form-data">
+            <input type="hidden" asp-for="Id" />
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="mb-3">
+                <label asp-for="MaterialName" class="form-label"></label>
+                <input asp-for="MaterialName" class="form-control" />
+                <span asp-validation-for="MaterialName" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="MaterialType" class="form-label"></label>
+                <select asp-for="MaterialType" class="form-select" asp-items="ViewBag.MaterialTypes"></select>
+                <span asp-validation-for="MaterialType" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Description" class="form-label"></label>
+                <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Duration" class="form-label"></label>
+                <input asp-for="Duration" class="form-control" />
+                <span asp-validation-for="Duration" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="ModuleId" class="form-label"></label>
+                <select asp-for="ModuleId" class="form-select" asp-items="ViewBag.ModuleId"></select>
+                <span asp-validation-for="ModuleId" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Current File</label>
+                @if (!string.IsNullOrEmpty(Model.FilePath))
+                {
+                    <div class="mb-2">
+                        <a class="btn btn-outline-secondary btn-sm" asp-action="Download" asp-route-id="@Model.Id">Download current file</a>
+                        <span class="ms-2">@System.IO.Path.GetFileName(Model.FilePath)</span>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-muted">No file uploaded yet.</div>
+                }
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="UploadedFile" class="form-label">Replace File (optional)</label>
+                <input asp-for="UploadedFile" type="file" class="form-control" />
+                <span asp-validation-for="UploadedFile" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Save</button>
+            <a asp-action="Index" class="btn btn-secondary ms-2">Back to List</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

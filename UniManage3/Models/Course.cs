@@ -1,6 +1,10 @@
+<<<<<<< HEAD
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+=======
+﻿using System.ComponentModel.DataAnnotations;
+>>>>>>> 355f77b (#1 feat: Implement the lecturer flow)
 using System.Reflection;
 
 namespace UniManage3.Models
@@ -19,6 +23,7 @@ namespace UniManage3.Models
         public string CourseName { get; set; }
 
         public string Description { get; set; }
+<<<<<<< HEAD
 
         [Required]
         [Range(1, 10, ErrorMessage = "Credits must be between 1 and 10")]
@@ -44,6 +49,8 @@ namespace UniManage3.Models
         [ForeignKey("DepartmentId")]
         public virtual Department Department { get; set; }
 
+=======
+>>>>>>> 355f77b (#1 feat: Implement the lecturer flow)
         public virtual ICollection<Module> Modules { get; set; }
     }
 }

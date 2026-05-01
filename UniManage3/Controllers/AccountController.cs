@@ -92,6 +92,13 @@ namespace UniManage3.Controllers
                 {
                     return RedirectToAction("Index", "Admin");
                 }
+
+                // Redirect lecturers to Courses index
+                if (roleName == "Lecturer")
+                {
+                    return RedirectToAction("Index", "LectureDashboard");
+                }
+
                 return RedirectToAction("Index", "Home");
             }
 
@@ -123,7 +130,11 @@ namespace UniManage3.Controllers
 
             if (role == "Lecturer")
             {
+<<<<<<< HEAD
                 var exists = _db.Users.Any(u => u.Email == model.Email);
+=======
+                var exists = _db.Users.Any(l => l.Email == model.Email);
+>>>>>>> 355f77b (#1 feat: Implement the lecturer flow)
                 if (exists) { ModelState.AddModelError(string.Empty, "Email already registered"); return View("Registration", model); }
                 if (!int.TryParse(model.ContactNumber, out var contactInt))
                 {
@@ -168,6 +179,10 @@ namespace UniManage3.Controllers
                 };
                 _db.Lecturers.Add(lect);
                 _db.SaveChanges();
+<<<<<<< HEAD
+=======
+              
+>>>>>>> 355f77b (#1 feat: Implement the lecturer flow)
                 ViewData["Role"] = "Lecturer";
                 return View("RegistrationSuccess");
             }

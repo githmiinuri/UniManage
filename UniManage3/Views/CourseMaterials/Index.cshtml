@@ -1,0 +1,45 @@
+﻿@model IEnumerable<UniManage3.Models.CourseMaterial>
+
+@{
+    ViewData["Title"] = "Course Materials";
+}
+
+<h1 class="mb-4">Course Materials</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-success">Create New</a>
+</p>
+
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <thead class="table-light">
+            <tr>
+                <th>Material Name</th>
+                <th>Type</th>
+                <th>Description</th>
+                <th>Duration</th>
+                <th>Module</th>
+                <th>File</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+@foreach (var item in Model) {
+            <tr>
+                <td>@item.MaterialName</td>
+                <td>@item.MaterialType</td>
+                <td>@item.Description</td>
+                <td>@item.Duration</td>
+                <td>@item.Module?.ModuleName</td>
+                <td>@(string.IsNullOrEmpty(item.FilePath) ? "-" : System.IO.Path.GetFileName(item.FilePath))</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-primary me-1">Edit</a>
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info text-white me-1">Details</a>
+                    <a asp-action="Download" asp-route-id="@item.Id" class="btn btn-sm btn-success me-1">Download</a>
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a>
+                </td>
+            </tr>
+}
+        </tbody>
+    </table>
+</div>

@@ -1,0 +1,139 @@
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using UniManage3.Data;
+using UniManage3.Models;
+using UniManage3.Models.ViewModels;
+
+namespace UniManage3.Controllers.Lecture
+{
+    [Authorize(Roles = "Lecturer")]
+    public class LectureDashboardController : Controller
+    {
+        private readonly ApplicationDbContext _context;
+
+        public LectureDashboardController(ApplicationDbContext context)
+        {
+            _context = context;
+        }
+
+        // GET: LectureDashboard
+        public async Task<IActionResult> Index()
+        {
+            var vm = new LectureDashboardViewModel();
+
+            try
+            {
+                // Identify current user by common claims
+                var email = User?.Identity?.Name ?? User?.FindFirst(ClaimTypes.Email)?.Value;
+                if (string.IsNullOrEmpty(email))
+                {
+                    return Challenge();
+                }
+
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+                if (user == null)
+                {
+                    vm.ErrorMessage = "Unable to locate your user profile.";
+                    return View(vm);
+                }
+
+                var lecturer = await _context.Lecturers.FirstOrDefaultAsync(l => l.UserId == user.Id);
+                if (lecturer == null)
+                {
+                    vm.ErrorMessage = "No lecturer profile found for the current user.";
+                    return View(vm);
+                }
+
+                vm.LecturerName = string.IsNullOrWhiteSpace(lecturer.FirstName) && string.IsNullOrWhiteSpace(lecturer.LastName)
+                    ? user.FullName
+                    : (lecturer.FirstName + " " + lecturer.LastName).Trim();
+
+                // Fetch modules assigned to this lecturer. Include Course and Assignments.
+                var modules = await _context.Modules
+                    .Where(m => m.LecturerId == lecturer.Id)
+                    .Include(m => m.Course)
+                    .Include(m => m.Assignments)
+                    .AsNoTracking()
+                    .ToListAsync();
+
+                // Protect against null
+                modules = modules ?? new System.Collections.Generic.List<Module>();
+
+                vm.AssignedModules = modules;
+
+                // Derive distinct courses
+                var courses = modules
+                    .Where(m => m.Course != null)
+                    .Select(m => m.Course)
+                    .GroupBy(c => c.Id)
+                    .Select(g => g.First())
+                    .ToList();
+
+                vm.AssignedCourses = courses;
+
+                // KPIs
+                vm.TotalModulesAssigned = modules.Count;
+
+                // Count ongoing assignments: deadline >= now
+                var now = DateTime.Now;
+                vm.OngoingAssignments = modules
+                    .Where(m => m.Assignments != null)
+                    .SelectMany(m => m.Assignments)
+                    .Count(a => a.DeadlineDate >= now);
+
+                // Dummy total enrolled students: random between 50 and 200 scaled by number of courses (simple heuristic)
+                var rnd = new Random();
+                var baseValue = rnd.Next(50, 201);
+                vm.TotalEnrolledStudents = Math.Max(50, baseValue + (courses.Count * 5));
+
+                // --- Generate dummy recent submissions (3-5 items) ---
+                var submissions = new System.Collections.Generic.List<LectureDashboardViewModel.DummyStudentSubmission>();
+                var statuses = new[] { "Pending Review", "Graded", "Late Submission" };
+                var assns = modules.SelectMany(m => m.Assignments ?? new System.Collections.Generic.List<Assignment>()).ToList();
+                for (int i = 0; i < Math.Min(5, Math.Max(3, assns.Count)); i++)
+                {
+                    var assignment = assns.Any() ? assns[i % assns.Count] : null;
+                    var mod = assignment != null ? modules.FirstOrDefault(m => m.Id == assignment.ModuleId) : modules.ElementAtOrDefault(i % Math.Max(1, modules.Count));
+                    submissions.Add(new LectureDashboardViewModel.DummyStudentSubmission
+                    {
+                        StudentName = $"Student {rnd.Next(1000, 9999)}",
+                        AssignmentName = assignment?.AssignmentName ?? $"Assignment {i + 1}",
+                        ModuleName = mod?.ModuleName ?? "General",
+                        SubmittedDate = DateTime.Now.AddDays(-rnd.Next(0, 7)),
+                        Status = statuses[rnd.Next(statuses.Length)]
+                    });
+                }
+                vm.RecentSubmissions = submissions;
+
+                // --- Generate dummy grading summaries (2-3 items) ---
+                var grading = new System.Collections.Generic.List<LectureDashboardViewModel.DummyGradingSummary>();
+                var modulesForSummary = modules.Take(3).ToList();
+                for (int i = 0; i < Math.Max(1, modulesForSummary.Count); i++)
+                {
+                    var m = modulesForSummary[i];
+                    var total = rnd.Next(10, 41);
+                    var graded = rnd.Next(0, total + 1);
+                    grading.Add(new LectureDashboardViewModel.DummyGradingSummary
+                    {
+                        ModuleName = m.ModuleName,
+                        TotalSubmissions = total,
+                        GradedCount = graded,
+                        AverageScore = Math.Round(50 + rnd.NextDouble() * 50, 2)
+                    });
+                }
+                vm.GradingSummaries = grading;
+            }
+            catch (Exception ex)
+            {
+                vm.ErrorMessage = "An error occurred while loading the dashboard." + " " + ex.Message;
+            }
+
+            return View(vm);
+        }
+    }
+}

@@ -1,0 +1,36 @@
+﻿@model UniManage3.Models.CourseMaterial
+
+@{
+    ViewData["Title"] = "Course Material Details";
+}
+
+<h1 class="mb-4">Course Material Details</h1>
+
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">@Model.MaterialName</h5>
+        <h6 class="card-subtitle mb-2 text-muted">@Model.Module?.ModuleName</h6>
+
+        <dl class="row">
+            <dt class="col-sm-3">Type</dt>
+            <dd class="col-sm-9">@Model.MaterialType</dd>
+
+            <dt class="col-sm-3">Description</dt>
+            <dd class="col-sm-9">@Model.Description</dd>
+
+            <dt class="col-sm-3">Duration</dt>
+            <dd class="col-sm-9">@Model.Duration</dd>
+
+            <dt class="col-sm-3">File</dt>
+            <dd class="col-sm-9">@(!string.IsNullOrEmpty(Model.FilePath) ? System.IO.Path.GetFileName(Model.FilePath) : "-")</dd>
+        </dl>
+
+        @if (!string.IsNullOrEmpty(Model.FilePath))
+        {
+            <a asp-action="Download" asp-route-id="@Model.Id" class="btn btn-success me-2">Download File</a>
+        }
+
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary me-2">Edit</a>
+        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+    </div>
+</div>
