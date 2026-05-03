@@ -157,11 +157,8 @@ namespace UniManage3.Controllers
 
                     _db.Add(course);
                     await _db.SaveChangesAsync();
-                    if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
-                    {
-                        return Json(new { success = true, id = course.Id });
-                    }
-                    return RedirectToAction(nameof(Index));
+                    // Always return JSON success for modal-based flows (caller handles navigation)
+                    return Json(new { success = true, id = course.Id });
                 }
                 catch (Exception ex)
                 {
@@ -278,11 +275,8 @@ namespace UniManage3.Controllers
                         if (!CourseExists(course.Id)) return NotFound();
                         throw;
                     }
-                    if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
-                    {
-                        return Json(new { success = true, id = existing.Id });
-                    }
-                    return RedirectToAction(nameof(Index));
+                    // Return JSON so modal caller can hide and refresh
+                    return Json(new { success = true, id = existing.Id });
                 }
                 catch (Exception ex)
                 {

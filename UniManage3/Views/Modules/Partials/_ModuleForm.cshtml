@@ -1,5 +1,6 @@
 @model UniManage3.Models.Module
 <form id="moduleForm" method="post" action="@Url.Action("Create","Modules")">
+    @Html.AntiForgeryToken()
     <input type="hidden" name="CourseId" value="@Model.CourseId" />
     <div class="mb-2">
         <label>Module Code</label>
@@ -29,26 +30,38 @@
         var form = document.getElementById('moduleForm');
         if(!form) return;
         form.addEventListener('submit', function(e){
+            // prevent default and ensure AJAX only
             e.preventDefault();
+            e.stopPropagation();
             var fd = new FormData(form);
-            fetch(form.getAttribute('action'), { method: 'POST', body: fd, headers: { 'X-Requested-With': 'XMLHttpRequest' } })
-                .then(r => r.json())
+            // include antiforgery token header if present on page
+            var token = document.querySelector('input[name="__RequestVerificationToken"]');
+            var headers = { 'X-Requested-With': 'XMLHttpRequest' };
+            if (token) headers['RequestVerificationToken'] = token.value;
+            fetch(form.getAttribute('action'), { method: 'POST', body: fd, headers: headers })
+                .then(function(response){
+                    var ct = response.headers.get('content-type') || '';
+                    if (ct.indexOf('application/json') !== -1) return response.json();
+                    return response.text();
+                })
                 .then(function(data){
-                    if (data && data.success) {
-                        // attempt to refresh the course row
+                    if (data && typeof data === 'object' && data.success) {
                         var cid = data.courseId || fd.get('CourseId');
                         if (cid) {
                             fetch('/Courses/Row?id=' + cid, { headers: { 'X-Requested-With': 'XMLHttpRequest' } }).then(r => r.text()).then(html => {
                                 var temp = document.createElement('tbody'); temp.innerHTML = html; var newRow = temp.querySelector('tr'); var old = document.getElementById('course-row-' + cid); if (old && newRow) old.replaceWith(newRow); else location.reload();
                             }).finally(function(){ var modalEl = document.getElementById('courseModal'); if(modalEl) bootstrap.Modal.getInstance(modalEl)?.hide(); });
                         } else {
-                            location.reload();
+                            // close modal and reload
+                            var modalEl = document.getElementById('courseModal'); if(modalEl) bootstrap.Modal.getInstance(modalEl)?.hide();
+                            window.location.reload();
                         }
-                    } else {
-                        // show returned HTML
+                    } else if (typeof data === 'string') {
                         document.getElementById('courseModalBody').innerHTML = data;
+                    } else {
+                        window.location.reload();
                     }
-                }).catch(function(){ location.reload(); });
+                }).catch(function(){ window.location.reload(); });
         });
     })();
 </script>
