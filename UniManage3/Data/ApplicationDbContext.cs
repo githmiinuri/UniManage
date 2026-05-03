@@ -15,6 +15,7 @@ namespace UniManage3.Data
         public DbSet<Student> Students { get; set; }
         public DbSet<User> Users { get; set; }
 
+        public DbSet<Department> Departments { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -87,6 +88,24 @@ namespace UniManage3.Data
                 b.Property(u => u.IsApproved).HasColumnType("tinyint(1)");
                 b.Property(u => u.CreatedAt).HasColumnType("datetime");
                 b.Property(u => u.LastLogin).HasColumnType("datetime");
+            });
+
+            modelBuilder.Entity<Department>(b =>
+            {
+                b.HasKey(d => d.Id);
+                b.Property(d => d.DepartmentName).IsRequired().HasMaxLength(255).HasColumnType("varchar(255)");
+                b.Property(d => d.DepartmentCode).IsRequired().HasMaxLength(50).HasColumnType("varchar(50)");
+                b.HasIndex(d => d.DepartmentCode).IsUnique();
+                b.Property(d => d.Description).HasColumnType("text");
+                b.Property(d => d.HeadOfDepartmentId).HasColumnType("int");
+                b.Property(d => d.CreatedAt).HasColumnType("datetime").HasDefaultValueSql("CURRENT_TIMESTAMP");
+                b.Property(d => d.UpdatedAt).HasColumnType("datetime").HasDefaultValueSql("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
+
+                // Relationship to Lecturer (Head of Department)
+                b.HasOne(d => d.HeadOfDepartment)
+                 .WithMany()
+                 .HasForeignKey(d => d.HeadOfDepartmentId)
+                 .OnDelete(DeleteBehavior.SetNull);
             });
         }
     }

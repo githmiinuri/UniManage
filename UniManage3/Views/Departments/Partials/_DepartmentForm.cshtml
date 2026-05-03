@@ -1,0 +1,55 @@
+@model UniManage3.Models.Department
+@using Microsoft.AspNetCore.Mvc.Rendering
+
+<div class="department-form px-2">
+    <form id="departmentForm" method="post" action="@Url.Action(Model.Id == 0 ? "Create" : "Edit", "Departments")">
+        @Html.AntiForgeryToken()
+
+        @if (Model.Id != 0)
+        {
+            <input type="hidden" name="Id" value="@Model.Id" />
+        }
+
+        <div class="mb-3">
+            <label class="form-label fw-bold">Department Code</label>
+            <input name="DepartmentCode" class="form-control" value="@Model.DepartmentCode" placeholder="e.g., SOC" required />
+            @Html.ValidationMessageFor(m => m.DepartmentCode, "", new { @class = "text-danger small" })
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label fw-bold">Department Name</label>
+            <input name="DepartmentName" class="form-control" value="@Model.DepartmentName" placeholder="e.g., School of Computing" required />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label fw-bold">Head of Department</label>
+            <select name="HeadOfDepartmentId" class="form-select" id="headSelectPartial">
+                <option value="">-- Not Appointed Yet --</option>
+                @if (ViewBag.Lecturers != null)
+                {
+                    foreach (var item in (SelectList)ViewBag.Lecturers)
+                    {
+                        if (item.Value == Model.HeadOfDepartmentId?.ToString())
+                        {
+                            <option value="@item.Value" selected="selected">@item.Text</option>
+                        }
+                        else
+                        {
+                            <option value="@item.Value">@item.Text</option>
+                        }
+                    }
+                }
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label fw-bold">Description</label>
+            <textarea name="Description" class="form-control" rows="3">@Model.Description</textarea>
+        </div>
+
+        <div class="d-flex gap-2 justify-content-end mt-4">
+            <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary px-4">Save Changes</button>
+        </div>
+    </form>
+</div>

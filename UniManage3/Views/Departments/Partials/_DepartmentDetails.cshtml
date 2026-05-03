@@ -1,0 +1,16 @@
+@model UniManage3.Models.Department
+<div class="department-details">
+    <dl class="row">
+        <dt class="col-sm-3">Department Code</dt>
+        <dd class="col-sm-9">@Model.DepartmentCode</dd>
+
+        <dt class="col-sm-3">Department Name</dt>
+        <dd class="col-sm-9">@Model.DepartmentName</dd>
+
+    <dt class="col-sm-3">Head of Department</dt>
+    <dd class="col-sm-9">@((Model.HeadOfDepartmentId==null) ? "Not appointed yet" : (Model.HeadOfDepartment?.User?.FullName ?? (Model.HeadOfDepartment!=null?Model.HeadOfDepartment.FirstName+" "+Model.HeadOfDepartment.LastName:"Not appointed yet")))</dd>
+
+        <dt class="col-sm-3">Description</dt>
+        <dd class="col-sm-9">@Model.Description</dd>
+    </dl>
+</div>

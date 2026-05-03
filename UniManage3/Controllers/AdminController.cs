@@ -99,6 +99,12 @@ namespace UniManage3.Controllers
             return View("Admin");
         }
 
+        // Forwarding action so /Admin/Departments works and opens the Departments view
+        public IActionResult Departments(string searchTerm = null)
+        {
+            return RedirectToAction("Index", "Departments", new { searchTerm });
+        }
+
         // Diagnostic/plain admin page that does not use the shared layout.
         public IActionResult Plain()
         {

@@ -1,0 +1,682 @@
+@model IEnumerable<UniManage3.Models.Department>
+@using Microsoft.AspNetCore.Mvc.Rendering
+@inject UniManage3.Data.ApplicationDbContext _db
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Department Management";
+    var email = User?.Identity?.Name;
+    var fullName = _db.Users.FirstOrDefault(u => u.Email == email)?.FullName ?? email ?? "Administrator";
+}
+
+<style>
+    :root {
+        /* Core Branding & Sidebar Variables from Student Management */
+        --gradient: linear-gradient(135deg, #0b4f8a 0%, #6d28d9 100%);
+        --sidebar-width: 260px;
+        --sidebar-collapsed: 64px;
+        --accent-blue: #0b4f8a;
+        --light-blue: #9fc8ff;
+        --muted: #6c757d;
+        --card-shadow: 0 8px 20px rgba(12,42,80,0.06);
+        --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+    }
+
+    body {
+        font-family: var(--font-stack);
+        background: #f8fafc;
+        color: #0b2b4a;
+        margin: 0;
+    }
+
+    .admin-shell {
+        display: flex;
+        min-height: 100vh
+    }
+    /* ensure submenu stacking and positioning */
+    .has-submenu {
+        position: relative
+    }
+
+        .has-submenu .submenu {
+            position: relative;
+            z-index: 5;
+            pointer-events: auto
+        }
+
+        .has-submenu .submenu-toggle {
+            z-index: 6
+        }
+
+    /* --- SIDEBAR STRUCTURE (Merged from Student Management) --- */
+    .left-bar {
+        width: var(--sidebar-width);
+        background: var(--gradient);
+        color: #eaf4ff;
+        padding: 18px 12px;
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        transition: width .25s ease-in-out
+    }
+
+        .left-bar.collapsed {
+            width: var(--sidebar-collapsed)
+        }
+
+        .left-bar .logo-top {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 8px
+        }
+
+    .logo-mark {
+        display: flex;
+        align-items: center;
+        gap: 10px
+    }
+
+        .logo-mark svg {
+            background: transparent
+        }
+
+    .brand-name {
+        font-weight: 700;
+        color: #eafbff
+    }
+
+    .logo-username {
+        font-size: .9rem;
+        color: rgba(255,255,255,0.9);
+        margin-top: 12px
+    }
+
+    .menu {
+        margin-top: 20px
+    }
+
+        .menu .section {
+            margin-bottom: 12px
+        }
+
+        .menu a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 10px;
+            border-radius: 8px;
+            color: rgba(255,255,255,0.92);
+            text-decoration: none;
+            margin-bottom: 6px
+        }
+
+            .menu a .icon {
+                width: 26px;
+                height: 26px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 6px
+            }
+
+            .menu a:hover {
+                background: rgba(255,255,255,0.06);
+                color: #eaf4ff
+            }
+
+            .menu a.active {
+                background: rgba(255,255,255,0.12);
+                box-shadow: var(--card-shadow)
+            }
+
+        .menu .small {
+            font-size: .85rem;
+            color: rgba(255,255,255,0.85)
+        }
+
+        .menu .sep {
+            height: 1px;
+            background: rgba(255,255,255,0.06);
+            margin: 12px 0;
+            border-radius: 2px
+        }
+
+    .bottom-actions {
+        position: absolute;
+        bottom: 18px;
+        left: 12px;
+        right: 12px;
+        padding-right: 8px
+    }
+
+        .bottom-actions a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px;
+            border-radius: 8px;
+            color: rgba(255,255,255,0.9);
+            text-decoration: none
+        }
+    /* submenu styles */
+    .has-submenu .submenu-toggle {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        justify-content: space-between;
+        width: 100%;
+    }
+
+    .has-submenu .chev {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transform: rotate(0);
+        transition: transform .18s ease
+    }
+
+    .has-submenu .submenu {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height .22s ease,opacity .18s ease;
+        padding-left: 36px;
+        opacity: 0
+    }
+
+        .has-submenu .submenu a.sub-action {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 8px;
+            border-radius: 6px;
+            color: rgba(255,255,255,0.9);
+            text-decoration: none;
+            margin: 4px 0
+        }
+
+            .has-submenu .submenu a.sub-action .icon {
+                width: 18px;
+                height: 18px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 4px;
+                flex: 0 0 18px
+            }
+
+    .has-submenu.open .chev {
+        transform: rotate(90deg)
+    }
+
+    .has-submenu.open .submenu {
+        opacity: 1;
+        max-height: 400px
+    }
+    /* style the submenu-toggle when it's a button so it matches links */
+    .has-submenu .submenu-toggle {
+        background: transparent;
+        border: none;
+        padding: 8px 10px;
+        cursor: pointer;
+        color: inherit;
+        font: inherit;
+        text-align: left;
+        width: 100%;
+        display: flex;
+        align-items: center
+    }
+
+        .has-submenu .submenu-toggle.active {
+            background: rgba(255,255,255,0.12);
+            box-shadow: var(--card-shadow)
+        }
+    /* hide native scrollbar but allow programmatic scrolling */
+    .menu-inner {
+        max-height: calc(100vh - 240px);
+        overflow: auto;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+        .menu-inner::-webkit-scrollbar {
+            display: none;
+        }
+
+    /* --- CONTENT AREA & DEPARTMENT SPECIFIC STYLES --- */
+    .content-wrap {
+        margin-left: var(--sidebar-width);
+        flex: 1;
+        padding: 28px;
+        transition: margin-left .25s ease-in-out
+    }
+
+    .left-bar.collapsed + .content-wrap {
+        margin-left: var(--sidebar-collapsed)
+    }
+
+    .page-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        margin-bottom: 18px;
+    }
+
+    .page-title {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: var(--accent-blue);
+    }
+
+    .page-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px
+    }
+
+    .card {
+        background: #fff;
+        border-radius: 12px;
+        padding: 16px;
+        box-shadow: var(--card-shadow);
+    }
+
+    /* Counters, Search, and Table (Department Specific) */
+    .counter-row {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+
+    .counter {
+        flex: 0 0 180px;
+        background: #fff;
+        border-radius: 10px;
+        padding: 12px;
+        box-shadow: var(--card-shadow);
+        border: 1px solid #eef3fb;
+    }
+
+    .search-bar {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .table th, .table td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #eef3fb;
+            text-align: left;
+        }
+
+    /* Buttons & Modals */
+    .btn {
+        background: var(--accent-blue);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .btn-secondary {
+        background: transparent;
+        border: 1px solid #e6eefc;
+        padding: 8px 16px;
+        border-radius: 8px;
+        color: var(--accent-blue);
+    }
+
+    .modal-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.4);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 1050;
+    }
+
+    .modal {
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        max-width: 600px;
+        width: 95%;
+        box-shadow: var(--card-shadow);
+    }
+
+    .searchable-select {
+        width: 100%;
+        padding: 10px;
+        border-radius: 8px;
+        border: 1px solid #e6eefc;
+    }
+
+    @@media (max-width: 900px) {
+        .left-bar {
+            position: relative;
+            width: 100%;
+            height: auto;
+        }
+
+        .content-wrap {
+            margin-left: 0;
+            padding: 12px;
+        }
+    }
+</style>
+
+<div class="admin-shell">
+    <aside class="left-bar" id="leftBar">
+        <div class="logo-top">
+            <div class="logo-mark">
+                <div style="width:56px;height:56px;border-radius:12px;background:white;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(11,79,138,0.12);">
+                    <!-- exact login logo SVG -->
+                    <svg width="56" height="56" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <rect width="64" height="64" rx="12" fill="white" />
+                        <path d="M32 4 L12 14 L32 24 L52 14 L32 4 Z" fill="#0b4f8a" />
+                        <path d="M20 30 C24 34, 28 36, 32 36 C36 36,40 34,44 30 V46 C44 50,40 54,32 54 C24 54,20 50,20 46 V30 Z" fill="#6ea8fe" opacity="0.95" />
+                        <path d="M32 34 C28 34,24 32,20 28" stroke="#0b4f8a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+                    </svg>
+                </div>
+                <div class="brand-name">UniManage</div>
+            </div>
+        </div>
+        <div class="logo-username" style="display:flex;align-items:center;gap:8px;margin-top:12px">
+            <!-- profile icon + full name -->
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" style="flex:0 0 32px;border-radius:50%;background:rgba(255,255,255,0.06);padding:4px">
+                <path d="M12 12a4 4 0 100-8 4 4 0 000 8z" stroke="#eaf4ff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
+                <path d="M4 20v-1c0-2.2 3.6-4 8-4s8 1.8 8 4v1" stroke="#eaf4ff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <div style="color:rgba(255,255,255,0.95);font-weight:600">@fullName</div>
+        </div>
+
+        <nav class="menu">
+            <div class="menu-inner" id="menuInner">
+                <div class="section">
+                    <a href="/Admin/Index"><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 13h8V3H3v10zM13 21h8v-6h-8v6zM13 3v6h8V3h-8zM3 21h8v-8H3v8z" stroke="#9fc8ff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" /></svg></span><span class="small">Dashboard</span></a>
+                    <div class="has-submenu" tabindex="0" role="button">
+                        <button type="button" class="submenu-toggle" aria-expanded="false" aria-controls="userMgmtSub" onclick="toggleSub(this)">
+                            <span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M16 11c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM8 11c1.657 0 3-1.343 3-3S9.657 5 8 5 5 6.343 5 8s1.343 3 3 3zM8 13c-2.667 0-8 1.333-8 4v2h16v-2c0-2.667-5.333-4-8-4z" stroke="#9fc8ff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" /></svg></span>
+                            <span class="small">User Management</span>
+                            <span class="chev" aria-hidden="true">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="#eaf4ff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                            </span>
+                        </button>
+
+                        <div id="userMgmtSub" class="submenu" role="region" aria-hidden="true">
+                            <a href="/Admin/StudentManagement" class="sub-action">
+                                <span class="icon" aria-hidden="true">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="4" width="14" height="14" rx="2" stroke="#9fc8ff" stroke-width="1.2" /><path d="M7 8h8" stroke="#9fc8ff" stroke-width="1.2" stroke-linecap="round" /></svg>
+                                </span>
+                                <span class="small">Student Management</span>
+                            </a>
+                            <a href="/Admin/LecturerManagement" class="sub-action">
+                                <span class="icon" aria-hidden="true">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2v6" stroke="#9fc8ff" stroke-width="1.2" stroke-linecap="round" /><path d="M6 8c0 3 3 5 6 5s6-2 6-5" stroke="#9fc8ff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" /><path d="M4 20v-1c0-2 4-3 8-3s8 1 8 3v1" stroke="#9fc8ff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                                </span>
+                                <span class="small">Lecturer Management</span>
+                            </a>
+                            <a href="/Admin/AdministratorManagement" class="sub-action">
+                                <span class="icon" aria-hidden="true">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l6 3v5c0 5-6 9-6 9s-6-4-6-9V5l6-3z" stroke="#9fc8ff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                                </span>
+                                <span class="small">Administrator Management</span>
+                            </a>
+                        </div>
+                    </div>
+                    <a href="#"><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" stroke="#9fc8ff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" /><circle cx="12" cy="7" r="4" stroke="#9fc8ff" stroke-width="1.2" /></svg></span><span class="small">Students</span></a>
+                    <a href="#"><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z" stroke="#9fc8ff" stroke-width="1.2" /><path d="M4 20v-1c0-2.21 3.58-4 8-4s8 1.79 8 4v1" stroke="#9fc8ff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" /></svg></span><span class="small">Lecturers</span></a>
+                    <a href="/Admin/Departments"><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="4" width="16" height="16" rx="1" stroke="#9fc8ff" stroke-width="1.2" fill="none" /><path d="M8 20v-8h8v8" stroke="#9fc8ff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" /><path d="M10 8v2M14 8v2" stroke="#9fc8ff" stroke-width="1.2" stroke-linecap="round" /></svg></span><span class="small">Departments</span></a>
+                    <a href="#"><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="14" rx="2" stroke="#9fc8ff" stroke-width="1.2" /><path d="M7 8h10" stroke="#9fc8ff" stroke-width="1.2" stroke-linecap="round" /></svg></span><span class="small">Courses</span></a>
+                    <a href="#"><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 6h18" stroke="#9fc8ff" stroke-width="1.4" stroke-linecap="round" /><path d="M12 6v14" stroke="#9fc8ff" stroke-width="1.4" stroke-linecap="round" /></svg></span><span class="small">Classes</span></a>
+                    <a href="#"><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="14" rx="2" stroke="#9fc8ff" stroke-width="1.2" /><path d="M7 21h10" stroke="#9fc8ff" stroke-width="1.2" stroke-linecap="round" /></svg></span><span class="small">Events</span></a>
+                    <a href="#"><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 3h18v18H3z" stroke="#9fc8ff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" /></svg></span><span class="small">Library</span></a>
+                    <a href="#"><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 3v18h18" stroke="#9fc8ff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" /></svg></span><span class="small">Enrollment Statistics</span></a>
+                    <a href="#"><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="2" stroke="#9fc8ff" stroke-width="1.0" /><path d="M7 7h10v10H7z" stroke="#9fc8ff" stroke-width="1.0" /></svg></span><span class="small">Reports</span></a>
+                    <a href="#"><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2l9 21H3L12 2z" stroke="#9fc8ff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" /></svg></span><span class="small">Performance</span></a>
+                    <a href="/Account/EditProfile"><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z" stroke="#9fc8ff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" fill="none" /><path d="M20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" stroke="#9fc8ff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" fill="none" /></svg></span><span class="small">Edit Profile</span></a>
+                </div>
+
+            </div>
+        </nav>
+
+        <div style="position:absolute;left:12px;right:12px;bottom:18px">
+            <div style="display:flex;flex-direction:column;gap:8px">
+                <form asp-controller="Account" asp-action="Logout" method="post" style="margin:0">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn" style="width:100%; height:40px; background:#ff4d4f; color:white; border-radius:8px; padding:0; border:none; display:flex; justify-content:center; align-items:center; text-align:center; cursor:pointer;">
+                        Logout
+                    </button>
+                </form>
+            </div>
+        </div>
+    </aside>
+
+    <main class="content-wrap">
+        <div class="page-header">
+            <div>
+                <div class="page-title">Department Management</div>
+                <div class="text-muted">@DateTime.UtcNow.ToString("MMMM d, dddd")</div>
+            </div>
+            <div class="page-actions">
+                <button id="btnCreate" class="btn">Create New Department</button>
+            </div>
+        </div>
+
+        <div class="counter-row">
+            <div class="counter card">
+                <div class="small text-muted">Total Departments</div>
+                <div style="font-weight:700;font-size:1.4rem;color:var(--accent-blue)">@((Model==null)?0:Model.Count())</div>
+            </div>
+            <div class="counter card">
+                <div class="small text-muted">Assigned Heads</div>
+                <div style="font-weight:700;font-size:1.4rem;color:var(--accent-blue)">@((Model==null)?0:Model.Count(d => d.HeadOfDepartmentId != null))</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+                <div class="search-bar">
+                    <form method="get" action="@Url.Action("Index","Departments")" style="display:flex;gap:8px;align-items:center">
+                        <input name="searchTerm" class="form-control" placeholder="Search by Department Code" value="@(ViewBag.SearchTerm ?? "")" style="min-width:360px;" />
+                        <button class="btn" type="submit">Search</button>
+                        <button type="button" id="btnRefresh" class="btn" onclick="window.location='@Url.Action("Index","Departments")'">Refresh</button>
+                    </form>
+                </div>
+            </div>
+
+            <div style="overflow:auto">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th style="width:60px">No</th>
+                            <th>Dept Code</th>
+                            <th>Dept Name</th>
+                            <th>Head of Department</th>
+                            <th style="width:260px">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @{ var i = 0; foreach(var d in Model ?? Enumerable.Empty<UniManage3.Models.Department>()) { i++; }
+                       var rows = Model ?? Enumerable.Empty<UniManage3.Models.Department>();
+                       var rownum = 0;
+                    }
+                    @foreach(var d in rows)
+                    {
+                        rownum++;
+                        <tr>
+                            <td>@rownum</td>
+                            <td>@d.DepartmentCode</td>
+                            <td>@d.DepartmentName</td>
+                            <td>@(d.HeadOfDepartment != null ? (d.HeadOfDepartment.User?.FullName ?? (d.HeadOfDepartment.FirstName + " " + d.HeadOfDepartment.LastName)) : "Not appointed yet")</td>
+                            <td class="actions d-flex gap-2" style="align-items:center;min-width:280px">
+                                <button class="btn" data-action="edit" data-id="@d.Id">Edit</button>
+                                <button class="btn" data-action="details" data-id="@d.Id">Details</button>
+                                <form method="post" asp-action="Delete" asp-controller="Departments" asp-route-id="@d.Id" style="display:inline-block;margin:0">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn">Delete</button>
+                                </form>
+                             
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Bootstrap modal for Create / Edit / Details -->
+<div class="modal fade" id="deptModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header" style="background:var(--accent-blue);color:white">
+        <h5 class="modal-title" id="deptModalTitle">Department</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="deptModalBody">
+        <!-- content loaded via AJAX -->
+      </div>
+    </div>
+  </div>
+</div>
+
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function(){
+
+            // --- 1. SIDEBAR SUBMENU LOGIC ---
+            // Handles opening/closing the "User Management" dropdown
+            document.querySelectorAll('.submenu-toggle').forEach(function(btn){
+                btn.addEventListener('click', function(e){
+                    e.preventDefault();
+                    e.stopPropagation();
+                    var parent = btn.closest('.has-submenu');
+                    if (!parent) return;
+                    var submenu = parent.querySelector('.submenu');
+                    var isOpen = !parent.classList.contains('open');
+
+                    parent.classList.toggle('open', isOpen);
+                    btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+                    // We only toggle 'active' here if it's NOT already the primary active item
+                    if(!btn.classList.contains('active-page')) {
+                        btn.classList.toggle('active', isOpen);
+                    }
+
+                    if (submenu) {
+                        submenu.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
+                        submenu.style.maxHeight = isOpen ? submenu.scrollHeight + 'px' : '0';
+                        submenu.style.opacity = isOpen ? '1' : '0';
+                    }
+
+                    // Close other submenus if they exist
+                    document.querySelectorAll('.has-submenu').forEach(function(h){
+                        if (h === parent) return;
+                        h.classList.remove('open');
+                        var s = h.querySelector('.submenu');
+                        if (s) { s.setAttribute('aria-hidden','true'); s.style.maxHeight='0'; s.style.opacity='0'; }
+                        var t = h.querySelector('.submenu-toggle');
+                        if (t) { t.setAttribute('aria-expanded','false'); t.classList.remove('active'); }
+                    });
+                });
+            });
+
+            // --- 2. THE FIX: MANUAL HIGHLIGHTING FOR DEPARTMENTS ---
+            (function forceDepartmentActive(){
+                // 1. Remove 'active' from everything else
+                document.querySelectorAll('.menu a, .submenu-toggle').forEach(function(el){
+                    el.classList.remove('active');
+                });
+
+                // 2. Find the Departments link by its text and force it to be active
+                // This is the most reliable way when URL paths are inconsistent
+                var sidebarLinks = document.querySelectorAll('.menu a');
+                sidebarLinks.forEach(function(link) {
+                    if (link.innerText.trim() === "Departments") {
+                        link.classList.add('active');
+                    }
+                });
+            })();
+
+            // --- 3. DEPARTMENT MODAL & AJAX LOGIC ---
+            (function initDepartmentActions(){
+                var modalEl = document.getElementById('deptModal');
+                if(!modalEl) return;
+                var deptModal = new bootstrap.Modal(modalEl);
+
+                var btnCreate = document.getElementById('btnCreate');
+                if(btnCreate){
+                    btnCreate.addEventListener('click', function(){
+                        fetch('@Url.Action("CreateModal", "Departments")')
+                            .then(r => r.text())
+                            .then(html => {
+                                document.getElementById('deptModalBody').innerHTML = html;
+                                deptModal.show();
+                                attachFormHandler();
+                            });
+                    });
+                }
+
+                document.querySelectorAll('button[data-action]').forEach(function(btn){
+                    btn.addEventListener('click', function(){
+                        var id = btn.getAttribute('data-id');
+                        var action = btn.getAttribute('data-action');
+                        if(action === 'edit'){
+                            fetch('@Url.Action("EditModal", "Departments")?id=' + id)
+                                .then(r => r.text())
+                                .then(html => {
+                                    document.getElementById('deptModalBody').innerHTML = html;
+                                    deptModal.show();
+                                    attachFormHandler();
+                                });
+                        } else if(action === 'details'){
+                            fetch('@Url.Action("DetailsModal", "Departments")?id=' + id)
+                                .then(r => r.text())
+                                .then(html => {
+                                    document.getElementById('deptModalBody').innerHTML = html;
+                                    deptModal.show();
+                                });
+                        }
+                    });
+                });
+
+                function attachFormHandler(){
+                    var form = document.getElementById('departmentForm');
+                    if(!form) return;
+                    form.addEventListener('submit', function(e){
+                        e.preventDefault();
+                        var fd = new FormData(form);
+                        var url = form.getAttribute('action');
+                        fetch(url, { method: 'POST', body: fd })
+                            .then(r => {
+                                if(r.redirected) { location.href = r.url; return; }
+                                return r.text();
+                            })
+                            .then(text => {
+                                try {
+                                    var json = JSON.parse(text);
+                                    if(json.success) location.reload();
+                                } catch(ex) {
+                                    document.getElementById('deptModalBody').innerHTML = text;
+                                    attachFormHandler();
+                                }
+                            });
+                    });
+                }
+            })();
+        });
+    </script>
+}
