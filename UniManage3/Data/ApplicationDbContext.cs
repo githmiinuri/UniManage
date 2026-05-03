@@ -16,6 +16,10 @@ namespace UniManage3.Data
         public DbSet<User> Users { get; set; }
 
         public DbSet<Department> Departments { get; set; }
+        public DbSet<Course> Courses { get; set; }
+
+        public DbSet<Enrollment> Enrollments { get; set; }
+        public DbSet<Module> Modules { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -106,6 +110,92 @@ namespace UniManage3.Data
                  .WithMany()
                  .HasForeignKey(d => d.HeadOfDepartmentId)
                  .OnDelete(DeleteBehavior.SetNull);
+            });
+
+            modelBuilder.Entity<Course>(b =>
+            {
+                b.HasKey(c => c.Id);
+
+                // Basic property configurations
+                b.Property(c => c.CourseCode)
+                    .IsRequired()
+                    .HasMaxLength(100)
+                    .HasColumnType("varchar(100)");
+
+                b.Property(c => c.CourseName)
+                    .IsRequired()
+                    .HasMaxLength(255)
+                    .HasColumnType("varchar(255)");
+
+                b.Property(c => c.Description)
+                    .HasColumnType("text");
+
+                b.Property(c => c.Credits)
+                    .IsRequired()
+                    .HasColumnType("int");
+
+                b.Property(c => c.PrerequisiteCourseId)
+                    .HasColumnType("int");
+
+                // Configure the self-referencing relationship for Prerequisites
+                b.HasOne(c => c.PrerequisiteCourse)
+                 .WithMany() // A course can be a prerequisite for many other courses
+                 .HasForeignKey(c => c.PrerequisiteCourseId)
+                 .OnDelete(DeleteBehavior.Restrict);
+
+                // Note: Restrict is used here to prevent accidental deletion 
+                // of a required prerequisite course.
+
+                b.Property(c => c.IsActive).HasColumnType("tinyint(1)").HasDefaultValue(1);
+
+                b.HasOne(c => c.Coordinator)
+                 .WithMany()
+                 .HasForeignKey(c => c.CoordinatorId)
+                 .OnDelete(DeleteBehavior.SetNull);
+
+                // Department relationship
+                b.Property(c => c.DepartmentId).HasColumnType("int");
+                b.HasOne(c => c.Department)
+                 .WithMany()
+                 .HasForeignKey(c => c.DepartmentId)
+                 .OnDelete(DeleteBehavior.SetNull);
+            });
+
+            modelBuilder.Entity<Enrollment>(b =>
+            {
+                b.HasKey(e => e.Id);
+
+                b.Property(e => e.Status)
+                    .IsRequired()
+                    .HasMaxLength(20)
+                    .HasColumnType("varchar(20)");
+
+                b.Property(e => e.EnrollmentDate)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                // Configure relationship with Student
+                b.HasOne(e => e.Student)
+                    .WithMany() // A student can have many enrollment records
+                    .HasForeignKey(e => e.StudentId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                // Configure relationship with Course
+                b.HasOne(e => e.Course)
+                    .WithMany() // A course can have many students enrolled
+                    .HasForeignKey(e => e.CourseId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+            });
+            modelBuilder.Entity<Module>(b =>
+            {
+                b.HasKey(m => m.Id);
+                b.Property(m => m.ModuleCode).IsRequired().HasMaxLength(50).HasColumnType("varchar(50)");
+                b.Property(m => m.ModuleName).IsRequired().HasMaxLength(255).HasColumnType("varchar(255)");
+                b.Property(m => m.Description).HasColumnType("text");
+                b.Property(m => m.Credits).HasColumnType("int");
+                b.HasOne(m => m.Course).WithMany(c => c.Modules).HasForeignKey(m => m.CourseId).OnDelete(DeleteBehavior.Cascade);
+               
             });
         }
     }

@@ -1,0 +1,41 @@
+@model UniManage3.Models.Course
+<div class="course-details">
+    <dl class="row">
+        <dt class="col-sm-3">Course Code</dt>
+        <dd class="col-sm-9">@Model.CourseCode</dd>
+
+        <dt class="col-sm-3">Course Name</dt>
+        <dd class="col-sm-9">@Model.CourseName</dd>
+
+        <dt class="col-sm-3">Coordinator</dt>
+        <dd class="col-sm-9">@((Model.Coordinator!=null)?(Model.Coordinator.User?.FullName ?? (Model.Coordinator.FirstName+" "+Model.Coordinator.LastName)):"Not assigned")</dd>
+
+        <dt class="col-sm-3">Department</dt>
+        <dd class="col-sm-9">@(Model.Department?.DepartmentName ?? "Not assigned")</dd>
+
+        <dt class="col-sm-3">Credits</dt>
+        <dd class="col-sm-9">@Model.Credits</dd>
+
+        <dt class="col-sm-3">Prerequisite</dt>
+        <dd class="col-sm-9">@(Model.PrerequisiteCourse?.CourseName ?? "None")</dd>
+
+        <dt class="col-sm-3">Status</dt>
+        <dd class="col-sm-9">@(Model.IsActive ? "Active" : "Inactive")</dd>
+
+        <dt class="col-sm-3">Modules</dt>
+        <dd class="col-sm-9">
+            @if(Model.Modules != null && Model.Modules.Any()){
+                <ul>
+                @foreach(var m in Model.Modules){
+                    <li>@m.ModuleCode - @m.ModuleName (@m.Credits credits)</li>
+                }
+                </ul>
+            } else {
+                <div class="text-muted">No modules added yet.</div>
+            }
+        </dd>
+
+        <dt class="col-sm-3">Description</dt>
+        <dd class="col-sm-9">@Model.Description</dd>
+    </dl>
+</div>

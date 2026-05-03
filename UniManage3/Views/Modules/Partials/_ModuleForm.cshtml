@@ -1,0 +1,55 @@
+@model UniManage3.Models.Module
+<form id="moduleForm" method="post" action="@Url.Action("Create","Modules")">
+    <input type="hidden" name="CourseId" value="@Model.CourseId" />
+    <div class="mb-2">
+        <label>Module Code</label>
+        <input name="ModuleCode" class="form-control" value="@Model.ModuleCode" required />
+    </div>
+    <div class="mb-2">
+        <label>Module Name</label>
+        <input name="ModuleName" class="form-control" value="@Model.ModuleName" required />
+    </div>
+    <div class="mb-2">
+        <label>Credits</label>
+        <input name="Credits" type="number" min="1" class="form-control" value="@(Model.Credits)"> 
+    </div>
+    <div class="mb-2">
+        <label>Description</label>
+        <textarea name="Description" class="form-control">@Model.Description</textarea>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save</button>
+    </div>
+</form>
+
+<script>
+    // ensure module form posts via AJAX and closes modal on success
+    (function(){
+        var form = document.getElementById('moduleForm');
+        if(!form) return;
+        form.addEventListener('submit', function(e){
+            e.preventDefault();
+            var fd = new FormData(form);
+            fetch(form.getAttribute('action'), { method: 'POST', body: fd, headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(r => r.json())
+                .then(function(data){
+                    if (data && data.success) {
+                        // attempt to refresh the course row
+                        var cid = data.courseId || fd.get('CourseId');
+                        if (cid) {
+                            fetch('/Courses/Row?id=' + cid, { headers: { 'X-Requested-With': 'XMLHttpRequest' } }).then(r => r.text()).then(html => {
+                                var temp = document.createElement('tbody'); temp.innerHTML = html; var newRow = temp.querySelector('tr'); var old = document.getElementById('course-row-' + cid); if (old && newRow) old.replaceWith(newRow); else location.reload();
+                            }).finally(function(){ var modalEl = document.getElementById('courseModal'); if(modalEl) bootstrap.Modal.getInstance(modalEl)?.hide(); });
+                        } else {
+                            location.reload();
+                        }
+                    } else {
+                        // show returned HTML
+                        document.getElementById('courseModalBody').innerHTML = data;
+                    }
+                }).catch(function(){ location.reload(); });
+        });
+    })();
+</script>
+
