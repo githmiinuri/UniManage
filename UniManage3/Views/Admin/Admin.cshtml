@@ -7,6 +7,8 @@
     var fullName = _db.Users.FirstOrDefault(u => u.Email == email)?.FullName ?? email ?? "Administrator";
 }
 
+<!-- submenu script moved to bottom Scripts section to ensure it runs after layout scripts -->
+
 <style>
 :root{
     --gradient: linear-gradient(135deg, #0b4f8a 0%, #6d28d9 100%);
@@ -20,6 +22,10 @@
 }
 body{font-family:var(--font-stack);background:#f8fafc;color:#0b2b4a}
 .admin-shell{display:flex;min-height:100vh}
+/* ensure submenu stacking and positioning */
+.has-submenu{position:relative}
+.has-submenu .submenu{position:relative;z-index:5;pointer-events:auto}
+.has-submenu .submenu-toggle{z-index:6}
 /* left bar */
 .left-bar{width:var(--sidebar-width);background:var(--gradient);color:#eaf4ff;padding:18px 12px;position:fixed;left:0;top:0;bottom:0;transition:width .25s ease-in-out}
 .left-bar.collapsed{width:var(--sidebar-collapsed)}
@@ -38,6 +44,17 @@ body{font-family:var(--font-stack);background:#f8fafc;color:#0b2b4a}
 .menu .sep{height:1px;background:rgba(255,255,255,0.06);margin:12px 0;border-radius:2px}
 .bottom-actions{position:absolute;bottom:18px;left:12px;right:12px;padding-right:8px}
 .bottom-actions a{display:flex;align-items:center;gap:10px;padding:8px;border-radius:8px;color:rgba(255,255,255,0.9);text-decoration:none}
+/* submenu styles */
+.has-submenu .submenu-toggle{display:flex;align-items:center;gap:8px;justify-content:space-between;width:100%;}
+.has-submenu .chev{display:inline-flex;align-items:center;justify-content:center;transform:rotate(0);transition:transform .18s ease}
+.has-submenu .submenu{max-height:0;overflow:hidden;transition:max-height .22s ease,opacity .18s ease;padding-left:36px;opacity:0}
+    .has-submenu .submenu a.sub-action{display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:6px;color:rgba(255,255,255,0.9);text-decoration:none;margin:4px 0}
+    .has-submenu .submenu a.sub-action .icon{width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;border-radius:4px;flex:0 0 18px}
+.has-submenu.open .chev{transform:rotate(90deg)}
+.has-submenu.open .submenu{opacity:1;max-height:400px}
+/* style the submenu-toggle when it's a button so it matches links */
+.has-submenu .submenu-toggle{background:transparent;border:none;padding:8px 10px;cursor:pointer;color:inherit;font:inherit;text-align:left;width:100%;display:flex;align-items:center}
+.has-submenu .submenu-toggle.active{background:rgba(255,255,255,0.12);box-shadow:var(--card-shadow)}
 /* hide native scrollbar but allow programmatic scrolling */
 .menu-inner { max-height: calc(100vh - 240px); overflow: auto; scrollbar-width: none; -ms-overflow-style: none; }
 .menu-inner::-webkit-scrollbar { display: none; }
@@ -86,9 +103,39 @@ body{font-family:var(--font-stack);background:#f8fafc;color:#0b2b4a}
             <div class="menu-inner" id="menuInner">
                 <div class="section">
                     <a href="#" class="active"><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 13h8V3H3v10zM13 21h8v-6h-8v6zM13 3v6h8V3h-8zM3 21h8v-8H3v8z" stroke="#9fc8ff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="small">Dashboard</span></a>
-                    <a href="#"><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M16 11c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM8 11c1.657 0 3-1.343 3-3S9.657 5 8 5 5 6.343 5 8s1.343 3 3 3zM8 13c-2.667 0-8 1.333-8 4v2h16v-2c0-2.667-5.333-4-8-4z" stroke="#9fc8ff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="small">User Management</span></a>
+                    <div class="has-submenu" tabindex="0" role="button">
+                        <button type="button" class="submenu-toggle" aria-expanded="false" aria-controls="userMgmtSub" onclick="toggleSub(this)">
+                            <span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M16 11c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM8 11c1.657 0 3-1.343 3-3S9.657 5 8 5 5 6.343 5 8s1.343 3 3 3zM8 13c-2.667 0-8 1.333-8 4v2h16v-2c0-2.667-5.333-4-8-4z" stroke="#9fc8ff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                            <span class="small">User Management</span>
+                            <span class="chev" aria-hidden="true">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="#eaf4ff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </span>
+                        </button>
+
+                        <div id="userMgmtSub" class="submenu" role="region" aria-hidden="true">
+                            <a href="/Admin/StudentManagement" class="sub-action">
+                                <span class="icon" aria-hidden="true">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="4" width="14" height="14" rx="2" stroke="#9fc8ff" stroke-width="1.2"/><path d="M7 8h8" stroke="#9fc8ff" stroke-width="1.2" stroke-linecap="round"/></svg>
+                                </span>
+                                <span class="small">Student Management</span>
+                            </a>
+                            <a href="/Admin/LecturerManagement" class="sub-action">
+                                <span class="icon" aria-hidden="true">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2v6" stroke="#9fc8ff" stroke-width="1.2" stroke-linecap="round"/><path d="M6 8c0 3 3 5 6 5s6-2 6-5" stroke="#9fc8ff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 20v-1c0-2 4-3 8-3s8 1 8 3v1" stroke="#9fc8ff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                </span>
+                                <span class="small">Lecturer Management</span>
+                            </a>
+                            <a href="/Admin/AdministratorManagement" class="sub-action">
+                                <span class="icon" aria-hidden="true">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l6 3v5c0 5-6 9-6 9s-6-4-6-9V5l6-3z" stroke="#9fc8ff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                </span>
+                                <span class="small">Administrator Management</span>
+                            </a>
+                        </div>
+                    </div>
                     <a href="#"><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" stroke="#9fc8ff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="7" r="4" stroke="#9fc8ff" stroke-width="1.2"/></svg></span><span class="small">Students</span></a>
                     <a href="#"><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z" stroke="#9fc8ff" stroke-width="1.2"/><path d="M4 20v-1c0-2.21 3.58-4 8-4s8 1.79 8 4v1" stroke="#9fc8ff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="small">Lecturers</span></a>
+                    <a href="/Admin/Departments"><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="4" width="16" height="16" rx="1" stroke="#9fc8ff" stroke-width="1.2" fill="none"/><path d="M8 20v-8h8v8" stroke="#9fc8ff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 8v2M14 8v2" stroke="#9fc8ff" stroke-width="1.2" stroke-linecap="round"/></svg></span><span class="small">Departments</span></a>
                     <a href="#"><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="14" rx="2" stroke="#9fc8ff" stroke-width="1.2"/><path d="M7 8h10" stroke="#9fc8ff" stroke-width="1.2" stroke-linecap="round"/></svg></span><span class="small">Courses</span></a>
                     <a href="#"><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 6h18" stroke="#9fc8ff" stroke-width="1.4" stroke-linecap="round"/><path d="M12 6v14" stroke="#9fc8ff" stroke-width="1.4" stroke-linecap="round"/></svg></span><span class="small">Classes</span></a>
                     <a href="#"><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="14" rx="2" stroke="#9fc8ff" stroke-width="1.2"/><path d="M7 21h10" stroke="#9fc8ff" stroke-width="1.2" stroke-linecap="round"/></svg></span><span class="small">Events</span></a>
@@ -171,22 +218,51 @@ body{font-family:var(--font-stack);background:#f8fafc;color:#0b2b4a}
 
 @section Scripts {
     <script>
-        (function(){
-            var leftBar = document.getElementById('leftBar');
-            var menuInner = document.getElementById('menuInner');
-            // make sidebar respond to cursor position for reveal
-            if (menuInner) {
-                menuInner.addEventListener('mousemove', function(e){
-                    var rect = this.getBoundingClientRect();
-                    var y = e.clientY - rect.top; // 0..height
-                    var ratio = Math.max(0, Math.min(1, y / rect.height));
-                    this.scrollTop = (this.scrollHeight - this.clientHeight) * ratio;
+        document.addEventListener('DOMContentLoaded', function(){
+            // Attach a simple click handler to each submenu toggle button.
+            document.querySelectorAll('.submenu-toggle').forEach(function(btn){
+                btn.addEventListener('click', function(e){
+                    e.preventDefault();
+                    e.stopPropagation();
+                    var parent = btn.closest('.has-submenu');
+                    if (!parent) return;
+                    var submenu = parent.querySelector('.submenu');
+                    var isOpen = !parent.classList.contains('open');
+                    // set states
+                    parent.classList.toggle('open', isOpen);
+                    btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+                    btn.classList.toggle('active', isOpen);
+                    if (submenu) {
+                        submenu.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
+                        submenu.style.maxHeight = isOpen ? submenu.scrollHeight + 'px' : '0';
+                        submenu.style.opacity = isOpen ? '1' : '0';
+                    }
+                    // close other submenus
+                    document.querySelectorAll('.has-submenu').forEach(function(h){
+                        if (h === parent) return;
+                        h.classList.remove('open');
+                        var s = h.querySelector('.submenu'); if (s) { s.setAttribute('aria-hidden','true'); s.style.maxHeight='0'; s.style.opacity='0'; }
+                        var t = h.querySelector('.submenu-toggle'); if (t) { t.setAttribute('aria-expanded','false'); t.classList.remove('active'); }
+                    });
                 });
-                // also allow wheel scrolling
-                menuInner.addEventListener('wheel', function(e){
-                    this.scrollTop += e.deltaY;
-                }, { passive: true });
-            }
-        })();
+
+                // keyboard support for the button
+                btn.addEventListener('keydown', function(e){
+                    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); btn.click(); }
+                });
+            });
+
+            // Allow clicking other parts of the .has-submenu row to toggle too (but not links)
+            document.querySelectorAll('.has-submenu').forEach(function(parent){
+                parent.addEventListener('click', function(e){
+                    if (e.target.closest && e.target.closest('.sub-action')) return; // let links navigate
+                    var btn = parent.querySelector('.submenu-toggle');
+                    if (btn) {
+                        // trigger the same behaviour as clicking the button
+                        btn.click();
+                    }
+                });
+            });
+        });
     </script>
 }

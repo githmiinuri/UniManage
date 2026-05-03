@@ -28,8 +28,9 @@ namespace UniManage3.Data
             modelBuilder.Entity<Administrator>(b =>
             {
                 b.HasKey(a => a.Id);
-                b.Property(a => a.Email).IsRequired().HasMaxLength(256).HasColumnType("varchar(256)");
-                b.Property(a => a.PasswordHash).IsRequired().HasMaxLength(512).HasColumnType("varchar(512)");
+                b.Property(a => a.UserId).HasColumnType("int");
+                b.HasIndex(a => a.UserId).IsUnique();
+                b.HasOne(a => a.User).WithMany().HasForeignKey(a => a.UserId).OnDelete(DeleteBehavior.Cascade);
                 b.Property(a => a.FirstName).HasMaxLength(128).HasColumnType("varchar(128)");
                 b.Property(a => a.LastName).HasMaxLength(128).HasColumnType("varchar(128)");
                 b.Property(a => a.AddressLine1).HasMaxLength(256).HasColumnType("varchar(256)");
@@ -44,8 +45,9 @@ namespace UniManage3.Data
             modelBuilder.Entity<Lecturer>(b =>
             {
                 b.HasKey(l => l.Id);
-                b.Property(l => l.Email).IsRequired().HasMaxLength(256).HasColumnType("varchar(256)");
-                b.Property(l => l.PasswordHash).IsRequired().HasMaxLength(512).HasColumnType("varchar(512)");
+                b.Property(l => l.UserId).HasColumnType("int");
+                b.HasIndex(l => l.UserId).IsUnique();
+                b.HasOne(l => l.User).WithMany().HasForeignKey(l => l.UserId).OnDelete(DeleteBehavior.Cascade);
                 b.Property(l => l.FirstName).HasMaxLength(128).HasColumnType("varchar(128)");
                 b.Property(l => l.LastName).HasMaxLength(128).HasColumnType("varchar(128)");
                 b.Property(l => l.AddressLine1).HasMaxLength(256).HasColumnType("varchar(256)");
@@ -60,8 +62,9 @@ namespace UniManage3.Data
             modelBuilder.Entity<Student>(b =>
             {
                 b.HasKey(e => e.Id);
-                b.Property(e => e.Email).IsRequired().HasMaxLength(256).HasColumnType("varchar(256)");
-                b.Property(e => e.PasswordHash).IsRequired().HasMaxLength(512).HasColumnType("varchar(512)");
+                b.Property(e => e.UserId).HasColumnType("int");
+                b.HasIndex(e => e.UserId).IsUnique();
+                b.HasOne(e => e.User).WithMany().HasForeignKey(e => e.UserId).OnDelete(DeleteBehavior.Cascade);
                 b.Property(e => e.FirstName).HasMaxLength(128).HasColumnType("varchar(128)");
                 b.Property(e => e.LastName).HasMaxLength(128).HasColumnType("varchar(128)");
                 b.Property(e => e.AddressLine1).HasMaxLength(256).HasColumnType("varchar(256)");

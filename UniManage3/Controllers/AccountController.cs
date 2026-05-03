@@ -55,6 +55,12 @@ namespace UniManage3.Controllers
                 return View();
             }
 
+            if (!user.IsActive)
+            {
+                ModelState.AddModelError(string.Empty, "You are suspended.");
+                return View();
+            }
+
             var verifyResult = hasher.VerifyHashedPassword(null, user.Password, password);
             if (verifyResult == PasswordVerificationResult.Success || verifyResult == PasswordVerificationResult.SuccessRehashNeeded)
             {
@@ -76,9 +82,8 @@ namespace UniManage3.Controllers
                         break;
                 }
 
-                // Update last login and activate if needed
+                // Update last login
                 user.LastLogin = DateTime.UtcNow;
-                user.IsActive = true;
                 _db.SaveChanges();
 
                 await SignInUser(user.Email, roleName, remember);
@@ -118,7 +123,7 @@ namespace UniManage3.Controllers
 
             if (role == "Lecturer")
             {
-                var exists = _db.Lecturers.Any(l => l.Email == model.Email);
+                var exists = _db.Users.Any(u => u.Email == model.Email);
                 if (exists) { ModelState.AddModelError(string.Empty, "Email already registered"); return View("Registration", model); }
                 if (!int.TryParse(model.ContactNumber, out var contactInt))
                 {
@@ -133,24 +138,6 @@ namespace UniManage3.Controllers
                     return View("Registration", model);
                 }
 
-                var lect = new Lecturer
-                {
-                    Email = model.Email,
-                    PasswordHash = passwordHash,
-                    RoleId = 2,
-                    FirstName = model.FirstName,
-                    LastName = model.LastName,
-                    AddressLine1 = model.AddressLine1,
-                    AddressLine2 = model.AddressLine2,
-                    Province = model.Province,
-                    City = model.City,
-                    ZipCode = zipInt,
-                    ContactNumber = contactInt,
-                    NICNumber = model.NICNumber
-                };
-                _db.Lecturers.Add(lect);
-                _db.SaveChanges();
-
                 // Create a pending user record (requires admin approval before login)
                 var user = new User
                 {
@@ -165,13 +152,29 @@ namespace UniManage3.Controllers
                 };
                 _db.Users.Add(user);
                 _db.SaveChanges();
+
+                var lect = new Lecturer
+                {
+                    UserId = user.Id,
+                    FirstName = model.FirstName,
+                    LastName = model.LastName,
+                    AddressLine1 = model.AddressLine1,
+                    AddressLine2 = model.AddressLine2,
+                    Province = model.Province,
+                    City = model.City,
+                    ZipCode = zipInt,
+                    ContactNumber = contactInt,
+                    NICNumber = model.NICNumber
+                };
+                _db.Lecturers.Add(lect);
+                _db.SaveChanges();
                 ViewData["Role"] = "Lecturer";
                 return View("RegistrationSuccess");
             }
 
             if (role == "Student")
             {
-                var exists = _db.Students.Any(s => s.Email == model.Email);
+                var exists = _db.Users.Any(u => u.Email == model.Email);
                 if (exists) { ModelState.AddModelError(string.Empty, "Email already registered"); return View("Registration", model); }
                 if (!int.TryParse(model.ContactNumber, out var contactInt2))
                 {
@@ -186,24 +189,6 @@ namespace UniManage3.Controllers
                     return View("Registration", model);
                 }
 
-                var stud = new Student
-                {
-                    Email = model.Email,
-                    PasswordHash = passwordHash,
-                    RoleId = 3,
-                    FirstName = model.FirstName,
-                    LastName = model.LastName,
-                    AddressLine1 = model.AddressLine1,
-                    AddressLine2 = model.AddressLine2,
-                    Province = model.Province,
-                    City = model.City,
-                    ZipCode = zipInt2,
-                    ContactNumber = contactInt2,
-                    NICNumber = model.NICNumber
-                };
-                _db.Students.Add(stud);
-                _db.SaveChanges();
-
                 // Create a pending user record (requires admin approval before login)
                 var user = new User
                 {
@@ -218,13 +203,29 @@ namespace UniManage3.Controllers
                 };
                 _db.Users.Add(user);
                 _db.SaveChanges();
+
+                var stud = new Student
+                {
+                    UserId = user.Id,
+                    FirstName = model.FirstName,
+                    LastName = model.LastName,
+                    AddressLine1 = model.AddressLine1,
+                    AddressLine2 = model.AddressLine2,
+                    Province = model.Province,
+                    City = model.City,
+                    ZipCode = zipInt2,
+                    ContactNumber = contactInt2,
+                    NICNumber = model.NICNumber
+                };
+                _db.Students.Add(stud);
+                _db.SaveChanges();
                 ViewData["Role"] = "Student";
                 return View("RegistrationSuccess");
             }
 
             if (role == "Administrator")
             {
-                var exists = _db.Administrators.Any(a => a.Email == model.Email);
+                var exists = _db.Users.Any(u => u.Email == model.Email);
                 if (exists) { ModelState.AddModelError(string.Empty, "Email already registered"); return View("Registration", model); }
                 if (!int.TryParse(model.ContactNumber, out var contactInt3))
                 {
@@ -239,24 +240,6 @@ namespace UniManage3.Controllers
                     return View("Registration", model);
                 }
 
-                var adm = new Administrator
-                {
-                    Email = model.Email,
-                    PasswordHash = passwordHash,
-                    RoleId = 1,
-                    FirstName = model.FirstName,
-                    LastName = model.LastName,
-                    AddressLine1 = model.AddressLine1,
-                    AddressLine2 = model.AddressLine2,
-                    Province = model.Province,
-                    City = model.City,
-                    ZipCode = zipInt3,
-                    ContactNumber = contactInt3,
-                    NICNumber = model.NICNumber
-                };
-                _db.Administrators.Add(adm);
-                _db.SaveChanges();
-
                 // Create a pending user record (requires admin approval before login)
                 var user = new User
                 {
@@ -270,6 +253,22 @@ namespace UniManage3.Controllers
                     LastLogin = null
                 };
                 _db.Users.Add(user);
+                _db.SaveChanges();
+
+                var adm = new Administrator
+                {
+                    UserId = user.Id,
+                    FirstName = model.FirstName,
+                    LastName = model.LastName,
+                    AddressLine1 = model.AddressLine1,
+                    AddressLine2 = model.AddressLine2,
+                    Province = model.Province,
+                    City = model.City,
+                    ZipCode = zipInt3,
+                    ContactNumber = contactInt3,
+                    NICNumber = model.NICNumber
+                };
+                _db.Administrators.Add(adm);
                 _db.SaveChanges();
                 ViewData["Role"] = "Administrator";
                 return View("RegistrationSuccess");
