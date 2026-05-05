@@ -7,14 +7,13 @@
     <td>@Model.CourseCode</td>
     <td>@Model.CourseName</td>
     <td>@(Model.Coordinator?.User?.FullName ?? (Model.Coordinator!=null?(Model.Coordinator.FirstName+" "+Model.Coordinator.LastName):"-"))</td>
-    <td>@(Model.Department?.DepartmentName ?? "-")</td>
+    <td>@(Model.Department?.DepartmentName ?? "N/A")</td>
     <td>@Model.Credits</td>
     <td>@(Model.PrerequisiteCourse?.CourseName ?? "-")</td>
     <td>@(isActive ? Html.Raw("<span class=\"tag-active\">Active</span>") : Html.Raw("<span class=\"tag-inactive\">Inactive</span>"))</td>
     <td class="actions d-flex gap-2" style="align-items:center;min-width:280px">
         <button class="btn" data-action="edit" data-id="@Model.Id">Edit</button>
         <button class="btn" data-action="details" data-id="@Model.Id">Details</button>
-        <button class="btn" data-action="modules" data-id="@Model.Id">Add Modules</button>
         <form method="post" asp-action="Delete" asp-controller="Courses" asp-route-id="@Model.Id" style="display:inline-block;margin:0">
             @Html.AntiForgeryToken()
             <button type="submit" class="btn">Delete</button>

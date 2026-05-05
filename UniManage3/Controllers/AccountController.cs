@@ -83,22 +83,31 @@ namespace UniManage3.Controllers
                 }
 
                 // Update last login
+                // Update last login
                 user.LastLogin = DateTime.UtcNow;
                 _db.SaveChanges();
 
                 await SignInUser(user.Email, roleName, remember);
-                // Redirect administrators to the Admin dashboard
+
+                // --- UPDATED REDIRECT LOGIC ---
+
                 if (roleName == "Administrator")
                 {
                     return RedirectToAction("Index", "Admin");
                 }
 
-                // Redirect lecturers to Courses index
                 if (roleName == "Lecturer")
                 {
                     return RedirectToAction("Index", "LectureDashboard");
                 }
 
+                // Redirect students to their dedicated dashboard
+                if (roleName == "Student")
+                {
+                    return RedirectToAction("Dashboard", "Student");
+                }
+
+                // Fallback for any other users
                 return RedirectToAction("Index", "Home");
             }
 
@@ -131,8 +140,7 @@ namespace UniManage3.Controllers
             if (role == "Lecturer")
             {
 
-               var exists = _db.Users.Any(l => l.Email == model.Email);
-
+                var exists = _db.Users.Any(u => u.Email == model.Email);
                 if (exists) { ModelState.AddModelError(string.Empty, "Email already registered"); return View("Registration", model); }
                 if (!int.TryParse(model.ContactNumber, out var contactInt))
                 {

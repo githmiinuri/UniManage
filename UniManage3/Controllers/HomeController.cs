@@ -17,6 +17,22 @@ namespace UniManage3.Controllers
         [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Administrator,Lecturer,Student")]
         public IActionResult Index()
         {
+            // Check the user's role and send them to their specific dashboard
+            if (User.IsInRole("Administrator"))
+            {
+                return RedirectToAction("Index", "Admin");
+            }
+
+            if (User.IsInRole("Lecturer"))
+            {
+                return RedirectToAction("Index", "LectureDashboard");
+            }
+
+            if (User.IsInRole("Student"))
+            {
+                return RedirectToAction("Dashboard", "Student");
+            }
+
             return View();
         }
 

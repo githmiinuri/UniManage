@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Reflection;
 
 namespace UniManage3.Models
 {
@@ -20,7 +21,8 @@ namespace UniManage3.Models
         public string Description { get; set; }
 
         [Required]
-        [Range(1, 10, ErrorMessage = "Credits must be between 1 and 10")]
+        // Expanded range to support high-value credits like 120, 360, etc.
+        [Range(1, 1000, ErrorMessage = "Credits must be between 1 and 1000")]
         public int Credits { get; set; }
 
         // Foreign Key for the Prerequisite Course
@@ -44,5 +46,6 @@ namespace UniManage3.Models
         public virtual Department Department { get; set; }
 
         public virtual ICollection<Module> Modules { get; set; } = new HashSet<Module>();
+        public virtual ICollection<Semester> Semesters { get; set; } = new List<Semester>();
     }
 }

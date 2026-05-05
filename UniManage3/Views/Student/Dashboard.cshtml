@@ -1,0 +1,26 @@
+﻿@{
+    Layout = "_StudentLayout";
+    ViewData["Title"] = "Student Dashboard";
+}
+
+@* The CSS is already handled by _StudentLayout and the global styles, 
+   so we only need the specific header structure here.
+*@
+
+<div class="page-header">
+    <div>
+        <div class="page-title">Student Dashboard</div>
+        <div class="text-muted">@DateTime.Now.ToString("MMMM d, dddd")</div>
+    </div>
+
+    <div class="page-actions">
+        @* Optional: You can put a "Quick Enrollment" button here later *@
+    </div>
+</div>
+
+<div class="dashboard-content">
+    @* Content is empty for now as requested *@
+    <div class="card border-0 shadow-sm p-5 text-center">
+        <p class="text-muted mb-0">Welcome back! Your academic overview will appear here.</p>
+    </div>
+</div>

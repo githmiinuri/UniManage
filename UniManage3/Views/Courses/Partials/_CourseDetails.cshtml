@@ -25,11 +25,26 @@
         <dt class="col-sm-3">Modules</dt>
         <dd class="col-sm-9">
             @if(Model.Modules != null && Model.Modules.Any()){
-                <ul>
-                @foreach(var m in Model.Modules){
-                    <li>@m.ModuleCode - @m.ModuleName (@m.Credits credits)</li>
-                }
-                </ul>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Module Code</th>
+                            <th>Module Name</th>
+                            <th>Credits</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @foreach(var m in Model.Modules){
+                        <tr>
+                            <td>@m.ModuleCode</td>
+                            <td>@m.ModuleName</td>
+                            <td>@m.Credits</td>
+                            <td>@m.Description</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
             } else {
                 <div class="text-muted">No modules added yet.</div>
             }

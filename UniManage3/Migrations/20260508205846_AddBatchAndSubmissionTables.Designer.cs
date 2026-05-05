@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using UniManage3.Data;
 
@@ -11,9 +12,11 @@ using UniManage3.Data;
 namespace UniManage3.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260508205846_AddBatchAndSubmissionTables")]
+    partial class AddBatchAndSubmissionTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -170,7 +173,7 @@ namespace UniManage3.Migrations
                         .HasColumnType("varchar(1024)");
 
                     b.Property<DateTime>("SubmittedTime")
-                        .HasColumnType("datetime(6)");
+                        .HasColumnType("datetime");
 
                     b.HasKey("Id");
 
@@ -200,7 +203,7 @@ namespace UniManage3.Migrations
                         .HasColumnType("varchar(255)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime(6)");
+                        .HasColumnType("datetime");
 
                     b.HasKey("Id");
 
@@ -246,12 +249,6 @@ namespace UniManage3.Migrations
                     b.Property<int?>("PrerequisiteCourseId")
                         .HasColumnType("int");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<int?>("PrerequisiteCourseId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("CoordinatorId");
@@ -281,6 +278,7 @@ namespace UniManage3.Migrations
                         .HasColumnType("varchar(50)");
 
                     b.Property<string>("FilePath")
+                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("MaterialName")
@@ -288,8 +286,10 @@ namespace UniManage3.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("varchar(255)");
 
-                    b.Property<int>("MaterialType")
-                        .HasColumnType("int");
+                    b.Property<string>("MaterialType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
 
                     b.Property<int>("ModuleId")
                         .HasColumnType("int");
@@ -507,6 +507,23 @@ namespace UniManage3.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Roles");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Administrator"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Lecturer"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Student"
+                        });
                 });
 
             modelBuilder.Entity("UniManage3.Models.Student", b =>
@@ -578,15 +595,17 @@ namespace UniManage3.Migrations
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime(6)");
+                        .HasColumnType("datetime");
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasMaxLength(256)
+                        .HasColumnType("varchar(256)");
 
                     b.Property<string>("FullName")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasMaxLength(256)
+                        .HasColumnType("varchar(256)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("tinyint(1)");
@@ -595,11 +614,12 @@ namespace UniManage3.Migrations
                         .HasColumnType("tinyint(1)");
 
                     b.Property<DateTime?>("LastLogin")
-                        .HasColumnType("datetime(6)");
+                        .HasColumnType("datetime");
 
                     b.Property<string>("Password")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasMaxLength(512)
+                        .HasColumnType("varchar(512)");
 
                     b.Property<int>("RoleId")
                         .HasColumnType("int");

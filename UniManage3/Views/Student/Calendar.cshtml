@@ -1,0 +1,31 @@
+﻿@{
+    Layout = "_StudentLayout";
+    ViewData["Title"] = "Academic Calendar";
+}
+
+@* Applying the exact class hierarchy and styles:
+   - .page-header: Flex container for title and date
+   - .page-title: Bold, --accent-blue (#0b4f8a), 1.4rem
+   - .text-muted: Secondary font styling for the date string
+*@
+
+<div class="page-header">
+    <div>
+        <div class="page-title">Academic Calendar</div>
+        <div class="text-muted">@DateTime.Now.ToString("MMMM d, dddd")</div>
+    </div>
+
+    <div class="page-actions">
+        @* Future functionality like 'Export to ICS' or 'Download PDF' can go here *@
+    </div>
+</div>
+
+<div class="content-body">
+    @* The rest of the page remains empty for now per your instruction *@
+    <div class="card border-0 shadow-sm p-5 mt-3">
+        <div class="text-center py-5">
+            <i class="fa-solid fa-calendar-days fa-3x mb-3" style="color: var(--accent-blue); opacity: 0.15;"></i>
+            <p class="text-muted">The academic schedule for the upcoming semester is being finalized.</p>
+        </div>
+    </div>
+</div>

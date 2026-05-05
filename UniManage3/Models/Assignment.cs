@@ -32,10 +32,8 @@ namespace UniManage3.Models
         [ForeignKey("ModuleId")]
         public virtual Module Module { get; set; }
 
-        // New Batch foreign key and navigation
         [Required]
         public int BatchId { get; set; }
-
         [ForeignKey("BatchId")]
         public virtual Batch Batch { get; set; }
     }

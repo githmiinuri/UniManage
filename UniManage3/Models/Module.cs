@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -20,25 +21,34 @@ namespace UniManage3.Models
         public string Description { get; set; }
 
         [Required]
-        [Range(1, 20)]
+        // Expanded range to prevent validation errors during save
+        [Range(1, 1000, ErrorMessage = "Credits must be between 1 and 1000")]
         public int Credits { get; set; }
 
-        // Foreign Key to Course
         [Required]
+        public bool IsActive { get; set; } = true;
+
+        // Foreign Key
         public int CourseId { get; set; }
 
         [ForeignKey("CourseId")]
         public virtual Course Course { get; set; }
 
-        // Foreign Key to Lecturer
-        [Required]
-        public int LecturerId { get; set; }
-
+        // Optional lecturer responsible for this module
+        public int? LecturerId { get; set; }
         [ForeignKey("LecturerId")]
         public virtual Lecturer Lecturer { get; set; }
 
-        // Navigation collections
-        public virtual ICollection<CourseMaterial> CourseMaterials { get; set; } = new HashSet<CourseMaterial>();
-        public virtual ICollection<Assignment> Assignments { get; set; } = new HashSet<Assignment>();
+        // Foreign Key for the Semester
+        public int? SemesterId { get; set; }
+
+        // Navigation property to the Semester
+        [ForeignKey("SemesterId")]
+        public virtual Semester Semester { get; set; }
+
+        // Navigation property to link with the Timetable/Classes
+        public virtual ICollection<Class> Classes { get; set; }
+        public virtual ICollection<CourseMaterial> CourseMaterials { get; set; }
+        public virtual ICollection<Assignment> Assignments { get; set; }
     }
 }

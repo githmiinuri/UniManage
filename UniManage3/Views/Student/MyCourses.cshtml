@@ -1,0 +1,31 @@
+﻿@{
+    Layout = "_StudentLayout";
+    ViewData["Title"] = "My Enrolled Courses";
+}
+
+@* Applying the exact classes from your Admin CSS:
+   .page-header - flex container with space-between
+   .page-title - font-size: 1.4rem, weight: 700, color: #0b4f8a
+   .text-muted - color: #6c757d (defined in your root)
+*@
+
+<div class="page-header">
+    <div>
+        <div class="page-title">My Enrolled Courses</div>
+        <div class="text-muted">@DateTime.Now.ToString("MMMM d, dddd")</div>
+    </div>
+
+    <div class="page-actions">
+        @* Space reserved for future buttons like 'Print Schedule' or 'History' *@
+    </div>
+</div>
+
+<div class="content-body">
+    @* Rest of the page is kept empty for now per your instruction *@
+    <div class="card border-0 shadow-sm p-4 mt-3">
+        <div class="text-center py-5">
+            <i class="fa-solid fa-graduation-cap fa-3x mb-3" style="color: var(--accent-blue); opacity: 0.15;"></i>
+            <p class="text-muted">You are not currently enrolled in any active courses.</p>
+        </div>
+    </div>
+</div>

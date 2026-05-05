@@ -1,0 +1,16 @@
+﻿@model UniManage3.Models.Semester
+<div class="px-2">
+    <dl class="row">
+        <dt class="col-sm-4 text-muted">Semester Name</dt>
+        <dd class="col-sm-8 fw-bold">@Model.SemesterName</dd>
+
+        <dt class="col-sm-4 text-muted">Start Date</dt>
+        <dd class="col-sm-8">@Model.StartDate.ToShortDateString()</dd>
+
+        <dt class="col-sm-4 text-muted">End Date</dt>
+        <dd class="col-sm-8">@Model.EndDate.ToShortDateString()</dd>
+    </dl>
+    <div class="d-flex justify-content-end mt-4">
+        <button type="button" class="btn btn-primary px-4" data-bs-dismiss="modal">Close</button>
+    </div>
+</div>

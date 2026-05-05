@@ -1,0 +1,27 @@
+﻿@{
+    Layout = "_StudentLayout";
+    ViewData["Title"] = "Browse Courses";
+}
+
+@* The page-header, page-title, and text-muted classes match your 
+   Admin CSS perfectly to ensure the font weights and colors are identical.
+*@
+
+<div class="page-header">
+    <div>
+        <div class="page-title">Browse Available Courses</div>
+        <div class="text-muted">@DateTime.Now.ToString("MMMM d, dddd")</div>
+    </div>
+
+    <div class="page-actions">
+        @* This area is ready for search bars or filters later *@
+    </div>
+</div>
+
+<div class="content-body">
+    @* Rest of the page is kept empty for now as requested *@
+    <div class="card border-0 shadow-sm p-5 text-center">
+        <i class="fa-solid fa-book-open fa-3x mb-3" style="color: var(--accent-blue); opacity: 0.2;"></i>
+        <p class="text-muted mb-0">Course catalog is being prepared. Check back soon to enroll in new modules.</p>
+    </div>
+</div>

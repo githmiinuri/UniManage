@@ -8,166 +8,201 @@ using Microsoft.EntityFrameworkCore;
 using UniManage3.Data;
 using UniManage3.Models;
 using Microsoft.AspNetCore.Authorization;
+using System.Diagnostics;
 
 namespace UniManage3.Controllers
 {
     public class ModulesController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ApplicationDbContext _db;
 
-        public ModulesController(ApplicationDbContext context)
+        public ModulesController(ApplicationDbContext db)
         {
-            _context = context;
+            _db = db;
         }
 
         // GET: Modules
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Modules.Include(c => c.Course).Include(l => l.Lecturer);
-            return View(await applicationDbContext.ToListAsync());
+            var modules = _db.Modules.Include(m => m.Course);
+            return View(await modules.ToListAsync());
         }
 
         // GET: Modules/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var @module = await _context.Modules
-                .Include(a => a.Course)
-                .Include(l => l.Lecturer)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (@module == null)
-            {
-                return NotFound();
-            }
-
-            return View(@module);
+            if (id == null) return NotFound();
+            var module = await _db.Modules.Include(m => m.Course).FirstOrDefaultAsync(m => m.Id == id);
+            if (module == null) return NotFound();
+            return View(module);
         }
 
-        // GET: Modules/Create
-        [Authorize(Roles = "Administrator")]
+        // GET: Modules/Create (admin)
         public IActionResult Create()
         {
-            ViewData["CourseId"] = new SelectList(_context.Courses, "Id", "CourseName");
-            ViewData["LecturerId"] = new SelectList(_context.Lecturers, "Id", "FirstName");
+            ViewData["CourseId"] = new SelectList(_db.Courses, "Id", "CourseName", null);
             return View();
+        }
+
+        // GET: Modules/Create?courseId=5 (AJAX modal)
+        public IActionResult CreateForCourse(int courseId)
+        {
+            // This action is removed — module management is decoupled from the course dashboard.
+            return NotFound();
         }
 
         // POST: Modules/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Administrator")]
-        public async Task<IActionResult> Create([Bind("Id,ModuleCode,ModuleName,CourseId,LecturerId,Description,Credits")] Module @module)
+        public async Task<IActionResult> Create([Bind("Id,ModuleCode,ModuleName,Description,Credits,CourseId,LecturerId")] Module module, [FromForm] List<Module> Modules, int? CourseId)
         {
+            // remove navigation validation - only IDs are posted
+            ModelState.Remove("Lecturer");
+            ModelState.Remove("Assignments");
+            ModelState.Remove("CourseMaterials");
             if (ModelState.IsValid)
             {
-                _context.Add(@module);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                try
+                {
+                    // If a collection of Modules was posted, save them all
+                    if (Modules != null && Modules.Any())
+                    {
+                        foreach (var m in Modules)
+                        {
+                            // ensure CourseId is provided (either from param or field on module)
+                            if (CourseId.HasValue) m.CourseId = CourseId.Value;
+                            // new modules should be active by default
+                            m.IsActive = true;
+                            _db.Modules.Add(m);
+                        }
+                        await _db.SaveChangesAsync();
+                        if (Request.Headers["X-Requested-With"] == "XMLHttpRequest") return Json(new { success = true });
+                        return RedirectToAction(nameof(Index));
+                    }
+
+                    // fallback: single module post
+                    module.IsActive = true;
+                    _db.Modules.Add(module);
+                    await _db.SaveChangesAsync();
+                    if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                    {
+                        return Json(new { success = true });
+                    }
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"ModulesController.Create Save error: {ex}");
+                    ModelState.AddModelError(string.Empty, "An error occurred while saving the module.");
+                }
             }
-            ViewData["CourseId"] = new SelectList(_context.Courses, "Id", "CourseName", @module.CourseId);
-            ViewData["LecturerId"] = new SelectList(_context.Lecturers, "Id", "FirstName", @module.LecturerId);
-            return View(@module);
+            // validation failed -> return JSON errors if AJAX
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                var errors = ModelState.Where(x => x.Value.Errors.Count > 0).ToDictionary(k => k.Key, v => v.Value.Errors.Select(e => e.ErrorMessage).ToArray());
+                return Json(new { success = false, errors });
+            }
+            ViewData["CourseId"] = new SelectList(_db.Courses, "Id", "CourseName", module.CourseId);
+            return View(module);
         }
 
         // GET: Modules/Edit/5
-        [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var @module = await _context.Modules.FindAsync(id);
-            if (@module == null)
-            {
-                return NotFound();
-            }
-            ViewData["CourseId"] = new SelectList(_context.Courses, "Id", "CourseName", @module.CourseId);
-            ViewData["LecturerId"] = new SelectList(_context.Lecturers, "Id", "FirstName", @module.LecturerId);
-            return View(@module);
+            if (id == null) return NotFound();
+            var module = await _db.Modules.FindAsync(id);
+            if (module == null) return NotFound();
+            ViewData["CourseId"] = new SelectList(_db.Courses, "Id", "CourseName", module.CourseId);
+            return View(module);
         }
 
         // POST: Modules/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Administrator")]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,ModuleCode,ModuleName,CourseId,LecturerId,Description,Credits")] Module @module)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,ModuleCode,ModuleName,Description,Credits,CourseId,LecturerId")] Module module)
         {
-            if (id != @module.Id)
-            {
-                return NotFound();
-            }
-
+            if (id != module.Id) return NotFound();
+            // remove navigation validation
+            ModelState.Remove("Lecturer");
+            ModelState.Remove("Assignments");
+            ModelState.Remove("CourseMaterials");
             if (ModelState.IsValid)
             {
                 try
                 {
-                    _context.Update(@module);
-                    await _context.SaveChangesAsync();
+                    // fetch tracked entity and apply changes
+                    var existing = await _db.Modules.FirstOrDefaultAsync(m => m.Id == id);
+                    if (existing == null) return NotFound();
+                    existing.ModuleCode = module.ModuleCode;
+                    existing.ModuleName = module.ModuleName;
+                    existing.Description = module.Description;
+                    existing.Credits = module.Credits;
+                    existing.CourseId = module.CourseId;
+                    existing.LecturerId = module.LecturerId;
+                    _db.Update(existing);
+                    await _db.SaveChangesAsync();
+                    return Json(new { success = true });
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ModuleExists(@module.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    if (!_db.Modules.Any(e => e.Id == module.Id)) return NotFound();
+                    throw;
                 }
-                return RedirectToAction(nameof(Index));
             }
-            ViewData["CourseId"] = new SelectList(_context.Courses, "Id", "CourseName", @module.CourseId);
-            ViewData["LecturerId"] = new SelectList(_context.Lecturers, "Id", "FirstName", @module.LecturerId);
-            return View(@module);
+            ViewData["CourseId"] = new SelectList(_db.Courses, "Id", "CourseName", module.CourseId);
+            return View(module);
         }
 
         // GET: Modules/Delete/5
-        [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var @module = await _context.Modules
-                .Include(a => a.Course)
-                .Include(l => l.Lecturer)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (@module == null)
-            {
-                return NotFound();
-            }
-
-            return View(@module);
+            if (id == null) return NotFound();
+            var module = await _db.Modules.Include(m => m.Course).FirstOrDefaultAsync(m => m.Id == id);
+            if (module == null) return NotFound();
+            return View(module);
         }
 
         // POST: Modules/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var @module = await _context.Modules.FindAsync(id);
-            if (@module != null)
+            var module = await _db.Modules.FindAsync(id);
+            if (module != null)
             {
-                _context.Modules.Remove(@module);
+                _db.Modules.Remove(module);
+                await _db.SaveChangesAsync();
             }
-
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool ModuleExists(int id)
         {
-            return _context.Modules.Any(e => e.Id == id);
+            return _db.Modules.Any(e => e.Id == id);
         }
+
+        // POST: Modules/ToggleActive/5 (AJAX)
+        [HttpPost]
+        public async Task<IActionResult> ToggleActive(int id)
+        {
+            var module = await _db.Modules.FindAsync(id);
+            if (module == null) return Json(new { success = false, message = "Not found" });
+            module.IsActive = !module.IsActive;
+            _db.Update(module);
+            await _db.SaveChangesAsync();
+            return Json(new { success = true, isActive = module.IsActive });
+        }
+
+        // POST: Modules/DeleteAjax/5 (AJAX)
+        [HttpPost]
+        public async Task<IActionResult> DeleteAjax(int id)
+        {
+            var module = await _db.Modules.FindAsync(id);
+            if (module == null) return Json(new { success = false, message = "Not found" });
+            _db.Modules.Remove(module);
+            await _db.SaveChangesAsync();
+            return Json(new { success = true });
+        }
+
     }
 }

@@ -1,0 +1,22 @@
+﻿@model UniManage3.Models.Module
+<div class="px-2">
+    <dl class="row">
+        <dt class="col-sm-4 text-muted">Module Code</dt>
+        <dd class="col-sm-8 fw-bold text-primary">@Model.ModuleCode</dd>
+
+        <dt class="col-sm-4 text-muted">Module Name</dt>
+        <dd class="col-sm-8">@Model.ModuleName</dd>
+
+        <dt class="col-sm-4 text-muted">Credits</dt>
+        <dd class="col-sm-8">@Model.Credits</dd>
+
+        <dt class="col-sm-4 text-muted">Lecturer</dt>
+        <dd class="col-sm-8">@(Model.Lecturer != null ? $"{Model.Lecturer.FirstName} {Model.Lecturer.LastName}" : "Not Assigned")</dd>
+
+        <dt class="col-sm-4 text-muted">Description</dt>
+        <dd class="col-sm-8 text-secondary">@(Model.Description ?? "No description provided.")</dd>
+    </dl>
+    <div class="d-flex justify-content-end mt-4">
+        <button type="button" class="btn btn-primary px-4" data-bs-dismiss="modal">Close</button>
+    </div>
+</div>

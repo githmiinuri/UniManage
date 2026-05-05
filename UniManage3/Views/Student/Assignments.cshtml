@@ -1,0 +1,31 @@
+﻿@{
+    Layout = "_StudentLayout";
+    ViewData["Title"] = "Assignments & Submissions";
+}
+
+@* Using the exact class hierarchy from the Admin side:
+   - page-header: flexbox container
+   - page-title: Bold, accent-blue, 1.4rem
+   - text-muted: Grayed out date/time
+*@
+
+<div class="page-header">
+    <div>
+        <div class="page-title">Assignments & Submissions</div>
+        <div class="text-muted">@DateTime.Now.ToString("MMMM d, dddd")</div>
+    </div>
+
+    <div class="page-actions">
+        @* Future actions like 'Submission History' can go here *@
+    </div>
+</div>
+
+<div class="content-body">
+    @* Rest of the page is kept empty for now per your instruction *@
+    <div class="card border-0 shadow-sm p-4 mt-3">
+        <div class="text-center py-5">
+            <i class="fa-solid fa-file-arrow-up fa-3x mb-3" style="color: var(--accent-blue); opacity: 0.15;"></i>
+            <p class="text-muted">No upcoming deadlines or active assignments to display.</p>
+        </div>
+    </div>
+</div>
