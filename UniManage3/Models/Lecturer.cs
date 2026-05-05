@@ -5,16 +5,11 @@ namespace UniManage3.Models
     public class Lecturer
     {
         public int Id { get; set; }
-<<<<<<< HEAD
 
         // Reference to the shared Users table
         public int UserId { get; set; }
-        public User User { get; set; }
-=======
-        public int UserId { get; set; }
 
         public virtual User User { get; set; }
->>>>>>> 355f77b (#1 feat: Implement the lecturer flow)
 
         // Additional profile fields
         [Required, StringLength(128)]

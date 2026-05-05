@@ -1,11 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Http;
+using System.ComponentModel.DataAnnotations;
 
 namespace UniManage3.Models
 {
-    public class Assignment
+    public class AssignmentUploadViewModel
     {
-        [Key]
         public int Id { get; set; }
 
         [Required]
@@ -14,7 +13,6 @@ namespace UniManage3.Models
 
         public string Description { get; set; }
 
-        [Required]
         public DateTime IssuedDate { get; set; } = DateTime.Now;
 
         [Required]
@@ -24,12 +22,13 @@ namespace UniManage3.Models
 
         public DateTime? UpdatedDate { get; set; }
 
-        // Stores the local path, e.g., "/Uploads/Assignments/Briefs/CW1.pdf"
+        // Not exposed for input; used when editing to show current file in view
         public string? ResourceFilePath { get; set; }
 
         [Required]
         public int ModuleId { get; set; }
-        [ForeignKey("ModuleId")]
-        public virtual Module Module { get; set; }
+
+        // File upload
+        public IFormFile UploadedFile { get; set; }
     }
 }

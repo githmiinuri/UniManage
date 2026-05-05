@@ -4,72 +4,42 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
+<h1 class="mb-4">Assignments</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create" class="btn btn-primary">Create New</a>
 </p>
-<table class="table">
+<table class="table table-striped">
     <thead>
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.AssignmentName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.IssuedDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.DeadlineDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.LateSubmitDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.UpdatedDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ResourceFilePath)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Module)
-            </th>
+            <th>Assignment</th>
+            <th>Description</th>
+            <th>Issued</th>
+            <th>Deadline</th>
+            <th>Late Submit</th>
+            <th>Updated</th>
+            <th>Module</th>
             <th></th>
         </tr>
     </thead>
     <tbody>
 @foreach (var item in Model) {
         <tr>
+            <td>@Html.DisplayFor(modelItem => item.AssignmentName)</td>
+            <td>@Html.DisplayFor(modelItem => item.Description)</td>
+            <td>@item.IssuedDate.ToString("g")</td>
+            <td>@item.DeadlineDate.ToString("g")</td>
+            <td>@(item.LateSubmitDate.HasValue ? item.LateSubmitDate.Value.ToString("g") : "-")</td>
+            <td>@(item.UpdatedDate.HasValue ? item.UpdatedDate.Value.ToString("g") : "-")</td>
+            <td>@item.Module?.ModuleName</td>
             <td>
-                @Html.DisplayFor(modelItem => item.AssignmentName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.IssuedDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DeadlineDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.LateSubmitDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.UpdatedDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ResourceFilePath)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Module.ModuleName)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">Edit</a>
+                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary ms-1">Details</a>
+                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger ms-1">Delete</a>
+                @if (!string.IsNullOrEmpty(item.ResourceFilePath))
+                {
+                    <a asp-action="Download" asp-route-id="@item.Id" class="btn btn-sm btn-success ms-1">Download Brief</a>
+                }
             </td>
         </tr>
 }

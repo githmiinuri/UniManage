@@ -1,67 +1,92 @@
-﻿@model UniManage3.Models.Assignment
+﻿@model UniManage3.Models.AssignmentUploadViewModel
 
 @{
     ViewData["Title"] = "Edit";
 }
 
-<h1>Edit</h1>
+<h1>Edit Assignment</h1>
 
 <h4>Assignment</h4>
 <hr />
 <div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="col-md-6">
+        <form asp-action="Edit" enctype="multipart/form-data">
             <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <label asp-for="AssignmentName" class="control-label"></label>
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="mb-3">
+                <label asp-for="AssignmentName" class="form-label"></label>
                 <input asp-for="AssignmentName" class="form-control" />
                 <span asp-validation-for="AssignmentName" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" class="form-control" />
+
+            <div class="mb-3">
+                <label asp-for="Description" class="form-label"></label>
+                <textarea asp-for="Description" class="form-control" rows="3"></textarea>
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="IssuedDate" class="control-label"></label>
-                <input asp-for="IssuedDate" class="form-control" />
+
+            <div class="mb-3">
+                <label asp-for="IssuedDate" class="form-label"></label>
+                <input asp-for="IssuedDate" type="datetime-local" class="form-control" />
                 <span asp-validation-for="IssuedDate" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="DeadlineDate" class="control-label"></label>
-                <input asp-for="DeadlineDate" class="form-control" />
+
+            <div class="mb-3">
+                <label asp-for="DeadlineDate" class="form-label"></label>
+                <input asp-for="DeadlineDate" type="datetime-local" class="form-control" />
                 <span asp-validation-for="DeadlineDate" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="LateSubmitDate" class="control-label"></label>
-                <input asp-for="LateSubmitDate" class="form-control" />
+
+            <div class="mb-3">
+                <label asp-for="LateSubmitDate" class="form-label"></label>
+                <input asp-for="LateSubmitDate" type="datetime-local" class="form-control" />
                 <span asp-validation-for="LateSubmitDate" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="UpdatedDate" class="control-label"></label>
-                <input asp-for="UpdatedDate" class="form-control" />
-                <span asp-validation-for="UpdatedDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ResourceFilePath" class="control-label"></label>
+
+            <div class="mb-3 d-none">
+                <label asp-for="ResourceFilePath" class="form-label"></label>
                 <input asp-for="ResourceFilePath" class="form-control" />
-                <span asp-validation-for="ResourceFilePath" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="ModuleId" class="control-label"></label>
-                <select asp-for="ModuleId" class="form-control" asp-items="ViewBag.ModuleId"></select>
+
+            <div class="mb-3 d-none">
+                <label asp-for="UpdatedDate" class="form-label"></label>
+                <input asp-for="UpdatedDate" class="form-control" />
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="ModuleId" class="form-label"></label>
+                <select asp-for="ModuleId" class="form-select" asp-items="ViewBag.ModuleId"></select>
                 <span asp-validation-for="ModuleId" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
+
+            <div class="mb-3">
+                <label class="form-label">Current Brief</label>
+                @if (!string.IsNullOrEmpty(Model.ResourceFilePath))
+                {
+                    <div class="mb-2">
+                        <a class="btn btn-outline-secondary btn-sm" asp-action="Download" asp-route-id="@Model.Id">Download current brief</a>
+                        <span class="ms-2">@System.IO.Path.GetFileName(Model.ResourceFilePath)</span>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-muted">No file uploaded yet.</div>
+                }
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="UploadedFile" class="form-label">Replace Brief (PDF)</label>
+                <input asp-for="UploadedFile" type="file" class="form-control" accept=".pdf" />
+                <span asp-validation-for="UploadedFile" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <button type="submit" class="btn btn-primary">Save</button>
+                <a asp-action="Index" class="btn btn-secondary ms-2">Back to List</a>
             </div>
         </form>
     </div>
-</div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
 </div>
 
 @section Scripts {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -55,16 +56,33 @@ namespace UniManage3.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CourseMaterialUploadViewModel vm)
         {
+            // Ignore FilePath validation coming from the entity's Required attribute
+            ModelState.Remove("FilePath");
+
             ViewData["ModuleId"] = new SelectList(_context.Modules, "Id", "ModuleName", vm.ModuleId);
             ViewData["MaterialTypes"] = Enum.GetValues(typeof(MaterialTypeEnum)).Cast<MaterialTypeEnum>().Select(m => new SelectListItem { Text = m.ToString(), Value = m.ToString() }).ToList();
 
             if (!ModelState.IsValid)
             {
+                // Log validation errors to console so developer can see which fields failed
+                Debug.WriteLine("ModelState is invalid in Create action (initial). Errors:");
+                foreach (var kvp in ModelState)
+                {
+                    var key = kvp.Key;
+                    var errors = kvp.Value.Errors;
+                    foreach (var err in errors)
+                    {
+                        Debug.WriteLine($" - {key}: {err.ErrorMessage}");
+                    }
+                }
+
                 return View(vm);
             }
 
+            // Debug check for uploaded file
             if (vm.UploadedFile == null || vm.UploadedFile.Length == 0)
             {
+                Debug.WriteLine("UploadedFile is null or empty in Create action.");
                 ModelState.AddModelError("UploadedFile", "Please select a file to upload.");
                 return View(vm);
             }
@@ -72,7 +90,11 @@ namespace UniManage3.Controllers
             var uploadsRoot = Path.Combine(_env.WebRootPath ?? "wwwroot", UploadsFolder.Replace('/', Path.DirectorySeparatorChar));
             try
             {
-                if (!Directory.Exists(uploadsRoot)) Directory.CreateDirectory(uploadsRoot);
+                if (!Directory.Exists(uploadsRoot))
+                {
+                    Debug.WriteLine($"Creating uploads directory: {uploadsRoot}");
+                    Directory.CreateDirectory(uploadsRoot);
+                }
 
                 var ext = Path.GetExtension(vm.UploadedFile.FileName);
                 var fileName = $"{Guid.NewGuid()}{ext}";
@@ -85,23 +107,60 @@ namespace UniManage3.Controllers
 
                 var relativePath = $"/{UploadsFolder}/{fileName}"; // for storing in DB
 
+                Debug.WriteLine($"Created relativePath: {relativePath}");
+
                 var material = new CourseMaterial
                 {
                     MaterialName = vm.MaterialName,
                     MaterialType = vm.MaterialType,
                     Description = vm.Description,
                     Duration = vm.Duration,
+                    // DO NOT leave FilePath empty — assign the path you just saved
                     FilePath = relativePath,
                     ModuleId = vm.ModuleId
                 };
 
+                // Re-check ModelState after programmatically setting FilePath (if needed)
+                if (!ModelState.IsValid)
+                {
+                    Debug.WriteLine("ModelState is invalid in Create action after assigning FilePath. Errors:");
+                    foreach (var kvp in ModelState)
+                    {
+                        var key = kvp.Key;
+                        var errors = kvp.Value.Errors;
+                        foreach (var err in errors)
+                        {
+                            Debug.WriteLine($" - {key}: {err.ErrorMessage}");
+                        }
+                    }
+
+                    // Surface errors to the view
+                    ModelState.AddModelError(string.Empty, "Model validation failed after assigning file path. See debug output for details.");
+                    return View(vm);
+                }
+
+                Debug.WriteLine("Adding material to DbContext");
                 _context.Add(material);
-                await _context.SaveChangesAsync();
+
+                try
+                {
+                    Debug.WriteLine("Calling SaveChangesAsync for Create");
+                    await _context.SaveChangesAsync();
+                    Debug.WriteLine("SaveChangesAsync succeeded for Create");
+                }
+                catch (DbUpdateException dbEx)
+                {
+                    var msg = dbEx.InnerException?.Message ?? dbEx.Message;
+                    Debug.WriteLine($"DbUpdateException on SaveChangesAsync in Create: {msg}");
+                    ModelState.AddModelError(string.Empty, "Database error: " + msg);
+                    return View(vm);
+                }
 
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
             {
+                Debug.WriteLine($"General exception in Create action: {ex}");
                 ModelState.AddModelError(string.Empty, "An error occurred while uploading the file: " + ex.Message);
                 return View(vm);
             }
@@ -137,12 +196,29 @@ namespace UniManage3.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, CourseMaterialUploadViewModel vm)
         {
+            // If the entity enforces FilePath as Required, ignore it in ModelState so we can assign programmatically
+            ModelState.Remove("FilePath");
+
             if (id != vm.Id) return NotFound();
 
             ViewData["ModuleId"] = new SelectList(_context.Modules, "Id", "ModuleName", vm.ModuleId);
             ViewData["MaterialTypes"] = Enum.GetValues(typeof(MaterialTypeEnum)).Cast<MaterialTypeEnum>().Select(m => new SelectListItem { Text = m.ToString(), Value = m.ToString() }).ToList();
 
-            if (!ModelState.IsValid) return View(vm);
+            if (!ModelState.IsValid)
+            {
+                Debug.WriteLine("ModelState is invalid in Edit action (initial). Errors:");
+                foreach (var kvp in ModelState)
+                {
+                    var key = kvp.Key;
+                    var errors = kvp.Value.Errors;
+                    foreach (var err in errors)
+                    {
+                        Debug.WriteLine($" - {key}: {err.ErrorMessage}");
+                    }
+                }
+
+                return View(vm);
+            }
 
             var material = await _context.CourseMaterials.FindAsync(id);
             if (material == null) return NotFound();
@@ -153,12 +229,16 @@ namespace UniManage3.Controllers
                 if (vm.UploadedFile != null && vm.UploadedFile.Length > 0)
                 {
                     var uploadsRoot = Path.Combine(_env.WebRootPath ?? "wwwroot", UploadsFolder.Replace('/', Path.DirectorySeparatorChar));
-                    if (!Directory.Exists(uploadsRoot)) Directory.CreateDirectory(uploadsRoot);
+                    if (!Directory.Exists(uploadsRoot))
+                    {
+                        Debug.WriteLine($"Creating uploads directory: {uploadsRoot}");
+                        Directory.CreateDirectory(uploadsRoot);
+                    }
 
                     // delete old file
                     if (!string.IsNullOrEmpty(material.FilePath))
                     {
-                        var oldPath = material.FilePath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar);
+                        var oldPath = material.FilePath.TrimStart('/').Replace(',', Path.DirectorySeparatorChar);
                         var oldFull = Path.Combine(_env.WebRootPath ?? "wwwroot", oldPath);
                         if (System.IO.File.Exists(oldFull))
                         {
@@ -175,6 +255,7 @@ namespace UniManage3.Controllers
                         await vm.UploadedFile.CopyToAsync(stream);
                     }
 
+                    // assign new path before saving
                     material.FilePath = $"/{UploadsFolder}/{fileName}";
                 }
 
@@ -185,8 +266,40 @@ namespace UniManage3.Controllers
                 material.Duration = vm.Duration;
                 material.ModuleId = vm.ModuleId;
 
+                // Re-check ModelState here too before saving
+                if (!ModelState.IsValid)
+                {
+                    Debug.WriteLine("ModelState is invalid in Edit action after updates. Errors:");
+                    foreach (var kvp in ModelState)
+                    {
+                        var key = kvp.Key;
+                        var errors = kvp.Value.Errors;
+                        foreach (var err in errors)
+                        {
+                            Debug.WriteLine($" - {key}: {err.ErrorMessage}");
+                        }
+                    }
+
+                    ModelState.AddModelError(string.Empty, "Model validation failed after updates. See debug output for details.");
+                    return View(vm);
+                }
+
+                Debug.WriteLine("Updating material in DbContext (Edit)");
                 _context.Update(material);
-                await _context.SaveChangesAsync();
+
+                try
+                {
+                    Debug.WriteLine("Calling SaveChangesAsync for Edit");
+                    await _context.SaveChangesAsync();
+                    Debug.WriteLine("SaveChangesAsync succeeded for Edit");
+                }
+                catch (DbUpdateException dbEx)
+                {
+                    var msg = dbEx.InnerException?.Message ?? dbEx.Message;
+                    Debug.WriteLine($"DbUpdateException on SaveChangesAsync in Edit: {msg}");
+                    ModelState.AddModelError(string.Empty, "Database error: " + msg);
+                    return View(vm);
+                }
 
                 return RedirectToAction(nameof(Index));
             }
@@ -197,6 +310,7 @@ namespace UniManage3.Controllers
             }
             catch (Exception ex)
             {
+                Debug.WriteLine($"General exception in Edit action: {ex}");
                 ModelState.AddModelError(string.Empty, "An error occurred while saving changes: " + ex.Message);
                 return View(vm);
             }

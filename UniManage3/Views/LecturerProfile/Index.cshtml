@@ -1,0 +1,128 @@
+﻿@model UniManage3.Models.ViewModels.LecturerProfileIndexViewModel
+@{
+    ViewData["Title"] = "Profile Management";
+}
+
+<div class="container py-4">
+    <h2 class="mb-3">Profile Management</h2>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+    }
+
+    <div class="row">
+        <div class="col-lg-4 mb-3">
+            <div class="list-group" id="profileTabs" role="tablist">
+                <a class="list-group-item list-group-item-action active" data-bs-toggle="list" href="#personal" role="tab">Personal Information</a>
+                <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#email" role="tab">Email Settings</a>
+                <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#security" role="tab">Security</a>
+            </div>
+        </div>
+        <div class="col-lg-8">
+            <div class="tab-content">
+                <div class="tab-pane fade show active" id="personal" role="tabpanel">
+                    <div class="card">
+                        <div class="card-body">
+                            <form asp-controller="LecturerProfile" asp-action="UpdateProfile" method="post">
+                                @Html.AntiForgeryToken()
+                                <div class="row g-2">
+                                    <div class="col-md-6">
+                                        <label class="form-label">First Name</label>
+                                        <input asp-for="Profile.FirstName" class="form-control" />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Last Name</label>
+                                        <input asp-for="Profile.LastName" class="form-control" />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Contact Number</label>
+                                        <input asp-for="Profile.ContactNumber" class="form-control" />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">NIC Number</label>
+                                        <input asp-for="Profile.NICNumber" class="form-control" />
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Address Line 1</label>
+                                        <input asp-for="Profile.AddressLine1" class="form-control" />
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Address Line 2</label>
+                                        <input asp-for="Profile.AddressLine2" class="form-control" />
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Province</label>
+                                        <input asp-for="Profile.Province" class="form-control" />
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">City</label>
+                                        <input asp-for="Profile.City" class="form-control" />
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Zip Code</label>
+                                        <input asp-for="Profile.ZipCode" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="mt-3 text-end">
+                                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="email" role="tabpanel">
+                    <div class="card">
+                        <div class="card-body">
+                            <form asp-controller="LecturerProfile" asp-action="UpdateEmail" method="post">
+                                @Html.AntiForgeryToken()
+                                <div class="mb-3">
+                                    <label class="form-label">Current Email</label>
+                                    <input asp-for="Email.CurrentEmail" class="form-control" />
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">New Email</label>
+                                    <input asp-for="Email.NewEmail" class="form-control" />
+                                </div>
+                                <div class="text-end">
+                                    <button type="submit" class="btn btn-primary">Update Email</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="security" role="tabpanel">
+                    <div class="card">
+                        <div class="card-body">
+                            <form asp-controller="LecturerProfile" asp-action="ChangePassword" method="post">
+                                @Html.AntiForgeryToken()
+                                <div class="mb-3">
+                                    <label class="form-label">Current Password</label>
+                                    <input asp-for="Password.CurrentPassword" class="form-control" type="password" />
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">New Password</label>
+                                    <input asp-for="Password.NewPassword" class="form-control" type="password" />
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Confirm New Password</label>
+                                    <input asp-for="Password.ConfirmPassword" class="form-control" type="password" />
+                                </div>
+                                <div class="text-end">
+                                    <button type="submit" class="btn btn-primary">Change Password</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

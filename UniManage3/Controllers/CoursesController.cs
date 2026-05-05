@@ -1,49 +1,28 @@
-<<<<<<< HEAD
 using System;
-=======
-﻿using System;
 using System.Collections.Generic;
->>>>>>> 355f77b (#1 feat: Implement the lecturer flow)
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-<<<<<<< HEAD
 using Microsoft.EntityFrameworkCore;
 using UniManage3.Data;
 using UniManage3.Models;
 using System.Diagnostics;
-=======
-using Microsoft.DotNet.Scaffolding.Shared.Messaging;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.VisualBasic;
-using UniManage3.Data;
-using UniManage3.Models;
->>>>>>> 355f77b (#1 feat: Implement the lecturer flow)
 
 namespace UniManage3.Controllers
 {
     public class CoursesController : Controller
     {
-<<<<<<< HEAD
         private readonly ApplicationDbContext _db;
 
         public CoursesController(ApplicationDbContext db)
         {
             _db = db;
-=======
-        private readonly ApplicationDbContext _context;
-
-        public CoursesController(ApplicationDbContext context)
-        {
-            _context = context;
->>>>>>> 355f77b (#1 feat: Implement the lecturer flow)
         }
 
         // GET: Courses
         public async Task<IActionResult> Index()
         {
-<<<<<<< HEAD
             var courses = await _db.Courses
                 .Include(c => c.PrerequisiteCourse)
                 .Include(c => c.Department)
@@ -66,15 +45,11 @@ namespace UniManage3.Controllers
                 .FirstOrDefaultAsync(x => x.Id == id);
             if (c == null) return NotFound();
             return PartialView("Partials/_CourseRow", c);
-=======
-            return View(await _context.Courses.ToListAsync());
->>>>>>> 355f77b (#1 feat: Implement the lecturer flow)
         }
 
         // GET: Courses/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-<<<<<<< HEAD
             if (id == null) return NotFound();
 
             var course = await _db.Courses
@@ -89,25 +64,11 @@ namespace UniManage3.Controllers
             {
                 return PartialView("Partials/_CourseDetails", course);
             }
-=======
-            if (id == null)
-            {
-                return NotFound();
-            }
 
-            var course = await _context.Courses
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (course == null)
-            {
-                return NotFound();
-            }
-
->>>>>>> 355f77b (#1 feat: Implement the lecturer flow)
             return View(course);
         }
 
         // GET: Courses/Create
-<<<<<<< HEAD
         public async Task<IActionResult> Create()
         {
             // populate prerequisite dropdown from existing courses
@@ -218,31 +179,11 @@ namespace UniManage3.Controllers
                 return PartialView("Partials/_CourseForm", course);
             }
             return View(course);
-=======
-        public IActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: Courses/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,CourseCode,CourseName,Description")] Course course)
-        {
-           
-                _context.Add(course);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-  
->>>>>>> 355f77b (#1 feat: Implement the lecturer flow)
         }
 
         // GET: Courses/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-<<<<<<< HEAD
             if (id == null) return NotFound();
 
             var course = await _db.Courses.FindAsync(id);
@@ -355,75 +296,17 @@ namespace UniManage3.Controllers
                 return PartialView("Partials/_CourseForm", course);
             }
             return View(course);
-=======
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var course = await _context.Courses.FindAsync(id);
-            if (course == null)
-            {
-                return NotFound();
-            }
-            return View(course);
-        }
-
-        // POST: Courses/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,CourseCode,CourseName,Description")] Course course)
-        {
-            if (id != course.Id)
-            {
-                return NotFound();
-            }
-
-                try
-                {
-                    _context.Update(course);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!CourseExists(course.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
->>>>>>> 355f77b (#1 feat: Implement the lecturer flow)
         }
 
         // GET: Courses/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-<<<<<<< HEAD
             if (id == null) return NotFound();
 
             var course = await _db.Courses
                 .Include(c => c.PrerequisiteCourse)
                 .FirstOrDefaultAsync(c => c.Id == id);
             if (course == null) return NotFound();
-=======
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var course = await _context.Courses
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (course == null)
-            {
-                return NotFound();
-            }
->>>>>>> 355f77b (#1 feat: Implement the lecturer flow)
 
             return View(course);
         }
@@ -433,7 +316,6 @@ namespace UniManage3.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-<<<<<<< HEAD
             var course = await _db.Courses.FindAsync(id);
             if (course != null)
             {
@@ -458,21 +340,6 @@ namespace UniManage3.Controllers
         private bool CourseExists(int id)
         {
             return _db.Courses.Any(e => e.Id == id);
-=======
-            var course = await _context.Courses.FindAsync(id);
-            if (course != null)
-            {
-                _context.Courses.Remove(course);
-            }
-
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
-
-        private bool CourseExists(int id)
-        {
-            return _context.Courses.Any(e => e.Id == id);
->>>>>>> 355f77b (#1 feat: Implement the lecturer flow)
         }
     }
 }

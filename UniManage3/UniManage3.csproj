@@ -20,6 +20,10 @@
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="8.0.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Migrations\" />
+  </ItemGroup>
+
   <!-- NOTE: To enable EF Core and MySQL support install these packages locally:
        dotnet add package Pomelo.EntityFrameworkCore.MySql
        dotnet add package Microsoft.EntityFrameworkCore.Design

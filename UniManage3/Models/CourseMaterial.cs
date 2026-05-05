@@ -21,9 +21,8 @@ namespace UniManage3.Models
         // Optional: "Week 1", "Module 2"
         public string Duration { get; set; }
 
-        [Required]
         // Stores the local path, e.g., "/uploads/materials/intro-video.mp4"
-        public string FilePath { get; set; }
+        public string? FilePath { get; set; }
 
         [Required]
         public int ModuleId { get; set; }

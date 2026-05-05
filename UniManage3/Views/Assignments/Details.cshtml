@@ -4,63 +4,38 @@
     ViewData["Title"] = "Details";
 }
 
-<h1>Details</h1>
+<h1>Assignment Details</h1>
 
-<div>
-    <h4>Assignment</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.AssignmentName)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.AssignmentName)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Description)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Description)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.IssuedDate)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.IssuedDate)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DeadlineDate)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DeadlineDate)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.LateSubmitDate)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.LateSubmitDate)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.UpdatedDate)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.UpdatedDate)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ResourceFilePath)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ResourceFilePath)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Module)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Module.ModuleName)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+<div class="card mb-3">
+    <div class="card-body">
+        <h4 class="card-title">@Model.AssignmentName</h4>
+        <p class="card-text">@Model.Description</p>
+        <dl class="row">
+            <dt class="col-sm-3">Issued Date</dt>
+            <dd class="col-sm-9">@Model.IssuedDate.ToString("f")</dd>
+
+            <dt class="col-sm-3">Deadline</dt>
+            <dd class="col-sm-9">@Model.DeadlineDate.ToString("f")</dd>
+
+            <dt class="col-sm-3">Late Submit</dt>
+            <dd class="col-sm-9">@(Model.LateSubmitDate.HasValue ? Model.LateSubmitDate.Value.ToString("f") : "-")</dd>
+
+            <dt class="col-sm-3">Updated</dt>
+            <dd class="col-sm-9">@(Model.UpdatedDate.HasValue ? Model.UpdatedDate.Value.ToString("f") : "-")</dd>
+
+            <dt class="col-sm-3">Module</dt>
+            <dd class="col-sm-9">@Model.Module?.ModuleName</dd>
+        </dl>
+
+        @if (!string.IsNullOrEmpty(Model.ResourceFilePath))
+        {
+            <a asp-action="Download" asp-route-id="@Model.Id" class="btn btn-lg btn-success">Download Brief (PDF)</a>
+        }
+        else
+        {
+            <div class="alert alert-warning">No brief uploaded for this assignment.</div>
+        }
+
+        <a asp-action="Index" class="btn btn-secondary ms-2">Back to List</a>
+    </div>
 </div>
