@@ -1,0 +1,71 @@
+@model UniManage3.Models.ViewModels.SubmissionListViewModel
+
+@{
+    ViewData["Title"] = "Submissions";
+}
+
+<h1>Student Submissions</h1>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-auto">
+                <label class="form-label">Batch</label>
+                <select asp-for="SelectedBatchId" class="form-select" asp-items="Model.Batches">
+                    <option value="">All</option>
+                </select>
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-primary">Filter</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+}
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Student</th>
+            <th>Assignment</th>
+            <th>Batch</th>
+            <th>Submitted</th>
+            <th>Status</th>
+            <th>Marks</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var s in Model.Submissions)
+        {
+            <tr>
+                <td>@(s.Student?.FullName ?? "Unknown")</td>
+                <td>@(s.Assignment?.AssignmentName ?? "Unknown")</td>
+                <td>@(s.Assignment?.Batch?.BatchName ?? "-")</td>
+                <td>@s.SubmittedTime.ToString("yyyy-MM-dd HH:mm")</td>
+                <td>
+                    @if (s.Status == UniManage3.Models.SubmissionStatus.OnTime)
+                    {
+                        <span class="badge bg-success">On Time</span>
+                    }
+                    else if (s.Status == UniManage3.Models.SubmissionStatus.Late)
+                    {
+                        <span class="badge bg-danger">Late</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary">Pending</span>
+                    }
+                </td>
+                <td>@(s.Marks.HasValue ? s.Marks.ToString() : "-")</td>
+                <td>
+                    <a asp-controller="Submissions" asp-action="GradeSubmission" asp-route-id="@s.Id" class="btn btn-sm btn-primary">Grade / Review</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

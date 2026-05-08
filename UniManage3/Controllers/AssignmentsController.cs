@@ -28,7 +28,7 @@ namespace UniManage3.Controllers
         // GET: Assignments
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Assignments.Include(a => a.Module);
+            var applicationDbContext = _context.Assignments.Include(a => a.Module).Include(a => a.Batch);
             return View(await applicationDbContext.ToListAsync());
         }
 
@@ -39,6 +39,7 @@ namespace UniManage3.Controllers
 
             var assignment = await _context.Assignments
                 .Include(a => a.Module)
+                .Include(a => a.Batch)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (assignment == null) return NotFound();
 
@@ -49,6 +50,7 @@ namespace UniManage3.Controllers
         public IActionResult Create()
         {
             ViewData["ModuleId"] = new SelectList(_context.Modules, "Id", "ModuleName");
+            ViewData["BatchId"] = new SelectList(_context.Batches.OrderBy(b => b.BatchName), "Id", "BatchName");
             return View();
         }
 
@@ -62,6 +64,7 @@ namespace UniManage3.Controllers
             ModelState.Remove("UpdatedDate");
 
             ViewData["ModuleId"] = new SelectList(_context.Modules, "Id", "ModuleName", vm.ModuleId);
+            ViewData["BatchId"] = new SelectList(_context.Batches.OrderBy(b => b.BatchName), "Id", "BatchName", vm.BatchId);
 
             if (!ModelState.IsValid)
             {
@@ -97,7 +100,8 @@ namespace UniManage3.Controllers
                 LateSubmitDate = vm.LateSubmitDate,
                 UpdatedDate = null,
                 ResourceFilePath = null,
-                ModuleId = vm.ModuleId
+                ModuleId = vm.ModuleId,
+                BatchId = vm.BatchId
             };
 
             var uploadsRoot = Path.Combine(_env.WebRootPath ?? "wwwroot", AssignmentsUploadsFolder.Replace('/', Path.DirectorySeparatorChar));
@@ -157,10 +161,12 @@ namespace UniManage3.Controllers
                 LateSubmitDate = assignment.LateSubmitDate,
                 UpdatedDate = assignment.UpdatedDate,
                 ResourceFilePath = assignment.ResourceFilePath,
-                ModuleId = assignment.ModuleId
+                ModuleId = assignment.ModuleId,
+                BatchId = assignment.BatchId
             };
 
             ViewData["ModuleId"] = new SelectList(_context.Modules, "Id", "ModuleName", vm.ModuleId);
+            ViewData["BatchId"] = new SelectList(_context.Batches.OrderBy(b => b.BatchName), "Id", "BatchName", vm.BatchId);
             return View(vm);
         }
 
@@ -175,6 +181,7 @@ namespace UniManage3.Controllers
             if (id != vm.Id) return NotFound();
 
             ViewData["ModuleId"] = new SelectList(_context.Modules, "Id", "ModuleName", vm.ModuleId);
+            ViewData["BatchId"] = new SelectList(_context.Batches.OrderBy(b => b.BatchName), "Id", "BatchName", vm.BatchId);
 
             if (!ModelState.IsValid)
             {
@@ -234,6 +241,7 @@ namespace UniManage3.Controllers
                 material.LateSubmitDate = vm.LateSubmitDate;
                 material.UpdatedDate = DateTime.Now;
                 material.ModuleId = vm.ModuleId;
+                material.BatchId = vm.BatchId;
 
                 if (!ModelState.IsValid)
                 {
@@ -281,6 +289,7 @@ namespace UniManage3.Controllers
 
             var assignment = await _context.Assignments
                 .Include(a => a.Module)
+                .Include(a => a.Batch)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (assignment == null) return NotFound();
 

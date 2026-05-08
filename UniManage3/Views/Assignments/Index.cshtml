@@ -19,6 +19,7 @@
             <th>Late Submit</th>
             <th>Updated</th>
             <th>Module</th>
+            <th>Batch</th>
             <th></th>
         </tr>
     </thead>
@@ -32,6 +33,7 @@
             <td>@(item.LateSubmitDate.HasValue ? item.LateSubmitDate.Value.ToString("g") : "-")</td>
             <td>@(item.UpdatedDate.HasValue ? item.UpdatedDate.Value.ToString("g") : "-")</td>
             <td>@item.Module?.ModuleName</td>
+            <td>@(item.Batch != null ? (item.Batch.BatchName ?? item.Batch.BatchCode) : "-")</td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">Edit</a>
                 <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary ms-1">Details</a>

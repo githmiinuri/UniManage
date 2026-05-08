@@ -22,6 +22,8 @@
             <dd class="col-sm-9">@Model.DeadlineDate.ToString("f")</dd>
             <dt class="col-sm-3">Module</dt>
             <dd class="col-sm-9">@Model.Module?.ModuleName</dd>
+            <dt class="col-sm-3">Batch</dt>
+            <dd class="col-sm-9">@(Model.Batch != null ? (Model.Batch.BatchName ?? Model.Batch.BatchCode) : "-")</dd>
         </dl>
 
         <form asp-action="Delete">

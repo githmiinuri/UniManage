@@ -28,6 +28,10 @@ namespace UniManage3.Models
         [Required]
         public int ModuleId { get; set; }
 
+        // New BatchId for selecting batch in Create/Edit
+        [Required]
+        public int BatchId { get; set; }
+
         // File upload
         public IFormFile UploadedFile { get; set; }
     }

@@ -28,6 +28,7 @@ namespace UniManage3.Models.ViewModels
         // Dummy/submission structures for future implementation
         public class DummyStudentSubmission
         {
+            public int SubmissionId { get; set; }
             public string StudentName { get; set; }
             public string AssignmentName { get; set; }
             public string ModuleName { get; set; }

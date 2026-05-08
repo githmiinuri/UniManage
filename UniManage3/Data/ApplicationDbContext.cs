@@ -20,6 +20,8 @@ namespace UniManage3.Data
         public DbSet<Assignment> Assignments { get; set; }
         public DbSet<Department> Departments { get; set; }
         public DbSet<Enrollment> Enrollments { get; set; }
+        public DbSet<Batch> Batches { get; set; }
+        public DbSet<AssignmentSubmission> AssignmentSubmissions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

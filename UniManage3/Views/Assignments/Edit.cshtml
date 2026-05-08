@@ -61,6 +61,12 @@
             </div>
 
             <div class="mb-3">
+                <label asp-for="BatchId" class="form-label">Batch</label>
+                <select asp-for="BatchId" class="form-select" asp-items="ViewBag.BatchId"></select>
+                <span asp-validation-for="BatchId" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
                 <label class="form-label">Current Brief</label>
                 @if (!string.IsNullOrEmpty(Model.ResourceFilePath))
                 {

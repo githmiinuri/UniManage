@@ -91,24 +91,25 @@ namespace UniManage3.Controllers.Lecture
                 var baseValue = rnd.Next(50, 201);
                 vm.TotalEnrolledStudents = Math.Max(50, baseValue + (courses.Count * 5));
 
-                // --- Generate dummy recent submissions (3-5 items) ---
-                var submissions = new System.Collections.Generic.List<LectureDashboardViewModel.DummyStudentSubmission>();
-                var statuses = new[] { "Pending Review", "Graded", "Late Submission" };
-                var assns = modules.SelectMany(m => m.Assignments ?? new System.Collections.Generic.List<Assignment>()).ToList();
-                for (int i = 0; i < Math.Min(5, Math.Max(3, assns.Count)); i++)
-                {
-                    var assignment = assns.Any() ? assns[i % assns.Count] : null;
-                    var mod = assignment != null ? modules.FirstOrDefault(m => m.Id == assignment.ModuleId) : modules.ElementAtOrDefault(i % Math.Max(1, modules.Count));
-                    submissions.Add(new LectureDashboardViewModel.DummyStudentSubmission
+                // --- Fetch latest 3 real submissions from DB related to this lecturer ---
+                var latestSubmissions = await _context.AssignmentSubmissions
+                    .Include(s => s.Student)
+                    .Include(s => s.Assignment).ThenInclude(a => a.Module)
+                    .Where(s => s.Assignment.Module.LecturerId == lecturer.Id)
+                    .OrderByDescending(s => s.SubmittedTime)
+                    .Take(3)
+                    .Select(s => new LectureDashboardViewModel.DummyStudentSubmission
                     {
-                        StudentName = $"Student {rnd.Next(1000, 9999)}",
-                        AssignmentName = assignment?.AssignmentName ?? $"Assignment {i + 1}",
-                        ModuleName = mod?.ModuleName ?? "General",
-                        SubmittedDate = DateTime.Now.AddDays(-rnd.Next(0, 7)),
-                        Status = statuses[rnd.Next(statuses.Length)]
-                    });
-                }
-                vm.RecentSubmissions = submissions;
+                        SubmissionId = s.Id,
+                        StudentName = s.Student.FullName,
+                        AssignmentName = s.Assignment.AssignmentName,
+                        ModuleName = s.Assignment.Module.ModuleName,
+                        SubmittedDate = s.SubmittedTime,
+                        Status = s.Status.ToString()
+                    })
+                    .ToListAsync();
+
+                vm.RecentSubmissions = latestSubmissions;
 
                 // --- Generate dummy grading summaries (2-3 items) ---
                 var grading = new System.Collections.Generic.List<LectureDashboardViewModel.DummyGradingSummary>();

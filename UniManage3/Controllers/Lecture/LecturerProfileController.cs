@@ -63,7 +63,7 @@ namespace UniManage3.Controllers.Lecture
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateProfile(ProfileUpdateViewModel model)
+        public async Task<IActionResult> UpdateProfile([Bind(Prefix = "Profile")] ProfileUpdateViewModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -89,8 +89,8 @@ namespace UniManage3.Controllers.Lecture
             }
 
             // update lecturer fields
-            lecturer.FirstName = model.FirstName;
-            lecturer.LastName = model.LastName;
+            lecturer.FirstName = model.FirstName?.Trim();
+            lecturer.LastName = model.LastName?.Trim();
             if (int.TryParse(model.ContactNumber, out var contactParsed))
             {
                 lecturer.ContactNumber = contactParsed;
@@ -99,11 +99,11 @@ namespace UniManage3.Controllers.Lecture
             {
                 lecturer.ContactNumber = null;
             }
-            lecturer.NICNumber = model.NICNumber;
-            lecturer.AddressLine1 = model.AddressLine1;
-            lecturer.AddressLine2 = model.AddressLine2;
-            lecturer.Province = model.Province;
-            lecturer.City = model.City;
+            lecturer.NICNumber = model.NICNumber?.Trim();
+            lecturer.AddressLine1 = model.AddressLine1?.Trim();
+            lecturer.AddressLine2 = model.AddressLine2?.Trim();
+            lecturer.Province = model.Province?.Trim();
+            lecturer.City = model.City?.Trim();
             lecturer.ZipCode = model.ZipCode;
 
             // update user's full name
@@ -124,7 +124,7 @@ namespace UniManage3.Controllers.Lecture
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateEmail(EmailUpdateViewModel model)
+        public async Task<IActionResult> UpdateEmail([Bind(Prefix = "Email")] EmailUpdateViewModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -173,7 +173,7 @@ namespace UniManage3.Controllers.Lecture
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ChangePassword(PasswordUpdateViewModel model)
+        public async Task<IActionResult> ChangePassword([Bind(Prefix = "Password")] PasswordUpdateViewModel model)
         {
             if (!ModelState.IsValid)
             {

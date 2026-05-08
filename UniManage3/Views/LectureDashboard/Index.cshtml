@@ -174,7 +174,7 @@
             <div class="card shadow-sm">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <strong>Recent Student Submissions</strong>
-                    <a class="btn btn-sm btn-outline-secondary" href="#">View All Submissions</a>
+                    <a class="btn btn-sm btn-outline-secondary" asp-controller="Submissions" asp-action="Index">View All Submissions</a>
                 </div>
                 <div class="card-body p-0">
                     @if (Model.RecentSubmissions != null && Model.RecentSubmissions.Any())
@@ -199,8 +199,23 @@
                                             <td>@s.AssignmentName</td>
                                             <td>@s.ModuleName</td>
                                             <td>@s.SubmittedDate.ToString("yyyy-MM-dd HH:mm")</td>
-                                            <td>@s.Status</td>
-                                            <td><button class="btn btn-sm btn-outline-primary" disabled>Review</button></td>
+                                            <td>
+                                                @if (s.Status == "OnTime")
+                                                {
+                                                    <span class="badge bg-success">On Time</span>
+                                                }
+                                                else if (s.Status == "Late")
+                                                {
+                                                    <span class="badge bg-danger">Late</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-secondary">@s.Status</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <a class="btn btn-sm btn-outline-primary" asp-controller="Submissions" asp-action="GradeSubmission" asp-route-id="@s.SubmissionId">Review</a>
+                                            </td>
                                         </tr>
                                     }
                                 </tbody>
