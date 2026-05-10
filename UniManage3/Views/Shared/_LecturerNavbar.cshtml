@@ -1,48 +1,147 @@
 ﻿@using System.Security.Claims
-<nav class= "navbar navbar-expand-lg navbar-light bg-white border-bottom" >
-    <div class="container-fluid">
-        <a class="navbar-brand" asp-controller="LectureDashboard" asp-action="Index">UniManage</a> <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#lecturerNavbar" aria-controls="lecturerNavbar" aria-expanded="false" aria-label="Toggle navigation"> <span class="navbar-toggler-icon"></span> </button>
+@using Microsoft.AspNetCore.Authentication
+@{
+    var displayEmail = User.FindFirstValue(ClaimTypes.Email) ?? User?.Identity?.Name;
+}
+<style>
+    .lecturer-navbar {
+        --lecturer-nav-accent: #4fc3f7;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+        .lecturer-navbar .navbar-brand {
+            letter-spacing: 0.02em;
+            font-size: 1.35rem;
+        }
+
+        .lecturer-navbar .nav-link {
+            position: relative;
+            padding-top: 0.65rem;
+            padding-bottom: 0.65rem;
+            font-weight: 500;
+            letter-spacing: 0.01em;
+            transition: color 0.2s ease, opacity 0.2s ease;
+        }
+
+            .lecturer-navbar .nav-link::after {
+                content: "";
+                position: absolute;
+                left: 0.75rem;
+                right: 0.75rem;
+                bottom: 0.35rem;
+                height: 2px;
+                border-radius: 2px;
+                background: var(--lecturer-nav-accent);
+                transform: scaleX(0);
+                transition: transform 0.2s ease;
+            }
+
+            .lecturer-navbar .nav-link:hover,
+            .lecturer-navbar .nav-link:focus {
+                color: #fff !important;
+                opacity: 1;
+            }
+
+                .lecturer-navbar .nav-link:hover::after,
+                .lecturer-navbar .nav-link:focus::after {
+                    transform: scaleX(1);
+                }
+
+        .lecturer-navbar .navbar-toggler {
+            border-color: rgba(255, 255, 255, 0.35);
+        }
+
+        .lecturer-navbar .dropdown-menu {
+            border: none;
+            box-shadow: 0 0.75rem 2rem rgba(13, 33, 55, 0.18);
+            border-radius: 0.5rem;
+            padding-top: 0.35rem;
+            padding-bottom: 0.35rem;
+            min-width: 15rem;
+        }
+
+        .lecturer-navbar .dropdown-header-profile {
+            font-size: 0.8125rem;
+        }
+
+        .lecturer-navbar #logoutForm button.dropdown-item {
+            cursor: pointer;
+        }
+
+            .lecturer-navbar #logoutForm button.dropdown-item:hover,
+            .lecturer-navbar #logoutForm button.dropdown-item:focus {
+                background-color: var(--bs-dropdown-link-hover-bg);
+            }
+</style>
+<nav class="lecturer-navbar navbar navbar-expand-lg navbar-dark shadow-sm" style="background: linear-gradient(105deg, #0a1f35 0%, #14365a 48%, #0f2844 100%);">
+    <div class="container-fluid px-3 px-lg-4">
+        <a class="navbar-brand fw-bold text-white d-flex align-items-center gap-2" asp-controller="LectureDashboard" asp-action="Index">
+            <span class="d-inline-flex align-items-center justify-content-center rounded-2 bg-white bg-opacity-10 px-2 py-1" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="text-info" viewBox="0 0 16 16" aria-hidden="true">
+                    <path d="M8.211 2.047a.5.5 0 0 0-.422 0l-7.5 3.5a.5.5 0 0 0 .025.917l7.5 3a.5.5 0 0 0 .372 0L14 7.14V13a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1V7.14l3.502-2.326a.5.5 0 0 0 .025-.917l-7.5-3.5Z" />
+                    <path d="M7.493 11.5 3.185 8.247a1 1 0 0 0-.124.437v3.067a1 1 0 0 0 .615.92l3.185 1.275a.5.5 0 0 0 .372 0l3.185-1.274a1 1 0 0 0 .615-.921V8.247a1 1 0 0 0-.124-.438L8.493 11.5a.5.5 0 0 1-.632 0Z" />
+                </svg>
+            </span>
+            <span>UniManage</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#lecturerNavbar" aria-controls="lecturerNavbar" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
         <div class="collapse navbar-collapse" id="lecturerNavbar">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <ul class="navbar-nav flex-grow-1 justify-content-lg-center gap-lg-1 mb-2 mb-lg-0 mt-2 mt-lg-0">
                 <li class="nav-item">
-                    <a class="nav-link" asp-controller="LectureDashboard" asp-action="Index">Home</a>
+                    <a class="nav-link text-white text-opacity-75" asp-controller="LectureDashboard" asp-action="Index">Dashboard</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" asp-controller="Modules" asp-action="Index">Modules</a>
+                    <a class="nav-link text-white text-opacity-75" asp-controller="Modules" asp-action="Index">Modules</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" asp-controller="CourseMaterials" asp-action="Index">Materials</a>
+                    <a class="nav-link text-white text-opacity-75" asp-controller="CourseMaterials" asp-action="Index">Course Materials</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" asp-controller="Assignments" asp-action="Index">Assignments</a>
+                    <a class="nav-link text-white text-opacity-75" asp-controller="Assignments" asp-action="Index">Assignments</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" asp-controller="Reports" asp-action="Index">Reports</a>
+                    <a class="nav-link text-white text-opacity-75" asp-controller="Submissions" asp-action="Index">Submissions</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white text-opacity-75" asp-controller="Reports" asp-action="Index">Reports</a>
                 </li>
             </ul>
 
-            <ul class="navbar-nav ms-auto">
+            <ul class="navbar-nav ms-lg-3 pt-2 pt-lg-0 border-top border-lg-0 border-white border-opacity-10">
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="lecturerProfileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <span class="me-2"><i class="bi bi-person-circle" aria-hidden="true"></i></span>
-                        <span class="d-none d-lg-inline">@User?.Identity?.Name</span>
+                    <a class="nav-link dropdown-toggle text-white d-flex align-items-center gap-2 py-lg-2" href="#" id="lecturerProfileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span class="d-inline-flex text-white-50" aria-hidden="true">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="1.35rem" height="1.35rem" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3Zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
+                            </svg>
+                        </span>
+                        <span class="small text-truncate" style="max-width: 14rem;">@displayEmail</span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="lecturerProfileDropdown">
-                        <li>
-                            <div class="px-3 py-2">
-                                <div class="fw-semibold">@User?.Identity?.Name</div>
-                                <div class="text-muted small">Role: Lecturer</div>
+                        <li class="dropdown-header dropdown-header-profile px-3 py-2">
+                            <div class="d-flex align-items-start gap-2">
+                                <span class="text-primary mt-1 flex-shrink-0" aria-hidden="true">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="1.1rem" height="1.1rem" fill="currentColor" viewBox="0 0 16 16">
+                                        <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4Zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1H2Zm13 2.383-4.708 2.825L15 11.105V5.383Zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741ZM1 11.105l4.708-2.897L1 5.383v5.722Z" />
+                                    </svg>
+                                </span>
+                                <div class="min-w-0">
+                                    <div class="fw-semibold text-body text-truncate" title="@displayEmail">@displayEmail</div>
+                                    <div class="text-muted small">Role: Lecturer</div>
+                                </div>
                             </div>
                         </li>
-                        <li><hr class="dropdown-divider" /></li>
+                        <li><hr class="dropdown-divider my-1" /></li>
                         <li>
-                            <a class="dropdown-item" asp-controller="LecturerProfile" asp-action="Index">Profile Management</a>
+                            <a class="dropdown-item py-2" asp-controller="LecturerProfile" asp-action="Index">Profile Management</a>
                         </li>
-                        <li>
+                        <li class="px-0">
                             @using (Html.BeginForm("Logout", "Account", FormMethod.Post, new { id = "logoutForm", @class = "navbar-right" }))
                             {
                                 @Html.AntiForgeryToken()
-                                <button type="submit" class="dropdown-item">Logout</button>
+                                <button type="submit" class="dropdown-item py-2">Logout</button>
                             }
                         </li>
                     </ul>

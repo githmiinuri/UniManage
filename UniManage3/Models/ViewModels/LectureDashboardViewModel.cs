@@ -25,7 +25,7 @@ namespace UniManage3.Models.ViewModels
         // Optional
         public string ErrorMessage { get; set; }
 
-        // Dummy/submission structures for future implementation
+        // Recent submissions structure
         public class DummyStudentSubmission
         {
             public int SubmissionId { get; set; }
@@ -36,15 +36,18 @@ namespace UniManage3.Models.ViewModels
             public string Status { get; set; }
         }
 
-        public class DummyGradingSummary
+        // New assignment-based grading progress
+        public class AssignmentGradingProgress
         {
-            public string ModuleName { get; set; }
+            public string AssignmentName { get; set; }
+            public string ModuleCode { get; set; }
             public int TotalSubmissions { get; set; }
             public int GradedCount { get; set; }
-            public double AverageScore { get; set; }
+            public int PendingCount => TotalSubmissions - GradedCount;
+            public double ProgressPercentage => TotalSubmissions == 0 ? 0 : Math.Round((double)GradedCount / TotalSubmissions * 100);
         }
 
         public List<DummyStudentSubmission> RecentSubmissions { get; set; } = new List<DummyStudentSubmission>();
-        public List<DummyGradingSummary> GradingSummaries { get; set; } = new List<DummyGradingSummary>();
+        public List<AssignmentGradingProgress> GradingSummaries { get; set; } = new List<AssignmentGradingProgress>();
     }
 }

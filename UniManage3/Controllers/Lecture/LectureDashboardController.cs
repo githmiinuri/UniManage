@@ -92,42 +92,72 @@ namespace UniManage3.Controllers.Lecture
                 vm.TotalEnrolledStudents = Math.Max(50, baseValue + (courses.Count * 5));
 
                 // --- Fetch latest 3 real submissions from DB related to this lecturer ---
-                var latestSubmissions = await _context.AssignmentSubmissions
+                var latestAnonymous = await _context.AssignmentSubmissions
+                    .AsNoTracking()
                     .Include(s => s.Student)
                     .Include(s => s.Assignment).ThenInclude(a => a.Module)
-                    .Where(s => s.Assignment.Module.LecturerId == lecturer.Id)
+                    .Where(s => s.Assignment != null && s.Assignment.Module != null && s.Assignment.Module.LecturerId == lecturer.Id)
                     .OrderByDescending(s => s.SubmittedTime)
                     .Take(3)
-                    .Select(s => new LectureDashboardViewModel.DummyStudentSubmission
+                    .Select(s => new
                     {
-                        SubmissionId = s.Id,
-                        StudentName = s.Student.FullName,
-                        AssignmentName = s.Assignment.AssignmentName,
+                        s.Id,
+                        StudentName = s.Student != null ? s.Student.FullName : null,
+                        AssignmentName = s.Assignment != null ? s.Assignment.AssignmentName : null,
                         ModuleName = s.Assignment.Module.ModuleName,
-                        SubmittedDate = s.SubmittedTime,
-                        Status = s.Status.ToString()
+                        s.SubmittedTime,
+                        StatusInt = (int)s.Status
                     })
                     .ToListAsync();
 
+                var latestSubmissions = latestAnonymous
+                    .Select(s => new LectureDashboardViewModel.DummyStudentSubmission
+                    {
+                        SubmissionId = s.Id,
+                        StudentName = s.StudentName ?? "Unknown",
+                        AssignmentName = s.AssignmentName ?? "Unknown",
+                        ModuleName = s.ModuleName ?? "Unknown",
+                        SubmittedDate = s.SubmittedTime,
+                        Status = Enum.GetName(typeof(SubmissionStatus), s.StatusInt) ?? s.StatusInt.ToString()
+                    })
+                    .ToList();
+
                 vm.RecentSubmissions = latestSubmissions;
 
-                // --- Generate dummy grading summaries (2-3 items) ---
-                var grading = new System.Collections.Generic.List<LectureDashboardViewModel.DummyGradingSummary>();
-                var modulesForSummary = modules.Take(3).ToList();
-                for (int i = 0; i < Math.Max(1, modulesForSummary.Count); i++)
-                {
-                    var m = modulesForSummary[i];
-                    var total = rnd.Next(10, 41);
-                    var graded = rnd.Next(0, total + 1);
-                    grading.Add(new LectureDashboardViewModel.DummyGradingSummary
+                // --- Real assignment-wise grading progress (two-step: server-side aggregate, client-side mapping/sort) ---
+                var grouped = await _context.AssignmentSubmissions
+                    .AsNoTracking()
+                    .Include(s => s.Assignment).ThenInclude(a => a.Module)
+                    .Where(s => s.Assignment != null && s.Assignment.Module != null && s.Assignment.Module.LecturerId == lecturer.Id)
+                    .GroupBy(s => new
                     {
-                        ModuleName = m.ModuleName,
-                        TotalSubmissions = total,
-                        GradedCount = graded,
-                        AverageScore = Math.Round(50 + rnd.NextDouble() * 50, 2)
-                    });
-                }
-                vm.GradingSummaries = grading;
+                        s.AssignmentId,
+                        AssignmentName = s.Assignment.AssignmentName,
+                        ModuleCode = s.Assignment.Module.ModuleCode
+                    })
+                    .Select(g => new
+                    {
+                        g.Key.AssignmentId,
+                        g.Key.AssignmentName,
+                        g.Key.ModuleCode,
+                        TotalSubmissions = g.Count(),
+                        GradedCount = g.Count(s => s.Marks != null)
+                    })
+                    .ToListAsync(); // execute on DB
+
+                var gradingSummaries = grouped
+                    .Select(x => new LectureDashboardViewModel.AssignmentGradingProgress
+                    {
+                        AssignmentName = x.AssignmentName ?? "Unknown",
+                        ModuleCode = x.ModuleCode ?? "-",
+                        TotalSubmissions = x.TotalSubmissions,
+                        GradedCount = x.GradedCount
+                    })
+                    .OrderByDescending(x => x.PendingCount) // in-memory
+                    .Take(5)
+                    .ToList();
+
+                vm.GradingSummaries = gradingSummaries;
             }
             catch (Exception ex)
             {
