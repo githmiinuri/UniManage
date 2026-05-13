@@ -1,47 +1,79 @@
 ﻿@model UniManage3.Models.Module
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Module details";
 }
 
-<h1>Details</h1>
+<div class="container-fluid px-3 px-lg-4 py-4 bg-light min-vh-100">
+    <div class="row justify-content-center">
+        <div class="col-12 col-xl-10 col-xxl-8">
+            <!-- Header / hero card -->
+            <div class="card border-0 shadow-sm rounded-3 overflow-hidden mb-4">
+                <div class="card-body p-4 p-lg-5 bg-white">
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start gap-3">
+                        <div class="min-w-0">
+                            <span class="badge bg-primary rounded-pill px-3 py-2 mb-3">@Html.DisplayFor(model => model.ModuleCode)</span>
+                            <h1 class="h2 fw-bold text-dark mb-0 text-break">@Html.DisplayFor(model => model.ModuleName)</h1>
+                        </div>
+                        <a class="btn btn-primary btn-lg rounded-3 shadow-sm text-nowrap" href="@Url.Action("Index", "CourseMaterials", new { moduleId = Model.Id })">Manage course materials for this module</a>
+                    </div>
+                </div>
+            </div>
 
-<div>
-    <h4>Module</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ModuleCode)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ModuleCode)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ModuleName)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ModuleName)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Course)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Course.CourseCode)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Lecturer)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Lecturer.Id)
-        </dd>
-    </dl>
-</div>
-<div>
-@if (User.IsInRole("Administrator"))
-{
-    <text>
-        <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    </text>
-}
-<a asp-action="Index">Back to List</a>
+            <!-- Information -->
+            <div class="card border-0 shadow-sm rounded-3 mb-4">
+                <div class="card-header bg-white border-bottom py-3 px-4 rounded-top-3">
+                    <h2 class="h5 fw-bold text-dark mb-0">Module information</h2>
+                    <p class="text-muted small mb-0 mt-1">Read-only overview of this module</p>
+                </div>
+                <ul class="list-group list-group-flush rounded-bottom-3">
+                    @if (Model.Course != null)
+                    {
+                        <li class="list-group-item d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 px-4 py-3">
+                            <span class="text-muted small fw-semibold text-uppercase" style="letter-spacing: .04em;">@Html.DisplayNameFor(model => model.Course)</span>
+                            <span class="fw-semibold text-dark text-sm-end">@Html.DisplayFor(model => model.Course.CourseCode) — @Html.DisplayFor(model => model.Course.CourseName)</span>
+                        </li>
+                    }
+                    <li class="list-group-item d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 px-4 py-3">
+                        <span class="text-muted small fw-semibold text-uppercase" style="letter-spacing: .04em;">@Html.DisplayNameFor(model => model.Credits)</span>
+                        <span class="fw-semibold text-dark">@Html.DisplayFor(model => model.Credits)</span>
+                    </li>
+                    @if (Model.Semester != null)
+                    {
+                        <li class="list-group-item d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 px-4 py-3">
+                            <span class="text-muted small fw-semibold text-uppercase" style="letter-spacing: .04em;">@Html.DisplayNameFor(model => model.Semester)</span>
+                            <span class="fw-semibold text-dark text-sm-end">@Html.DisplayFor(model => model.Semester.SemesterName)</span>
+                        </li>
+                    }
+                    @if (Model.Lecturer != null)
+                    {
+                        <li class="list-group-item d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 px-4 py-3">
+                            <span class="text-muted small fw-semibold text-uppercase" style="letter-spacing: .04em;">@Html.DisplayNameFor(model => model.Lecturer)</span>
+                            <span class="fw-semibold text-dark text-sm-end">@Html.DisplayFor(model => model.Lecturer.Id)</span>
+                        </li>
+                    }
+                    <li class="list-group-item d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 px-4 py-3">
+                        <span class="text-muted small fw-semibold text-uppercase" style="letter-spacing: .04em;">@Html.DisplayNameFor(model => model.IsActive)</span>
+                        <span class="fw-semibold text-dark">@Html.DisplayFor(model => model.IsActive)</span>
+                    </li>
+                    <li class="list-group-item px-4 py-3">
+                        <span class="text-muted small fw-semibold text-uppercase d-block mb-2" style="letter-spacing: .04em;">@Html.DisplayNameFor(model => model.Description)</span>
+                        <div class="text-dark">@Html.DisplayFor(model => model.Description)</div>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Secondary CTA strip -->
+            <div class="card border-0 shadow-sm rounded-3 mb-4">
+                <div class="card-body p-4 d-flex flex-column flex-md-row align-items-stretch align-items-md-center justify-content-between gap-3">
+                    <p class="text-muted small mb-0">Upload and organize readings, slides, and files for students enrolled in this module.</p>
+                    <a class="btn btn-primary rounded-3 shadow-sm text-nowrap align-self-md-center" href="@Url.Action("Index", "CourseMaterials", new { moduleId = Model.Id })">Manage course materials</a>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-start">
+                <a class="btn btn-outline-secondary rounded-3 shadow-sm" asp-action="Index">Back to modules</a>
+            </div>
+        </div>
+    </div>
 </div>

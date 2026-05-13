@@ -4,32 +4,53 @@
     ViewData["Title"] = "Delete";
 }
 
-<h1>Delete Assignment</h1>
+<div class="container-fluid px-3 px-lg-4 py-4 bg-light min-vh-100">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-10 col-lg-8">
+            <div class="card border-0 shadow-sm rounded-3 overflow-hidden mb-3">
+                <div class="card-header bg-danger text-white py-4 px-4">
+                    <h1 class="h4 fw-bold mb-1">Delete assignment</h1>
+                    <p class="mb-0 small opacity-75">This action is permanent and removes the assignment record and any uploaded brief from the server.</p>
+                </div>
+                <div class="card-body p-4 p-lg-5">
+                    <div class="alert alert-warning border-0 rounded-3 shadow-sm d-flex gap-2 align-items-start mb-4" role="alert">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="flex-shrink-0 mt-1" viewBox="0 0 16 16" aria-hidden="true">
+                            <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                        </svg>
+                        <span class="small mb-0">Students will no longer see this assignment. Submissions history may be affected depending on your database rules.</span>
+                    </div>
 
-<div class="alert alert-danger">
-    <h4 class="alert-heading">This action is permanent</h4>
-    <p>Deleting this assignment will also remove its uploaded brief file from the server (if present).</p>
-</div>
+                    <h2 class="h5 fw-bold text-dark mb-3">You are about to delete</h2>
+                    <p class="lead fw-semibold text-dark mb-4">@Model.AssignmentName</p>
 
-<div class="card">
-    <div class="card-body">
-        <h5 class="card-title">@Model.AssignmentName</h5>
-        <p class="card-text">@Model.Description</p>
-        <dl class="row">
-            <dt class="col-sm-3">Issued</dt>
-            <dd class="col-sm-9">@Model.IssuedDate.ToString("f")</dd>
-            <dt class="col-sm-3">Deadline</dt>
-            <dd class="col-sm-9">@Model.DeadlineDate.ToString("f")</dd>
-            <dt class="col-sm-3">Module</dt>
-            <dd class="col-sm-9">@Model.Module?.ModuleName</dd>
-            <dt class="col-sm-3">Batch</dt>
-            <dd class="col-sm-9">@(Model.Batch != null ? (Model.Batch.BatchName ?? Model.Batch.BatchCode) : "-")</dd>
-        </dl>
+                    <ul class="list-group list-group-flush rounded-3 border mb-4">
+                        <li class="list-group-item d-flex flex-column flex-sm-row justify-content-between gap-2 px-3 py-3">
+                            <span class="text-muted small fw-semibold text-uppercase" style="letter-spacing: .04em;">Module</span>
+                            <span class="fw-semibold text-dark text-sm-end">@Model.Module?.ModuleName</span>
+                        </li>
+                        <li class="list-group-item d-flex flex-column flex-sm-row justify-content-between gap-2 px-3 py-3">
+                            <span class="text-muted small fw-semibold text-uppercase" style="letter-spacing: .04em;">Batch</span>
+                            <span class="fw-semibold text-dark text-sm-end">@(Model.Batch != null ? (Model.Batch.BatchName ?? Model.Batch.BatchCode) : "-")</span>
+                        </li>
+                        <li class="list-group-item d-flex flex-column flex-sm-row justify-content-between gap-2 px-3 py-3">
+                            <span class="text-muted small fw-semibold text-uppercase" style="letter-spacing: .04em;">Deadline</span>
+                            <span class="fw-semibold text-danger text-sm-end">@Model.DeadlineDate.ToString("f")</span>
+                        </li>
+                        <li class="list-group-item px-3 py-3">
+                            <span class="text-muted small fw-semibold text-uppercase d-block mb-2" style="letter-spacing: .04em;">Description</span>
+                            <div class="small text-dark">@Model.Description</div>
+                        </li>
+                    </ul>
 
-        <form asp-action="Delete">
-            <input type="hidden" asp-for="Id" />
-            <button type="submit" class="btn btn-danger">Delete Permanently</button>
-            <a asp-action="Index" class="btn btn-secondary ms-2">Cancel</a>
-        </form>
+                    <form asp-action="Delete">
+                        <input type="hidden" asp-for="Id" />
+                        <div class="d-flex flex-column flex-sm-row gap-2">
+                            <button type="submit" class="btn btn-danger rounded-3 shadow-sm px-4">Confirm delete</button>
+                            <a asp-action="Index" class="btn btn-outline-secondary rounded-3">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 </div>

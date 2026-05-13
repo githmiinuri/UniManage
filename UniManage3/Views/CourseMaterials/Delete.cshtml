@@ -4,23 +4,59 @@
     ViewData["Title"] = "Delete Course Material";
 }
 
-<h1 class="mb-4">Delete Course Material</h1>
+<div class="container-fluid px-3 px-lg-4 py-4 bg-light min-vh-100">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-10 col-lg-7">
+            <div class="alert alert-warning border-0 shadow-sm rounded-3 d-flex gap-3 align-items-start" role="alert">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="flex-shrink-0 mt-1" viewBox="0 0 16 16" aria-hidden="true">
+                    <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                </svg>
+                <div>
+                    <h2 class="alert-heading h5 fw-bold">Permanent deletion</h2>
+                    <p class="mb-0 small">This removes the database record and deletes the file from the server. This cannot be undone.</p>
+                </div>
+            </div>
 
-<div class="alert alert-danger" role="alert">
-    <h4 class="alert-heading">Warning!</h4>
-    <p>This will permanently delete the file from the server and remove the record from the database. This action cannot be undone.</p>
-</div>
+            <div class="card border-0 border-top border-5 border-danger shadow-sm rounded-3">
+                <div class="card-body p-4 p-lg-5">
+                    <h3 class="h4 fw-bold text-dark mb-4">Delete this material?</h3>
 
-<div class="card">
-    <div class="card-body">
-        <h5 class="card-title">@Model.MaterialName</h5>
-        <p class="mb-2"><strong>Module:</strong> @Model.Module?.ModuleName</p>
-        <p class="mb-2"><strong>File:</strong> @(!string.IsNullOrEmpty(Model.FilePath) ? System.IO.Path.GetFileName(Model.FilePath) : "-")</p>
+                    <ul class="list-group list-group-flush rounded-3 border mb-4">
+                        <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap gap-2">
+                            <span class="text-muted small fw-semibold text-uppercase" style="letter-spacing: .04em;">Name</span>
+                            <span class="fw-semibold text-dark text-end">@Model.MaterialName</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap gap-2">
+                            <span class="text-muted small fw-semibold text-uppercase" style="letter-spacing: .04em;">Module</span>
+                            <span class="fw-semibold text-dark text-end">@Model.Module?.ModuleName</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap gap-2">
+                            <span class="text-muted small fw-semibold text-uppercase" style="letter-spacing: .04em;">Type</span>
+                            <span class="fw-semibold text-dark">@Model.MaterialType</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap gap-2">
+                            <span class="text-muted small fw-semibold text-uppercase" style="letter-spacing: .04em;">Duration</span>
+                            <span class="fw-semibold text-dark">@Model.Duration</span>
+                        </li>
+                        <li class="list-group-item px-3 py-3">
+                            <span class="text-muted small fw-semibold text-uppercase d-block mb-2" style="letter-spacing: .04em;">Description</span>
+                            <div class="small text-dark">@Model.Description</div>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap gap-2">
+                            <span class="text-muted small fw-semibold text-uppercase" style="letter-spacing: .04em;">File</span>
+                            <span class="fw-semibold text-dark text-break text-end">@(!string.IsNullOrEmpty(Model.FilePath) ? System.IO.Path.GetFileName(Model.FilePath) : "-")</span>
+                        </li>
+                    </ul>
 
-        <form asp-action="Delete" method="post">
-            <input type="hidden" asp-for="Id" />
-            <button type="submit" class="btn btn-danger">Yes, delete permanently</button>
-            <a asp-action="Index" class="btn btn-secondary ms-2">Cancel</a>
-        </form>
+                    <form asp-action="Delete" method="post">
+                        <input type="hidden" asp-for="Id" />
+                        <div class="d-flex flex-column flex-sm-row gap-2">
+                            <button type="submit" class="btn btn-danger rounded-3 shadow-sm px-4">Confirm delete</button>
+                            <a asp-action="Index" class="btn btn-secondary rounded-3 shadow-sm">Cancel / back to list</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 </div>

@@ -4,33 +4,50 @@
     ViewData["Title"] = "Course Material Details";
 }
 
-<h1 class="mb-4">Course Material Details</h1>
-
-<div class="card">
-    <div class="card-body">
-        <h5 class="card-title">@Model.MaterialName</h5>
-        <h6 class="card-subtitle mb-2 text-muted">@Model.Module?.ModuleName</h6>
-
-        <dl class="row">
-            <dt class="col-sm-3">Type</dt>
-            <dd class="col-sm-9">@Model.MaterialType</dd>
-
-            <dt class="col-sm-3">Description</dt>
-            <dd class="col-sm-9">@Model.Description</dd>
-
-            <dt class="col-sm-3">Duration</dt>
-            <dd class="col-sm-9">@Model.Duration</dd>
-
-            <dt class="col-sm-3">File</dt>
-            <dd class="col-sm-9">@(!string.IsNullOrEmpty(Model.FilePath) ? System.IO.Path.GetFileName(Model.FilePath) : "-")</dd>
-        </dl>
-
-        @if (!string.IsNullOrEmpty(Model.FilePath))
-        {
-            <a asp-action="Download" asp-route-id="@Model.Id" class="btn btn-success me-2">Download File</a>
-        }
-
-        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary me-2">Edit</a>
-        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+<div class="container-fluid px-3 px-lg-4 py-4 bg-light min-vh-100">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-10 col-xl-8">
+            <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
+                <div class="card-header bg-white border-bottom py-4 px-4 px-lg-5">
+                    <h1 class="h3 fw-bold text-dark mb-2">@Model.MaterialName</h1>
+                    <p class="text-muted mb-0 small">@Model.Module?.ModuleName</p>
+                </div>
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex flex-column flex-sm-row justify-content-between align-items-sm-start gap-2 px-4 py-3">
+                            <span class="text-muted small fw-semibold text-uppercase" style="letter-spacing: .04em;">Type</span>
+                            <span class="fw-semibold text-dark text-sm-end">@Model.MaterialType</span>
+                        </li>
+                        <li class="list-group-item d-flex flex-column flex-sm-row justify-content-between align-items-sm-start gap-2 px-4 py-3">
+                            <span class="text-muted small fw-semibold text-uppercase" style="letter-spacing: .04em;">Module</span>
+                            <span class="fw-semibold text-dark text-sm-end">@Model.Module?.ModuleName</span>
+                        </li>
+                        <li class="list-group-item d-flex flex-column flex-sm-row justify-content-between align-items-sm-start gap-2 px-4 py-3">
+                            <span class="text-muted small fw-semibold text-uppercase" style="letter-spacing: .04em;">Duration</span>
+                            <span class="fw-semibold text-dark">@Model.Duration</span>
+                        </li>
+                        <li class="list-group-item px-4 py-3">
+                            <span class="text-muted small fw-semibold text-uppercase d-block mb-2" style="letter-spacing: .04em;">Description</span>
+                            <div class="text-dark">@Model.Description</div>
+                        </li>
+                        <li class="list-group-item d-flex flex-column flex-sm-row justify-content-between align-items-sm-start gap-2 px-4 py-3">
+                            <span class="text-muted small fw-semibold text-uppercase" style="letter-spacing: .04em;">File</span>
+                            <span class="fw-semibold text-dark text-sm-end text-break">@(!string.IsNullOrEmpty(Model.FilePath) ? System.IO.Path.GetFileName(Model.FilePath) : "-")</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-footer bg-light border-0 p-4 px-lg-5 d-flex flex-column flex-sm-row flex-wrap gap-2 align-items-stretch align-items-sm-center">
+                    @if (!string.IsNullOrEmpty(Model.FilePath))
+                    {
+                        <a asp-action="Download" asp-route-id="@Model.Id" class="btn btn-success btn-lg rounded-3 shadow-sm d-inline-flex align-items-center justify-content-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/></svg>
+                            Download file
+                        </a>
+                    }
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary rounded-3 shadow-sm">Edit</a>
+                    <a asp-action="Index" class="btn btn-outline-secondary rounded-3 shadow-sm ms-sm-auto">Back to list</a>
+                </div>
+            </div>
+        </div>
     </div>
 </div>

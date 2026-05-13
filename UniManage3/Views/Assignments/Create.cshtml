@@ -4,76 +4,83 @@
     ViewData["Title"] = "Create";
 }
 
-<h1>Create Assignment</h1>
+<div class="container-fluid px-3 px-lg-4 py-4 bg-light min-vh-100">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-8">
+            <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-body p-4 p-lg-5">
+                    <p class="text-uppercase small fw-semibold text-muted mb-2" style="letter-spacing: .08em;">New coursework</p>
+                    <h1 class="h3 fw-bold text-dark mb-1">Create assignment</h1>
+                    <p class="text-muted small mb-4">Set deadlines, link to a module and batch, and upload the PDF brief.</p>
 
-<h4>Assignment</h4>
-<hr />
-<div class="row">
-    <div class="col-md-6">
-        <form asp-action="Create" enctype="multipart/form-data">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <form asp-action="Create" enctype="multipart/form-data">
+                        <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
 
-            <div class="mb-3">
-                <label asp-for="AssignmentName" class="form-label"></label>
-                <input asp-for="AssignmentName" class="form-control" />
-                <span asp-validation-for="AssignmentName" class="text-danger"></span>
+                        <div class="mb-3 d-none">
+                            <label asp-for="ResourceFilePath" class="form-label"></label>
+                            <input asp-for="ResourceFilePath" class="form-control" />
+                        </div>
+
+                        <div class="mb-3 d-none">
+                            <label asp-for="UpdatedDate" class="form-label"></label>
+                            <input asp-for="UpdatedDate" class="form-control" />
+                        </div>
+
+                        <div class="row g-3 mb-1">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="AssignmentName" class="form-label fw-semibold"></label>
+                                    <input asp-for="AssignmentName" class="form-control rounded-3" />
+                                    <span asp-validation-for="AssignmentName" class="text-danger small d-block mt-1"></span>
+                                </div>
+                                <div class="mb-3">
+                                    <label asp-for="Description" class="form-label fw-semibold"></label>
+                                    <textarea asp-for="Description" class="form-control rounded-3" rows="4"></textarea>
+                                    <span asp-validation-for="Description" class="text-danger small d-block mt-1"></span>
+                                </div>
+                                <div class="mb-3">
+                                    <label asp-for="ModuleId" class="form-label fw-semibold"></label>
+                                    <select asp-for="ModuleId" class="form-select rounded-3" asp-items="ViewBag.ModuleId"></select>
+                                    <span asp-validation-for="ModuleId" class="text-danger small d-block mt-1"></span>
+                                </div>
+                                <div class="mb-0">
+                                    <label asp-for="BatchId" class="form-label fw-semibold">Batch</label>
+                                    <select asp-for="BatchId" class="form-select rounded-3" asp-items="ViewBag.BatchId"></select>
+                                    <span asp-validation-for="BatchId" class="text-danger small d-block mt-1"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="IssuedDate" class="form-label fw-semibold"></label>
+                                    <input asp-for="IssuedDate" type="datetime-local" class="form-control rounded-3" />
+                                    <span asp-validation-for="IssuedDate" class="text-danger small d-block mt-1"></span>
+                                </div>
+                                <div class="mb-3">
+                                    <label asp-for="DeadlineDate" class="form-label fw-semibold"></label>
+                                    <input asp-for="DeadlineDate" type="datetime-local" class="form-control rounded-3" />
+                                    <span asp-validation-for="DeadlineDate" class="text-danger small d-block mt-1"></span>
+                                </div>
+                                <div class="mb-3">
+                                    <label asp-for="LateSubmitDate" class="form-label fw-semibold"></label>
+                                    <input asp-for="LateSubmitDate" type="datetime-local" class="form-control rounded-3" />
+                                    <span asp-validation-for="LateSubmitDate" class="text-danger small d-block mt-1"></span>
+                                </div>
+                                <div class="mb-0">
+                                    <label asp-for="UploadedFile" class="form-label fw-semibold">Upload Brief (PDF)</label>
+                                    <input asp-for="UploadedFile" type="file" class="form-control rounded-3" accept=".pdf" />
+                                    <span asp-validation-for="UploadedFile" class="text-danger small d-block mt-1"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex flex-wrap align-items-center gap-2 mt-4 pt-2 border-top">
+                            <button type="submit" class="btn btn-primary rounded-3 shadow-sm px-4">Save assignment</button>
+                            <a asp-action="Index" class="btn btn-outline-secondary rounded-3">Cancel</a>
+                        </div>
+                    </form>
+                </div>
             </div>
-
-            <div class="mb-3">
-                <label asp-for="Description" class="form-label"></label>
-                <textarea asp-for="Description" class="form-control" rows="3"></textarea>
-                <span asp-validation-for="Description" class="text-danger"></span>
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="IssuedDate" class="form-label"></label>
-                <input asp-for="IssuedDate" type="datetime-local" class="form-control" />
-                <span asp-validation-for="IssuedDate" class="text-danger"></span>
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="DeadlineDate" class="form-label"></label>
-                <input asp-for="DeadlineDate" type="datetime-local" class="form-control" />
-                <span asp-validation-for="DeadlineDate" class="text-danger"></span>
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="LateSubmitDate" class="form-label"></label>
-                <input asp-for="LateSubmitDate" type="datetime-local" class="form-control" />
-                <span asp-validation-for="LateSubmitDate" class="text-danger"></span>
-            </div>
-
-            <div class="mb-3 d-none">
-                <label asp-for="ResourceFilePath" class="form-label"></label>
-                <input asp-for="ResourceFilePath" class="form-control" />
-            </div>
-
-            <div class="mb-3 d-none">
-                <label asp-for="UpdatedDate" class="form-label"></label>
-                <input asp-for="UpdatedDate" class="form-control" />
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="ModuleId" class="form-label"></label>
-                <select asp-for="ModuleId" class="form-select" asp-items="ViewBag.ModuleId"></select>
-                <span asp-validation-for="ModuleId" class="text-danger"></span>
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="BatchId" class="form-label">Batch</label>
-                <select asp-for="BatchId" class="form-select" asp-items="ViewBag.BatchId"></select>
-                <span asp-validation-for="BatchId" class="text-danger"></span>
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="UploadedFile" class="form-label">Upload Brief (PDF)</label>
-                <input asp-for="UploadedFile" type="file" class="form-control" accept=".pdf" />
-                <span asp-validation-for="UploadedFile" class="text-danger"></span>
-            </div>
-
-            <button type="submit" class="btn btn-primary">Create</button>
-            <a asp-action="Index" class="btn btn-secondary ms-2">Back to List</a>
-        </form>
+        </div>
     </div>
 </div>
 

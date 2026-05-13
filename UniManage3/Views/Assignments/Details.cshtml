@@ -4,41 +4,85 @@
     ViewData["Title"] = "Details";
 }
 
-<h1>Assignment Details</h1>
+<div class="container-fluid px-3 px-lg-4 py-4 bg-light min-vh-100">
+    <div class="row justify-content-center">
+        <div class="col-12 col-xl-10">
+            <!-- Hero -->
+            <div class="card border-0 shadow-sm rounded-3 mb-4 overflow-hidden">
+                <div class="card-body p-4 p-lg-5">
+                    <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+                        @if (!string.IsNullOrEmpty(Model.Module?.ModuleCode))
+                        {
+                            <span class="badge rounded-pill text-bg-primary px-3 py-2">@Model.Module.ModuleCode</span>
+                        }
+                        @if (Model.Batch != null)
+                        {
+                            <span class="badge rounded-pill text-bg-secondary px-3 py-2">@(Model.Batch.BatchName ?? Model.Batch.BatchCode)</span>
+                        }
+                    </div>
+                    <h1 class="h2 fw-bold text-dark mb-3">@Model.AssignmentName</h1>
+                    <div class="row g-3 align-items-stretch">
+                        <div class="col-md-8">
+                            <p class="text-muted small text-uppercase fw-semibold mb-1" style="letter-spacing: .06em;">Deadline</p>
+                            <p class="h4 fw-bold text-danger mb-0">@Model.DeadlineDate.ToString("f")</p>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="rounded-3 border bg-white p-3 h-100 shadow-sm">
+                                <p class="text-muted small text-uppercase fw-semibold mb-1" style="letter-spacing: .06em;">Late submission</p>
+                                <p class="fw-semibold text-dark mb-0 small">@(Model.LateSubmitDate.HasValue ? Model.LateSubmitDate.Value.ToString("f") : "—")</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-<div class="card mb-3">
-    <div class="card-body">
-        <h4 class="card-title">@Model.AssignmentName</h4>
-        <p class="card-text">@Model.Description</p>
-        <dl class="row">
-            <dt class="col-sm-3">Issued Date</dt>
-            <dd class="col-sm-9">@Model.IssuedDate.ToString("f")</dd>
+            <div class="card border-0 shadow-sm rounded-3 mb-4">
+                <div class="card-header bg-white border-bottom py-3 px-4">
+                    <h2 class="h5 fw-bold text-dark mb-0">Description</h2>
+                </div>
+                <div class="card-body px-4 py-4">
+                    <p class="card-text text-dark mb-0">@Model.Description</p>
+                </div>
+                <div class="card-footer bg-light border-0 px-4 py-4">
+                    @if (!string.IsNullOrEmpty(Model.ResourceFilePath))
+                    {
+                        <a asp-action="Download" asp-route-id="@Model.Id" class="btn btn-success btn-lg rounded-3 shadow-sm d-inline-flex align-items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/></svg>
+                            Download assignment brief (PDF)
+                        </a>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning border-0 shadow-sm rounded-3 mb-0">No brief uploaded for this assignment.</div>
+                    }
+                </div>
+            </div>
 
-            <dt class="col-sm-3">Deadline</dt>
-            <dd class="col-sm-9">@Model.DeadlineDate.ToString("f")</dd>
+            <div class="card border-0 shadow-sm rounded-3 mb-4">
+                <div class="card-header bg-white border-bottom py-3 px-4">
+                    <h2 class="h5 fw-bold text-dark mb-0">Schedule &amp; context</h2>
+                </div>
+                <ul class="list-group list-group-flush rounded-bottom-3">
+                    <li class="list-group-item d-flex flex-column flex-sm-row justify-content-between gap-2 px-4 py-3">
+                        <span class="text-muted small fw-semibold text-uppercase" style="letter-spacing: .04em;">Issued date</span>
+                        <span class="fw-semibold text-dark text-sm-end">@Model.IssuedDate.ToString("f")</span>
+                    </li>
+                    <li class="list-group-item d-flex flex-column flex-sm-row justify-content-between gap-2 px-4 py-3">
+                        <span class="text-muted small fw-semibold text-uppercase" style="letter-spacing: .04em;">Updated</span>
+                        <span class="fw-semibold text-dark text-sm-end">@(Model.UpdatedDate.HasValue ? Model.UpdatedDate.Value.ToString("f") : "-")</span>
+                    </li>
+                    <li class="list-group-item d-flex flex-column flex-sm-row justify-content-between gap-2 px-4 py-3">
+                        <span class="text-muted small fw-semibold text-uppercase" style="letter-spacing: .04em;">Module</span>
+                        <span class="fw-semibold text-dark text-sm-end">@Model.Module?.ModuleName</span>
+                    </li>
+                    <li class="list-group-item d-flex flex-column flex-sm-row justify-content-between gap-2 px-4 py-3">
+                        <span class="text-muted small fw-semibold text-uppercase" style="letter-spacing: .04em;">Batch</span>
+                        <span class="fw-semibold text-dark text-sm-end">@(Model.Batch != null ? (Model.Batch.BatchName ?? Model.Batch.BatchCode) : "-")</span>
+                    </li>
+                </ul>
+            </div>
 
-            <dt class="col-sm-3">Late Submit</dt>
-            <dd class="col-sm-9">@(Model.LateSubmitDate.HasValue ? Model.LateSubmitDate.Value.ToString("f") : "-")</dd>
-
-            <dt class="col-sm-3">Updated</dt>
-            <dd class="col-sm-9">@(Model.UpdatedDate.HasValue ? Model.UpdatedDate.Value.ToString("f") : "-")</dd>
-
-            <dt class="col-sm-3">Module</dt>
-            <dd class="col-sm-9">@Model.Module?.ModuleName</dd>
-
-            <dt class="col-sm-3">Batch</dt>
-            <dd class="col-sm-9">@(Model.Batch != null ? (Model.Batch.BatchName ?? Model.Batch.BatchCode) : "-")</dd>
-        </dl>
-
-        @if (!string.IsNullOrEmpty(Model.ResourceFilePath))
-        {
-            <a asp-action="Download" asp-route-id="@Model.Id" class="btn btn-lg btn-success">Download Brief (PDF)</a>
-        }
-        else
-        {
-            <div class="alert alert-warning">No brief uploaded for this assignment.</div>
-        }
-
-        <a asp-action="Index" class="btn btn-secondary ms-2">Back to List</a>
+            <a asp-action="Index" class="btn btn-outline-secondary rounded-3 shadow-sm">Back to list</a>
+        </div>
     </div>
 </div>
