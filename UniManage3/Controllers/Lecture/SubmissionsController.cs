@@ -82,22 +82,62 @@ namespace UniManage3.Controllers.Lecture
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> GradeSubmission(GradingViewModel vm)
         {
+            if (vm == null) return BadRequest();
+
+            // reload for view if validation fails
             if (!ModelState.IsValid)
             {
+                var existing = await _db.AssignmentSubmissions
+                    .Include(s => s.Student)
+                    .Include(s => s.Assignment)
+                    .FirstOrDefaultAsync(s => s.Id == vm.Id);
+
+                if (existing == null) return NotFound();
+
+                vm.StudentName = existing.Student?.FullName ?? "Unknown";
+                vm.AssignmentName = existing.Assignment?.AssignmentName ?? "Unknown";
+                vm.SubmittedTime = existing.SubmittedTime;
+                vm.Status = existing.Status;
+                vm.DownloadPath = existing.SubmittedFilePath;
+
                 return View(vm);
             }
 
             var submission = await _db.AssignmentSubmissions.FindAsync(vm.Id);
             if (submission == null) return NotFound();
 
+            // Update fields explicitly
             submission.Marks = vm.Marks;
             submission.Grade = vm.Grade;
             submission.Review = vm.Review;
 
-            _db.Update(submission);
-            await _db.SaveChangesAsync();
+            try
+            {
+                _db.Update(submission);
+                await _db.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Submission graded successfully.";
+            }
+            catch (Exception ex)
+            {
+                // Log or handle exception as needed
+                TempData["ErrorMessage"] = "Unable to save grading. " + ex.Message;
 
-            TempData["SuccessMessage"] = "Submission graded successfully.";
+                // repopulate and return view so user can retry
+                var existing = await _db.AssignmentSubmissions
+                    .Include(s => s.Student)
+                    .Include(s => s.Assignment)
+                    .FirstOrDefaultAsync(s => s.Id == vm.Id);
+                if (existing == null) return NotFound();
+
+                vm.StudentName = existing.Student?.FullName ?? "Unknown";
+                vm.AssignmentName = existing.Assignment?.AssignmentName ?? "Unknown";
+                vm.SubmittedTime = existing.SubmittedTime;
+                vm.Status = existing.Status;
+                vm.DownloadPath = existing.SubmittedFilePath;
+
+                return View(vm);
+            }
+
             return RedirectToAction(nameof(Index));
         }
 

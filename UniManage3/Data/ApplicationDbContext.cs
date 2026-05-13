@@ -14,23 +14,18 @@ namespace UniManage3.Data
         public DbSet<Lecturer> Lecturers { get; set; }
         public DbSet<Student> Students { get; set; }
         public DbSet<User> Users { get; set; }
-
+        public DbSet<Course> Courses { get; set; }
+        public DbSet<Module> Modules { get; set; }
         public DbSet<CourseMaterial> CourseMaterials { get; set; }
         public DbSet<Assignment> Assignments { get; set; }
+        public DbSet<Department> Departments { get; set; }
+        public DbSet<Enrollment> Enrollments { get; set; }
         public DbSet<Batch> Batches { get; set; }
         public DbSet<AssignmentSubmission> AssignmentSubmissions { get; set; }
-
-        public DbSet<Department> Departments { get; set; }
-        public DbSet<Course> Courses { get; set; }
-        public DbSet<Enrollment> Enrollments { get; set; }
-        public DbSet<Module> Modules { get; set; }
         public DbSet<Semester> Semesters { get; set; }
-        public DbSet<LibraryResource> LibraryResources { get; set; }
-        public DbSet<Event> Events { get; set; }
-        public DbSet<Class> Classes { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<Role>().HasData(
@@ -39,22 +34,22 @@ namespace UniManage3.Data
                 new Role { Id = 3, Name = "Student" }
             );
 
-            // Ensure enum is stored as string to match existing varchar column in the database
+            // Configure CourseMaterial.MaterialType as integer-backed enum to match DB
             modelBuilder.Entity<CourseMaterial>(b =>
             {
+                // store enum as int to match existing migration/schema
                 b.Property(cm => cm.MaterialType)
-                    .HasConversion<string>()
-                    .HasMaxLength(50)
-                    .HasColumnType("varchar(50)");
+                    .HasConversion<int>()
+                    .HasColumnType("int");
 
                 b.Property(cm => cm.MaterialName).IsRequired().HasMaxLength(255).HasColumnType("varchar(255)");
-                b.Property(cm => cm.FilePath).IsRequired().HasColumnType("longtext");
+                b.Property(cm => cm.FilePath).HasColumnType("longtext");
                 b.Property(cm => cm.Description).HasColumnType("longtext");
                 b.Property(cm => cm.Duration).HasMaxLength(50).HasColumnType("varchar(50)");
                 b.HasOne(cm => cm.Module)
-           .WithMany(m => m.CourseMaterials)
-           .HasForeignKey(cm => cm.ModuleId)
-           .OnDelete(DeleteBehavior.Cascade);
+                 .WithMany(m => m.CourseMaterials)
+                 .HasForeignKey(cm => cm.ModuleId)
+                 .OnDelete(DeleteBehavior.Cascade);
             });
 
 
@@ -305,7 +300,10 @@ namespace UniManage3.Data
                 b.HasKey(x => x.Id);
                 b.Property(x => x.StudentId).HasColumnType("int");
                 b.Property(x => x.AssignmentId).HasColumnType("int");
-                b.Property(x => x.Status).HasConversion<string>().HasMaxLength(50).HasColumnType("varchar(50)");
+
+                // Store enum as integer to match DB column type (fix InvalidCastException when DB has int)
+                b.Property(x => x.Status).HasConversion<int>().HasColumnType("int");
+
                 b.Property(x => x.SubmittedTime).HasColumnType("datetime");
                 b.Property(x => x.SubmittedFilePath).HasMaxLength(1024).HasColumnType("varchar(1024)");
                 b.Property(x => x.Marks).HasColumnType("double");

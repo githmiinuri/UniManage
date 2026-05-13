@@ -36,6 +36,8 @@
             <th>Submitted</th>
             <th>Status</th>
             <th>Marks</th>
+            <th>Grade</th>
+            <th>Review</th>
             <th>Action</th>
         </tr>
     </thead>
@@ -61,7 +63,36 @@
                         <span class="badge bg-secondary">Pending</span>
                     }
                 </td>
-                <td>@(s.Marks.HasValue ? s.Marks.ToString() : "-")</td>
+                <td>
+                    @if (s.Marks.HasValue)
+                    {
+                        @s.Marks.Value
+                    }
+                    else
+                    {
+                        <span class="text-muted fst-italic">Pending Grading</span>
+                    }
+                </td>
+                <td>
+                    @if (!string.IsNullOrWhiteSpace(s.Grade))
+                    {
+                        @s.Grade
+                    }
+                    else
+                    {
+                        <span class="text-muted fst-italic">Pending Grading</span>
+                    }
+                </td>
+                <td>
+                    @if (!string.IsNullOrWhiteSpace(s.Review))
+                    {
+                        @s.Review
+                    }
+                    else
+                    {
+                        <span class="text-muted fst-italic">Pending Grading</span>
+                    }
+                </td>
                 <td>
                     <a asp-controller="Submissions" asp-action="GradeSubmission" asp-route-id="@s.Id" class="btn btn-sm btn-primary">Grade / Review</a>
                 </td>
