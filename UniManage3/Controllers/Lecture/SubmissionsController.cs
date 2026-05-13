@@ -5,8 +5,10 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using UniManage3.Data;
 using UniManage3.Models;
 using UniManage3.Models.ViewModels;
@@ -18,11 +20,13 @@ namespace UniManage3.Controllers.Lecture
     {
         private readonly ApplicationDbContext _db;
         private readonly IWebHostEnvironment _env;
+        private readonly ILogger<SubmissionsController> _logger;
 
-        public SubmissionsController(ApplicationDbContext db, IWebHostEnvironment env)
+        public SubmissionsController(ApplicationDbContext db, IWebHostEnvironment env, ILogger<SubmissionsController> logger)
         {
             _db = db;
             _env = env;
+            _logger = logger;
         }
 
         // GET: Lecture/Submissions
@@ -82,11 +86,38 @@ namespace UniManage3.Controllers.Lecture
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> GradeSubmission(GradingViewModel vm)
         {
-            if (vm == null) return BadRequest();
+            _logger.LogInformation("GradeSubmission POST invoked");
+            if (vm == null)
+            {
+                _logger.LogWarning("GradeSubmission called with null model");
+                return BadRequest();
+            }
 
-            // reload for view if validation fails
+            _logger.LogInformation("Received grading data: Id={Id}, Marks={Marks}, Grade={Grade}, ReviewLength={ReviewLength}",
+                vm.Id, vm.Marks, vm.Grade, vm.Review?.Length ?? 0);
+
+            // Remove ModelState entries for fields that are not posted by the form
+            ModelState.Remove(nameof(vm.StudentName));
+            ModelState.Remove(nameof(vm.AssignmentName));
+            ModelState.Remove(nameof(vm.SubmittedTime));
+            ModelState.Remove(nameof(vm.Status));
+            ModelState.Remove(nameof(vm.DownloadPath));
+
             if (!ModelState.IsValid)
             {
+                _logger.LogWarning("ModelState invalid for GradeSubmission");
+                foreach (var kv in ModelState)
+                {
+                    if (kv.Value.Errors != null && kv.Value.Errors.Count > 0)
+                    {
+                        foreach (var e in kv.Value.Errors)
+                        {
+                            _logger.LogWarning("ModelState error - {Key}: {Error}", kv.Key, e.ErrorMessage);
+                        }
+                    }
+                }
+
+                // reload for view if validation fails
                 var existing = await _db.AssignmentSubmissions
                     .Include(s => s.Student)
                     .Include(s => s.Assignment)
@@ -104,7 +135,11 @@ namespace UniManage3.Controllers.Lecture
             }
 
             var submission = await _db.AssignmentSubmissions.FindAsync(vm.Id);
-            if (submission == null) return NotFound();
+            if (submission == null)
+            {
+                _logger.LogWarning("No submission found for Id={Id}", vm.Id);
+                return NotFound();
+            }
 
             // Update fields explicitly
             submission.Marks = vm.Marks;
@@ -115,11 +150,12 @@ namespace UniManage3.Controllers.Lecture
             {
                 _db.Update(submission);
                 await _db.SaveChangesAsync();
+                _logger.LogInformation("Submission {Id} graded: Marks={Marks}, Grade={Grade}", submission.Id, submission.Marks, submission.Grade);
                 TempData["SuccessMessage"] = "Submission graded successfully.";
             }
             catch (Exception ex)
             {
-                // Log or handle exception as needed
+                _logger.LogError(ex, "Error saving grading for submission {Id}", vm.Id);
                 TempData["ErrorMessage"] = "Unable to save grading. " + ex.Message;
 
                 // repopulate and return view so user can retry
