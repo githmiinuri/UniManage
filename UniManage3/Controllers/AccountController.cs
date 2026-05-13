@@ -87,7 +87,7 @@ namespace UniManage3.Controllers
                 user.LastLogin = DateTime.UtcNow;
                 _db.SaveChanges();
 
-                await SignInUser(user.Email, roleName, remember);
+                await SignInUser(user.Id, user.Email, roleName, remember);
 
                 // --- UPDATED REDIRECT LOGIC ---
 
@@ -296,20 +296,18 @@ namespace UniManage3.Controllers
             return View();
         }
 
-        private async Task SignInUser(string email, string role, bool remember)
+        private async Task SignInUser(int userId, string email, string role, bool remember)
         {
             var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name, email),
-                new Claim(ClaimTypes.Email, email),
-                new Claim(ClaimTypes.Role, role)
-            };
+    {
+        new Claim(ClaimTypes.NameIdentifier, userId.ToString()), // Store the actual ID
+        new Claim(ClaimTypes.Name, email),
+        new Claim(ClaimTypes.Email, email),
+        new Claim(ClaimTypes.Role, role)
+    };
 
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-            var authProperties = new AuthenticationProperties
-            {
-                IsPersistent = remember
-            };
+            var authProperties = new AuthenticationProperties { IsPersistent = remember };
 
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
                 new ClaimsPrincipal(claimsIdentity), authProperties);

@@ -1,27 +1,244 @@
-﻿@{
+﻿@model UniManage3.ViewModels.BrowseCoursesViewModel
+
+@{
+    var vm = Model ?? new UniManage3.ViewModels.BrowseCoursesViewModel();
     Layout = "_StudentLayout";
-    ViewData["Title"] = "Browse Courses";
+    ViewData["Title"] = "Browse Available Courses";
 }
 
-@* The page-header, page-title, and text-muted classes match your 
-   Admin CSS perfectly to ensure the font weights and colors are identical.
-*@
-
-<div class="page-header">
-    <div>
-        <div class="page-title">Browse Available Courses</div>
-        <div class="text-muted">@DateTime.Now.ToString("MMMM d, dddd")</div>
-    </div>
-
+@* Page Header *@
+<div class="page-header d-flex justify-content-between align-items-center mb-4">
     <div class="page-actions">
-        @* This area is ready for search bars or filters later *@
+        <div class="input-group" style="max-width: 400px;">
+            <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
+            <input type="text" id="courseSearch" class="form-control border-start-0" placeholder="Browse for available courses...">
+        </div>
     </div>
 </div>
 
 <div class="content-body">
-    @* Rest of the page is kept empty for now as requested *@
-    <div class="card border-0 shadow-sm p-5 text-center">
-        <i class="fa-solid fa-book-open fa-3x mb-3" style="color: var(--accent-blue); opacity: 0.2;"></i>
-        <p class="text-muted mb-0">Course catalog is being prepared. Check back soon to enroll in new modules.</p>
+
+    @if (vm.Departments == null || !vm.Departments.Any())
+    {
+        <div class="card border-0 shadow-sm p-5 text-center">
+            <i class="fa-solid fa-layer-group fa-3x mb-3 text-muted opacity-25"></i>
+            <p class="text-muted mb-0">There are no departments or courses currently available.</p>
+        </div>
+    }
+    else
+    {
+        @foreach (var dept in vm.Departments)
+        {
+            <div class="department-block mb-5">
+                <div class="dept-header p-3 bg-white border-start border-4 border-primary shadow-sm rounded d-flex justify-content-between align-items-center mb-3"
+                     style="cursor: pointer;"
+                     data-bs-toggle="collapse"
+                     data-bs-target="#dept-collapse-@dept.DepartmentId">
+                    <div>
+                        <h4 class="mb-1 fw-bold text-dark" style="font-size: 1.15rem;">@dept.DepartmentName</h4>
+                        <p class="text-muted small mb-0">@dept.Description</p>
+                    </div>
+                    <i class="fas fa-chevron-down text-muted transition-icon"></i>
+                </div>
+
+                <div class="collapse show" id="dept-collapse-@dept.DepartmentId">
+                    <div class="row g-4">
+                        @foreach (var course in dept.Courses)
+                        {
+                            <div class="col-xl-4 col-md-6 course-item" data-search="@course.CourseName @course.CourseCode">
+                                <div class="card h-100 border-0 shadow-sm course-card">
+                                    <div class="card-body p-4">
+                                        <div class="d-flex justify-content-between align-items-start mb-3">
+                                            <span class="badge bg-soft-primary text-primary px-2 py-1">@course.CourseCode</span>
+                                            <span class="text-muted small"><i class="far fa-clock me-1"></i> @course.Duration</span>
+                                        </div>
+
+                                        <h5 class="fw-bold mb-2 text-dark">@course.CourseName</h5>
+                                        <p class="text-muted small mb-4" style="height: 4.5em; overflow: hidden;">@course.Description</p>
+
+                                        <div class="course-stats d-flex justify-content-between border-top border-bottom py-3 mb-4">
+                                            <div class="text-center px-2">
+                                                <div class="fw-bold text-dark">@course.Credits</div>
+                                                <div class="text-muted" style="font-size: 0.7rem;">CREDITS</div>
+                                            </div>
+                                            <div class="text-center px-2 border-start border-end">
+                                                <div class="fw-bold text-dark">@course.ModuleCount</div>
+                                                <div class="text-muted" style="font-size: 0.7rem;">MODULE</div>
+                                            </div>
+                                            <div class="text-center px-2">
+                                                <div class="fw-bold text-dark">@course.SemesterCount</div>
+                                                <div class="text-muted" style="font-size: 0.7rem;">SEMESTER</div>
+                                            </div>
+                                        </div>
+
+                                        <div class="d-flex gap-2">
+                                            <button class="btn btn-outline-primary btn-sm flex-grow-1 fw-bold" onclick="openModulesModal(@course.CourseId)">
+                                                Curriculum
+                                            </button>
+                                            <button class="btn btn-primary btn-sm flex-grow-1 fw-bold" onclick="enrollCourse(@course.CourseId, '@System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(course.CourseName)')">
+                                                Enroll
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+<!-- Modules Modal -->
+<div class="modal fade" id="modulesModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header border-0 bg-light p-4">
+                <h5 class="modal-title fw-bold text-dark" id="modulesModalTitle">course curriculum</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div id="modulesContainer"></div>
+            </div>
+        </div>
     </div>
 </div>
+
+<!-- Success Modal -->
+<div class="modal fade" id="enrollSuccessModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-body text-center p-5">
+                <div class="mb-4"><i class="fas fa-check-circle text-success" style="font-size: 4.5rem;"></i></div>
+                <h3 class="fw-bold text-dark mb-3">The application has been sent!</h3>
+                <p class="text-muted mb-4">Thank you for your interest! Your enrollment request has been successfully submitted for academic review.</p>
+                <div class="p-3 rounded-3 mb-4" style="background-color: #f0f7ff; border: 1px dashed #0b4f8a;">
+                    <p class="mb-0 small text-dark lh-sm">
+                        <i class="fas fa-info-circle me-1"></i>
+                        You will see this course in your <strong>'My Courses'</strong> within 48 hours once it is approved.
+                    </p>
+                </div>
+                <button type="button" class="btn btn-primary w-100 py-3 fw-bold" data-bs-dismiss="modal">Alright, thank you!</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.AntiForgeryToken()
+
+<style>
+    .bg-soft-primary {
+        background-color: #eef5ff;
+    }
+
+    .course-card {
+        transition: all 0.3s ease;
+        border: 1px solid #e2e8f0 !important;
+    }
+
+        .course-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 20px rgba(0,0,0,0.1) !important;
+        }
+
+    .module-row {
+        border-bottom: 1px solid #edf2f7;
+        padding: 1rem 0;
+    }
+
+        .module-row:last-child {
+            border-bottom: none;
+        }
+
+    .transition-icon {
+        transition: transform 0.3s ease;
+    }
+
+    .collapsed .transition-icon {
+        transform: rotate(-90deg);
+    }
+</style>
+
+@section Scripts {
+    <script>
+        // courseRegistry generation with safe encoding to prevent SyntaxError
+        const courseRegistry = {
+            @foreach (var dept in vm.Departments)
+            {
+                    foreach (var course in dept.Courses)
+                    {
+                            <text>
+                            "@course.CourseId": {
+                                name: "@System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(course.CourseName)",
+                                modules: [
+                                    @foreach (var m in course.Modules)
+                                    {
+                                            <text>{
+                                                code: "@System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(m.ModuleCode)",
+                                                name: "@System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(m.ModuleName)",
+                                                credits: "@m.Credits",
+                                                desc: "@System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(m.Description ?? "")"
+                                            },</text>
+                                    }
+                                ]
+                            },
+                            </text>
+                    }
+            }
+        };
+
+        // Search Filter logic
+        document.getElementById('courseSearch').addEventListener('input', function(e) {
+            const term = e.target.value.toLowerCase();
+            document.querySelectorAll('.course-item').forEach(item => {
+                const text = item.getAttribute('data-search').toLowerCase();
+                item.style.display = text.includes(term) ? 'block' : 'none';
+            });
+        });
+
+        function openModulesModal(courseId) {
+            const course = courseRegistry[courseId];
+            if (!course) return;
+
+            document.getElementById('modulesModalTitle').innerText = course.name + " - Curriculum";
+            const container = document.getElementById('modulesContainer');
+
+            if (course.modules.length === 0) {
+                container.innerHTML = '<div class="alert alert-light text-center">no modules found for this course.</div>';
+            } else {
+                container.innerHTML = course.modules.map(m => `
+                    <div class="module-row">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <h6 class="fw-bold text-dark mb-0">${m.code}: ${m.name}</h6>
+                            <span class="badge bg-light text-primary border">${m.credits} Credits</span>
+                        </div>
+                        <p class="text-muted small mb-0">${m.desc || 'main module.'}</p>
+                    </div>
+                `).join('');
+            }
+
+            new bootstrap.Modal(document.getElementById('modulesModal')).show();
+        }
+
+        function enrollCourse(courseId, courseName) {
+            if (!confirm(`Do you want to apply for enrollment into "${courseName}"?`)) return;
+
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+            $.ajax({
+                url: '/StudentCourses/Enroll',
+                type: 'POST',
+                data: { courseId: courseId, __RequestVerificationToken: token },
+                success: function(res) {
+                    if (res.success) {
+                        new bootstrap.Modal(document.getElementById('enrollSuccessModal')).show();
+                    } else {
+                        alert(res.message || "Enrollment did not go through.");
+                    }
+                },
+                error: function() { alert("A server error occurred."); }
+            });
+        }
+    </script>
+}

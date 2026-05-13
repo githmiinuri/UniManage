@@ -1,31 +1,27 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using UniManage3.Data;
 using UniManage3.ViewModels;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Security.Claims;
+using UniManage3.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace UniManage3.Controllers
 {
-    [Authorize] // Ensures only logged-in users can access
-    public class StudentController : Controller
+    [Authorize(Roles = "Student")]
+    public class StudentCoursesController : Controller
     {
         private readonly ApplicationDbContext _context;
 
-        public StudentController(ApplicationDbContext context)
+        public StudentCoursesController(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        public IActionResult Dashboard()
+        // GET: StudentCourses/Browse
+        public async Task<IActionResult> Browse()
         {
-            return View();
-        }
-
-        public async Task<IActionResult> BrowseCourses()
-        {
-            // Fetch related data and build the view model so the view never receives a null Model
+            // Fetch data manually to avoid issues if navigation properties (like Department.Courses) are not defined in Models
             var departments = await _context.Departments.ToListAsync();
             var allCourses = await _context.Courses.ToListAsync();
             var allModules = await _context.Modules.ToListAsync();
@@ -62,10 +58,43 @@ namespace UniManage3.Controllers
             return View(viewModel);
         }
 
-        public IActionResult MyCourses() => View();
-        public IActionResult Assignments() => View();
-        public IActionResult Grades() => View();
-        public IActionResult Calendar() => View();
-        public IActionResult Library() => View();
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Enroll(int courseId)
+        {
+            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
+            {
+                return Json(new { success = false, message = "User session not found." });
+            }
+
+            var student = await _context.Students.FirstOrDefaultAsync(s => s.UserId == userId);
+            if (student == null)
+            {
+                return Json(new { success = false, message = "Student profile not found." });
+            }
+
+            // Check if already enrolled to prevent duplicates
+            var existing = await _context.Enrollments
+                .FirstOrDefaultAsync(e => e.StudentId == student.Id && e.CourseId == courseId);
+
+            if (existing != null)
+            {
+                return Json(new { success = false, message = "You have already applied for this course." });
+            }
+
+            var enrollment = new Enrollment
+            {
+                StudentId = student.Id,
+                CourseId = courseId,
+                Status = "In-Progress",
+                EnrollmentDate = DateTime.Now
+            };
+
+            _context.Enrollments.Add(enrollment);
+            await _context.SaveChangesAsync();
+
+            return Json(new { success = true });
+        }
     }
 }
