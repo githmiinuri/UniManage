@@ -253,6 +253,14 @@
         transition: margin-left .25s ease-in-out
     }
 
+    /* make content-wrap internally scrollable while body remains fixed */
+        .content-wrap { height: 100vh; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 56px; }
+    .content-wrap::-webkit-scrollbar { width: 0px; background: transparent; }
+    .content-wrap { -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* table wrapper sizing to keep footer visible via internal scroll */
+    .table-container .table-wrapper { max-height: calc(100vh - 420px); overflow-x: auto; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+
     .left-bar.collapsed + .content-wrap {
         margin-left: var(--sidebar-collapsed)
     }
@@ -296,7 +304,7 @@
     .td-strong { font-weight:700; color:#0b2b4a }
     .td-strong-600 { font-weight:600; color:#0b2b4a }
     .td-date { font-size:0.9rem }
-    .action-buttons { display:flex; gap:8px; align-items:center }
+    .action-buttons { display:flex; gap:8px; align-items:center; white-space:nowrap }
     .text-muted-small { color:var(--muted); font-size:0.85rem }
 
     /* Inputs & selects matching Departments */
@@ -457,7 +465,7 @@
             </div>
         </div>
 
-        <div class="table-container">
+        <div class="card table-container" style="margin-top:16px">
             <form method="get" action="@Url.Action("Enrollments", "Enrollments")" style="margin-bottom:24px; display:flex; gap:12px;" class="search-bar">
                 <input type="text" name="searchTerm" value="@Model.SearchTerm" placeholder="Search student name or course..." class="form-control" />
                 <select name="status" class="searchable-select">
@@ -468,7 +476,8 @@
                 <button type="submit" class="btn">Filter</button>
             </form>
 
-            <table class="table">
+            <div class="table-wrapper" style="overflow:auto">
+                <table class="table">
                 <thead>
                     <tr>
                         <th>Student Details</th>
@@ -494,15 +503,19 @@
                             <td>
                                 <div class="td-strong-600">@(!string.IsNullOrEmpty(item.PrerequisiteName) ? item.PrerequisiteName : "None")</div>
                             </td>
-                            <td class="action-buttons">
+                            <td class="action-buttons" style="min-width:240px">
                                 @if (Model.CurrentStatus == "In-Progress" || Model.CurrentStatus == "Pending")
                                 {
-                                    <button type="button" class="btn btn-approve" onclick="processEnrollment(@item.Id, 'Approve')">Approve</button>
-                                    <button type="button" class="btn btn-reject" onclick="processEnrollment(@item.Id, 'Reject')">Reject</button>
+                                    <div style="display:flex;gap:8px;align-items:center;white-space:nowrap">
+                                        <button type="button" class="btn btn-approve" onclick="processEnrollment(@item.Id, 'Approve')">Approve</button>
+                                        <button type="button" class="btn btn-reject" onclick="processEnrollment(@item.Id, 'Reject')">Reject</button>
+                                    </div>
                                 }
                                 else
                                 {
-                                    <button type="button" class="btn btn-reject" onclick="processEnrollment(@item.Id, 'Delete')">Permanent Delete</button>
+                                    <div style="display:flex;gap:8px;align-items:center;white-space:nowrap">
+                                        <button type="button" class="btn btn-reject" onclick="processEnrollment(@item.Id, 'Delete')">Permanent Delete</button>
+                                    </div>
                                 }
                             </td>
                         </tr>
@@ -518,6 +531,8 @@
         </div>
     </main>
 </div>
+
+   
 
 @section Scripts {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
