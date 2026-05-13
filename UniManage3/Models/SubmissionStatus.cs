@@ -1,10 +1,11 @@
 namespace UniManage3.Models
 {
+    // Consolidated SubmissionStatus enum - used by assignment submissions
     public enum SubmissionStatus
     {
-        Submitted,
-        Graded,
+        Pending,
+        OnTime,
         Late,
-        Pending
+        Graded
     }
 }

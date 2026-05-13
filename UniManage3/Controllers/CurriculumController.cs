@@ -33,7 +33,7 @@ namespace UniManage3.Controllers
                 Semesters = await _db.Semesters
                     .Where(s => s.CourseId == courseId)
                     .Include(s => s.Modules)
-                    .OrderBy(s => s.StartDate)
+                    .OrderBy(s => s.SemesterNumber)
                     .ToListAsync(),
                 UnassignedModules = await _db.Modules
                     .Where(m => m.CourseId == courseId && m.SemesterId == null && m.IsActive)
@@ -68,8 +68,12 @@ namespace UniManage3.Controllers
         public async Task<IActionResult> EditSemester(Semester model)
         {
             ModelState.Remove("Course");
+           
+            ModelState.Remove("Modules");
+
             if (ModelState.IsValid)
             {
+              
                 _db.Semesters.Update(model);
                 await _db.SaveChangesAsync();
                 return Json(new { success = true });
@@ -166,6 +170,8 @@ namespace UniManage3.Controllers
         public async Task<IActionResult> CreateSemester(Semester model)
         {
             ModelState.Remove("Course");
+            ModelState.Remove("Modules");
+
             if (ModelState.IsValid)
             {
                 _db.Semesters.Add(model);

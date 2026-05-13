@@ -23,7 +23,6 @@ namespace UniManage3.Controllers
         // GET: Courses
         public async Task<IActionResult> Index(string searchString)
         {
-            var courses = await _db.Courses
             // base query with includes
             var query = _db.Courses
                 .Include(c => c.PrerequisiteCourse)
@@ -110,7 +109,7 @@ namespace UniManage3.Controllers
         // POST: Courses/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,CourseCode,CourseName,Description,Credits,PrerequisiteCourseId,CoordinatorId,DepartmentId,IsActive")] Course course)
+        public async Task<IActionResult> Create([Bind("Id,CourseCode,CourseName,Description,Credits,Duration,PrerequisiteCourseId,CoordinatorId,DepartmentId,IsActive")] Course course)
         {
             // remove navigation property validation so binding by id passes
             ModelState.Remove("PrerequisiteCourse");
@@ -218,7 +217,7 @@ namespace UniManage3.Controllers
         // POST: Courses/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,CourseCode,CourseName,Description,Credits,PrerequisiteCourseId,CoordinatorId,DepartmentId,IsActive")] Course course)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,CourseCode,CourseName,Description,Credits,Duration,PrerequisiteCourseId,CoordinatorId,DepartmentId,IsActive")] Course course)
         {
             if (id != course.Id) return NotFound();
 
@@ -272,6 +271,7 @@ namespace UniManage3.Controllers
                     existing.CourseName = course.CourseName;
                     existing.Description = course.Description;
                     existing.Credits = course.Credits;
+                    existing.Duration = course.Duration;
                     existing.PrerequisiteCourseId = course.PrerequisiteCourseId;
                     existing.CoordinatorId = course.CoordinatorId;
                     existing.DepartmentId = course.DepartmentId;

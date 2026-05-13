@@ -535,10 +535,18 @@
                     @Html.AntiForgeryToken()
                     <div class="modal-body px-4">
                         <input type="hidden" name="CourseId" id="modalCourseId" />
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Semester Name</label>
-                            <input type="text" name="SemesterName" class="form-control" placeholder="e.g., Year 1 Semester 1" required />
+
+                        <div class="row">
+                            <div class="col-md-8 mb-3">
+                                <label class="form-label fw-bold">Semester Name</label>
+                                <input type="text" name="SemesterName" class="form-control" placeholder="e.g., Semester 1" required />
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-bold">Semester No.</label>
+                                <input type="number" name="SemesterNumber" class="form-control" value="1" min="1" required />
+                            </div>
                         </div>
+
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label fw-bold">Start Date</label>

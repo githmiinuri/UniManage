@@ -24,6 +24,7 @@ namespace UniManage3.Models
         // Expanded range to support high-value credits like 120, 360, etc.
         [Range(1, 1000, ErrorMessage = "Credits must be between 1 and 1000")]
         public int Credits { get; set; }
+        public string Duration { get; set; } = "Not Specified";
 
         // Foreign Key for the Prerequisite Course
         public int? PrerequisiteCourseId { get; set; }

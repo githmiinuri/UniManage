@@ -444,6 +444,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica N
                             <th>Coordinator</th>
                             <th>Department</th>
                             <th>Credits</th>
+                            <th>Duration</th>
+                            <th>Prerequisite</th>
                             <th>Prerequisite</th>
                             <th>Status</th>
                             <th style="width:280px">Actions</th>
@@ -473,6 +475,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica N
                             <td>@(c.Coordinator?.User?.FullName ?? (c.Coordinator!=null?(c.Coordinator.FirstName+" "+c.Coordinator.LastName):"-"))</td>
                             <td>@(c.Department?.DepartmentName ?? "N/A")</td>
                             <td>@c.Credits</td>
+                                    <td>@c.Duration</td>
+                                    <td>@(c.PrerequisiteCourse?.CourseName ?? "-")</td>
                             <td>@(c.PrerequisiteCourse?.CourseName ?? "-")</td>
                             <td>@(isActive ? Html.Raw("<span class=\"tag-active\">Active</span>") : Html.Raw("<span class=\"tag-inactive\">Inactive</span>"))</td>
                             <td class="actions d-flex gap-2" style="align-items:center;min-width:280px">

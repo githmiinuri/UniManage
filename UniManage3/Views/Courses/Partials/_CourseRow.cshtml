@@ -9,6 +9,7 @@
     <td>@(Model.Coordinator?.User?.FullName ?? (Model.Coordinator!=null?(Model.Coordinator.FirstName+" "+Model.Coordinator.LastName):"-"))</td>
     <td>@(Model.Department?.DepartmentName ?? "N/A")</td>
     <td>@Model.Credits</td>
+    <td>@Model.Duration</td>
     <td>@(Model.PrerequisiteCourse?.CourseName ?? "-")</td>
     <td>@(isActive ? Html.Raw("<span class=\"tag-active\">Active</span>") : Html.Raw("<span class=\"tag-inactive\">Inactive</span>"))</td>
     <td class="actions d-flex gap-2" style="align-items:center;min-width:280px">

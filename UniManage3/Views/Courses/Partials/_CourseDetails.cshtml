@@ -16,6 +16,9 @@
         <dt class="col-sm-3">Credits</dt>
         <dd class="col-sm-9">@Model.Credits</dd>
 
+        <dt class="col-sm-3">Duration</dt>
+        <dd class="col-sm-9">@(string.IsNullOrEmpty(Model.Duration) ? "Not Specified" : Model.Duration)</dd>
+
         <dt class="col-sm-3">Prerequisite</dt>
         <dd class="col-sm-9">@(Model.PrerequisiteCourse?.CourseName ?? "None")</dd>
 

@@ -4,13 +4,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace UniManage3.Models
 {
-    public enum SubmissionStatus
-    {
-        Pending,
-        OnTime,
-        Late
-    }
-
     public class AssignmentSubmission
     {
         public int Id { get; set; }

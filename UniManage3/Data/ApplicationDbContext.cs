@@ -163,6 +163,11 @@ namespace UniManage3.Data
                     .IsRequired()
                     .HasColumnType("int");
 
+                b.Property(c => c.Duration)
+         .HasMaxLength(50)
+         .HasColumnType("varchar(50)")
+         .HasDefaultValue("Not Specified");
+
                 b.Property(c => c.PrerequisiteCourseId)
                     .HasColumnType("int");
 
@@ -324,6 +329,9 @@ namespace UniManage3.Data
                  .WithMany(c => c.Semesters) // Ensure your Course model has: public virtual ICollection<Semester> Semesters { get; set; }
                  .HasForeignKey(s => s.CourseId)
                  .OnDelete(DeleteBehavior.Cascade); // Matches ON DELETE CASCADE in your SQL
+                b.Property(s => s.SemesterNumber)
+     .HasDefaultValue(1)
+     .HasColumnType("int");
 
                 // Ensure proper indexing for performance
                 b.HasIndex(s => s.CourseId);

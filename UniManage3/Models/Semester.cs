@@ -14,6 +14,8 @@ namespace UniManage3.Models
         [Display(Name = "Semester Name")]
         public string SemesterName { get; set; } // e.g., 'Year 1 - Semester 1'
 
+        public int SemesterNumber { get; set; } = 1;
+
         [Required]
         [DataType(DataType.Date)]
         [Display(Name = "Start Date")]
