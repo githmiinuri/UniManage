@@ -1,0 +1,119 @@
+﻿@model IEnumerable<UniManage3.Models.CourseMaterial>
+
+@{
+    Layout = "_StudentLayout";
+    // Using the ViewBag data sent from MyCoursesController.ModuleContent
+    ViewData["Title"] = ViewBag.ModuleName ?? "Module Content";
+    var moduleName = ViewBag.ModuleName as string;
+    var moduleCode = ViewBag.ModuleCode as string;
+    var courseName = ViewBag.CourseName as string;
+}
+
+<!-- Header Section -->
+<div class="module-header-card">
+    <div class="d-flex align-items-center mb-3">
+        <span class="badge bg-white text-primary px-3 py-2 rounded-pill fw-bold me-3 shadow-sm">@moduleCode</span>
+        <h5 class="mb-0 opacity-75 fw-normal">@courseName</h5>
+    </div>
+    <h1 class="fw-bold mb-0">@moduleName</h1>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="fw-bold text-dark mb-0">
+                <i class="fas fa-folder-open me-2 text-primary"></i>Learning Materials
+            </h4>
+            <span class="badge bg-light text-muted border px-3 py-2">
+                @(Model?.Count() ?? 0) Resources Available
+            </span>
+        </div>
+
+        @if (Model == null || !Model.Any())
+        {
+            <div class="card border-0 shadow-sm p-5 text-center bg-white" style="border-radius: 15px;">
+                <div class="py-4">
+                    <i class="fas fa-box-open fa-4x mb-3 text-muted opacity-20"></i>
+                    <h4 class="text-dark fw-bold">No Materials Found</h4>
+                    <p class="text-muted mx-auto" style="max-width: 400px;">
+                        Your lecturer hasn't uploaded any study materials for this module yet. Please check back later.
+                    </p>
+                    <a href="@Url.Action("Index", "MyCourses")" class="btn btn-outline-primary mt-3">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Courses
+                    </a>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="row g-4">
+                @foreach (var material in Model)
+                {
+                    var iconClass = "fas fa-file";
+                    // Mapping MaterialTypeEnum to CSS classes
+                    var typeClass = "type-" + ((int)material.MaterialType);
+
+                    switch (material.MaterialType.ToString())
+                    {
+                        case "PDF": iconClass = "fas fa-file-pdf"; break;
+                        case "Video": iconClass = "fas fa-play-circle"; break;
+                        case "Link": iconClass = "fas fa-external-link-alt"; break;
+                    }
+
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card material-card h-100 p-4 border-0 shadow-sm">
+                            <div class="d-flex align-items-start mb-3">
+                                <div class="icon-box @typeClass shadow-sm">
+                                    <i class="@iconClass"></i>
+                                </div>
+                                <div class="flex-grow-1 overflow-hidden">
+                                    <h6 class="fw-bold text-dark mb-1 text-truncate" title="@material.MaterialName">
+                                        @material.MaterialName
+                                    </h6>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="small text-muted">@material.MaterialType</span>
+                                        @if (!string.IsNullOrEmpty(material.Duration))
+                                        {
+                                            <span class="text-muted" style="font-size: 0.7rem;">•</span>
+                                            <small class="text-muted"><i class="far fa-clock me-1"></i>@material.Duration</small>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+
+                            <p class="text-muted small mb-4 flex-grow-1" style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
+                                @(string.IsNullOrEmpty(material.Description) ? "Access this resource to support your learning for " + moduleCode + "." : material.Description)
+                            </p>
+
+                            <div class="mt-auto">
+                                @if (!string.IsNullOrEmpty(material.FilePath))
+                                {
+                                    <a href="@Url.Action("DownloadMaterial", "MyCourses", new { id = material.Id })" class="btn btn-download w-100">
+                                        @if (material.MaterialType.ToString() == "Link")
+                                        {
+                                            <i class="fas fa-external-link-alt me-2"></i>
+                            
+                                            <span>Open Link</span>
+                                        }
+                                        else
+                                        {
+                                            <i class="fas fa-download me-2"></i>
+                            
+                                            <span>Download File</span>
+                                        }
+                                    </a>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-light w-100 disabled text-muted border" disabled title="No path found in database">
+                                        <i class="fas fa-link-slash me-2"></i>Unavailable
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>

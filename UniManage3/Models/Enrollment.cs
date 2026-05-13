@@ -16,10 +16,10 @@ namespace UniManage3.Models
 
         [Required]
         [StringLength(20)]
-        public string Status { get; set; } // 'Completed', 'In-Progress', or 'Failed'
+        public string? Status { get; set; } // 'Completed', 'In-Progress', or 'Failed'
 
         [StringLength(5)]
-        public string Grade { get; set; }
+        public string? Grade { get; set; }
 
         public DateTime EnrollmentDate { get; set; } = DateTime.Now;
 
@@ -27,9 +27,9 @@ namespace UniManage3.Models
 
         // Navigation Properties
         [ForeignKey("StudentId")]
-        public virtual Student Student { get; set; }
+        public virtual Student? Student { get; set; }
 
         [ForeignKey("CourseId")]
-        public virtual Course Course { get; set; }
+        public virtual Course? Course { get; set; }
     }
 }

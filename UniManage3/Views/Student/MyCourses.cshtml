@@ -1,31 +1,125 @@
-﻿@{
+﻿@model UniManage3.ViewModels.MyCoursesViewModel
+
+@{
+    var vm = Model ?? new UniManage3.ViewModels.MyCoursesViewModel();
     Layout = "_StudentLayout";
     ViewData["Title"] = "My Enrolled Courses";
 }
 
-@* Applying the exact classes from your Admin CSS:
-   .page-header - flex container with space-between
-   .page-title - font-size: 1.4rem, weight: 700, color: #0b4f8a
-   .text-muted - color: #6c757d (defined in your root)
-*@
+<style>
+    .course-card {
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        border: 1px solid #e2e8f0;
+    }
 
-<div class="page-header">
-    <div>
-        <div class="page-title">My Enrolled Courses</div>
-        <div class="text-muted">@DateTime.Now.ToString("MMMM d, dddd")</div>
-    </div>
+    .semester-section {
+        background: #f8fafc;
+        border-radius: 8px;
+        padding: 15px;
+        margin-top: 10px;
+    }
 
-    <div class="page-actions">
-        @* Space reserved for future buttons like 'Print Schedule' or 'History' *@
-    </div>
-</div>
+    .module-item {
+        background: white;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 10px;
+        border-left: 4px solid var(--accent-blue);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        transition: transform 0.2s;
+    }
+
+        .module-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+    .btn-view {
+        background-color: var(--accent-blue);
+        color: white;
+        border-radius: 6px;
+        padding: 5px 15px;
+        font-size: 0.85rem;
+    }
+
+        .btn-view:hover {
+            background-color: #083d6b;
+            color: white;
+        }
+
+    .semester-badge {
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 4px 10px;
+        border-radius: 20px;
+        background: #e0f2fe;
+        color: #0369a1;
+    }
+</style>
 
 <div class="content-body">
-    @* Rest of the page is kept empty for now per your instruction *@
-    <div class="card border-0 shadow-sm p-4 mt-3">
-        <div class="text-center py-5">
-            <i class="fa-solid fa-graduation-cap fa-3x mb-3" style="color: var(--accent-blue); opacity: 0.15;"></i>
-            <p class="text-muted">You are not currently enrolled in any active courses.</p>
+    @if (!vm.EnrolledCourses.Any())
+    {
+        <div class="card border-0 shadow-sm p-5 text-center">
+            <i class="fa-solid fa-graduation-cap fa-3x mb-3 text-muted opacity-25"></i>
+            <h5 class="text-dark fw-bold">No Active Courses</h5>
+            <p class="text-muted mb-0">Your admin hasn't approved any course enrollments for you yet.</p>
         </div>
-    </div>
+    }
+    else
+    {
+        @foreach (var course in vm.EnrolledCourses)
+        {
+            <div class="card course-card mb-4 shadow-sm border-0">
+                <div class="card-header bg-white p-4 border-0">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <span class="text-muted small fw-bold uppercase">@course.CourseCode</span>
+                            <h4 class="fw-bold text-dark mb-1">@course.CourseName</h4>
+                        </div>
+                        <i class="fas fa-chevron-down text-muted"></i>
+                    </div>
+                </div>
+
+                <div class="card-body p-4 pt-0">
+                    @foreach (var semester in course.Semesters)
+                    {
+                        <div class="semester-group mb-4">
+                            <div class="d-flex align-items-center gap-2 mb-3">
+                                <span class="semester-badge">Semester @semester.SemesterNumber</span>
+                                <h6 class="mb-0 fw-bold text-secondary">@semester.SemesterName</h6>
+                                <small class="text-muted ms-auto">@semester.StartDate.ToString("MMM yyyy") - @semester.EndDate.ToString("MMM yyyy")</small>
+                            </div>
+
+                            <div class="row">
+                                @foreach (var module in semester.Modules)
+                                {
+                                    <div class="col-md-12">
+                                        <div class="module-item d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <span class="fw-bold text-dark">@module.ModuleCode</span>
+                                                    <span class="text-muted">|</span>
+                                                    <span class="fw-semibold">@module.ModuleName</span>
+                                                </div>
+                                                <p class="small text-muted mb-0 mt-1">
+                                                    <i class="fas fa-user-tie me-1"></i> @module.LecturerFullName
+                                                    <span class="mx-2">•</span>
+                                                    <i class="fas fa-star me-1"></i> @module.Credits Credits
+                                                </p>
+                                            </div>
+                                            <a href="@Url.Action("ModuleContent", "MyCourses", new { id = module.ModuleId })" class="btn btn-view">
+                                                <i class="fas fa-book-open me-2"></i>View Materials
+                                            </a>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    }
 </div>

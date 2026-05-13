@@ -1,17 +1,24 @@
-@using System.Linq
+﻿@using UniManage3.ViewModels
+@model EnrollmentManagementViewModel
 @inject UniManage3.Data.ApplicationDbContext _db
 @{
     Layout = "_Layout";
-    ViewData["Title"] = "Admin Dashboard";
+    ViewData["Title"] = "Enrollment Management";
     var email = User?.Identity?.Name;
     var fullName = _db.Users.FirstOrDefault(u => u.Email == email)?.FullName ?? email ?? "Administrator";
 }
 
+@functions {
+    public string CurrentDate() => DateTime.UtcNow.ToString("MMMM d, dddd");
+}
+
 <style>
     :root {
+        /* Department page aligned variables */
         --gradient: linear-gradient(135deg, #0b4f8a 0%, #6d28d9 100%);
         --sidebar-width: 260px;
         --sidebar-collapsed: 64px;
+        /* Department Blue accent (exact hex from Departments page) */
         --accent-blue: #0b4f8a;
         --light-blue: #9fc8ff;
         --muted: #6c757d;
@@ -279,6 +286,29 @@
     }
 
     /* responsive */
+    /* Department-like component additions (counters, inputs, buttons) */
+    .counter-row { display:flex; gap:12px; margin-bottom:16px }
+    .counter { flex:0 0 180px; background:#fff; border-radius:10px; padding:12px; box-shadow:var(--card-shadow); border:1px solid #eef3fb; }
+    .counter .small { color:var(--muted); font-size:0.9rem }
+    .counter .value { font-weight:700; font-size:1.4rem; color:var(--accent-blue) }
+
+    /* Table typography utilities */
+    .td-strong { font-weight:700; color:#0b2b4a }
+    .td-strong-600 { font-weight:600; color:#0b2b4a }
+    .td-date { font-size:0.9rem }
+    .action-buttons { display:flex; gap:8px; align-items:center }
+    .text-muted-small { color:var(--muted); font-size:0.85rem }
+
+    /* Inputs & selects matching Departments */
+    .form-control, .searchable-select { padding:10px 12px; border-radius:10px; border:1px solid #e6eefc; height:42px; font-family:var(--font-stack); font-size:0.95rem }
+    .form-control::placeholder { color:var(--muted) }
+    .form-control:focus, .searchable-select:focus { border-color:var(--accent-blue); box-shadow:0 0 0 3px rgba(11,79,138,0.06); outline:none }
+
+    /* Buttons */
+    .btn { background:var(--accent-blue); color:white; padding:8px 16px; border-radius:8px; border:none; cursor:pointer; display:inline-flex; align-items:center; gap:6px; font-weight:600 }
+    .btn-secondary { background:transparent; border:1px solid #e6eefc; padding:8px 16px; border-radius:8px; color:var(--accent-blue) }
+    .btn:hover { background: color-mix(in srgb, var(--accent-blue) 88%, black 12%); color:black }
+
     @@media (max-width:900px) {
         .left-bar {
             position: relative;
@@ -402,111 +432,138 @@
         </div>
     </aside>
 
-
     <main class="content-wrap">
-        <div class="page-header">
+        @Html.AntiForgeryToken()
+        <header class="page-header">
             <div>
-                <div class="page-title">Dashboard</div>
-                <div class="text-muted">@DateTime.UtcNow.ToString("MMMM d, dddd")</div>
+                <div class="page-title">Enrollment Management</div>
+                <div style="font-size:0.85rem; color:var(--muted)">@CurrentDate()</div>
             </div>
-            <div class="page-actions">
+           
+        </header>
+
+        <div class="counter-row">
+            <div class="counter card">
+                <div class="small text-muted">Pending Requests</div>
+                <div class="value">@Model.PendingCount</div>
+            </div>
+            <div class="counter card">
+                <div class="small text-muted">Approved</div>
+                <div class="value">@Model.CompletedCount</div>
+            </div>
+            <div class="counter card">
+                <div class="small text-muted">Rejected</div>
+                <div class="value">@Model.FailedCount</div>
             </div>
         </div>
 
-        <div class="row g-3">
-            <div class="col-12 col-md-3">
-                <div class="card">
-                    <div class="small text-muted">Students</div>
-                    <div style="font-weight:700;font-size:1.6rem;color:var(--accent-blue)">5,699</div>
-                </div>
-            </div>
-            <div class="col-12 col-md-3">
-                <div class="card">
-                    <div class="small text-muted">Lecturers</div>
-                    <div style="font-weight:700;font-size:1.6rem;color:var(--accent-blue)">297</div>
-                </div>
-            </div>
-            <div class="col-12 col-md-3">
-                <div class="card">
-                    <div class="small text-muted">Awards</div>
-                    <div style="font-weight:700;font-size:1.6rem;color:var(--accent-blue)">368</div>
-                </div>
-            </div>
-            <div class="col-12 col-md-3">
-                <div class="card">
-                    <div class="small text-muted">Revenue</div>
-                    <div style="font-weight:700;font-size:1.6rem;color:var(--accent-blue)">$87,395</div>
-                </div>
-            </div>
-        </div>
+        <div class="table-container">
+            <form method="get" action="@Url.Action("Enrollments", "Enrollments")" style="margin-bottom:24px; display:flex; gap:12px;" class="search-bar">
+                <input type="text" name="searchTerm" value="@Model.SearchTerm" placeholder="Search student name or course..." class="form-control" />
+                <select name="status" class="searchable-select">
+                    <option value="In-Progress" selected="@(Model.CurrentStatus == "In-Progress" || Model.CurrentStatus == "Pending")">Pending</option>
+                    <option value="Completed" selected="@(Model.CurrentStatus == "Completed")">Completed</option>
+                    <option value="Failed" selected="@(Model.CurrentStatus == "Failed")">Failed</option>
+                </select>
+                <button type="submit" class="btn">Filter</button>
+            </form>
 
-        <div class="row g-3 mt-3">
-            <div class="col-12 col-lg-8">
-                <div class="card" style="height:280px;display:flex;align-items:center;justify-content:center;color:var(--muted)">Academic Performance Chart (placeholder)</div>
-            </div>
-            <div class="col-12 col-lg-4">
-                <div class="card" style="height:280px;display:flex;align-items:center;justify-content:center;color:var(--muted)">Earnings Chart (placeholder)</div>
-            </div>
-        </div>
-
-        <div class="row g-3 mt-3">
-            <div class="col-12 col-md-6">
-                <div class="card" style="height:200px;">Messages (placeholder)</div>
-            </div>
-            <div class="col-12 col-md-6">
-                <div class="card" style="height:200px;">Students Summary (placeholder)</div>
-            </div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Student Details</th>
+                        <th>Course Target</th>
+                        <th>Applied On</th>
+                        <th>Prerequisite</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Enrollments)
+                    {
+                        <tr id="row-@item.Id">
+                            <td>
+                                <div class="td-strong">@item.StudentName</div>
+                                <div class="text-muted-small">@item.StudentEmail</div>
+                            </td>
+                            <td>
+                                <div class="td-strong-600">@item.CourseCode</div>
+                                <div class="text-muted-small">@item.CourseName</div>
+                            </td>
+                            <td class="td-date">@item.EnrollmentDate.ToString("MMM dd, yyyy")</td>
+                            <td>
+                                <div class="td-strong-600">@(!string.IsNullOrEmpty(item.PrerequisiteName) ? item.PrerequisiteName : "None")</div>
+                            </td>
+                            <td class="action-buttons">
+                                @if (Model.CurrentStatus == "In-Progress" || Model.CurrentStatus == "Pending")
+                                {
+                                    <button type="button" class="btn btn-approve" onclick="processEnrollment(@item.Id, 'Approve')">Approve</button>
+                                    <button type="button" class="btn btn-reject" onclick="processEnrollment(@item.Id, 'Reject')">Reject</button>
+                                }
+                                else
+                                {
+                                    <button type="button" class="btn btn-reject" onclick="processEnrollment(@item.Id, 'Delete')">Permanent Delete</button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Enrollments.Any())
+                    {
+                        <tr>
+                            <td colspan="5" style="text-align:center; padding:40px; color:var(--muted)">No enrollment records found.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
         </div>
     </main>
 </div>
 
 @section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function(){
-            // Attach a simple click handler to each submenu toggle button.
-            document.querySelectorAll('.submenu-toggle').forEach(function(btn){
-                btn.addEventListener('click', function(e){
-                    e.preventDefault();
-                    e.stopPropagation();
-                    var parent = btn.closest('.has-submenu');
-                    if (!parent) return;
-                    var submenu = parent.querySelector('.submenu');
-                    var isOpen = !parent.classList.contains('open');
-                    // set states
-                    parent.classList.toggle('open', isOpen);
-                    btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-                    btn.classList.toggle('active', isOpen);
-                    if (submenu) {
-                        submenu.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
-                        submenu.style.maxHeight = isOpen ? submenu.scrollHeight + 'px' : '0';
-                        submenu.style.opacity = isOpen ? '1' : '0';
-                    }
-                    // close other submenus
-                    document.querySelectorAll('.has-submenu').forEach(function(h){
-                        if (h === parent) return;
-                        h.classList.remove('open');
-                        var s = h.querySelector('.submenu'); if (s) { s.setAttribute('aria-hidden','true'); s.style.maxHeight='0'; s.style.opacity='0'; }
-                        var t = h.querySelector('.submenu-toggle'); if (t) { t.setAttribute('aria-expanded','false'); t.classList.remove('active'); }
-                    });
-                });
+        function processEnrollment(id, action) {
+            if (!confirm(`Are you sure you want to ${action.toLowerCase()} this enrollment?`)) return;
 
-                // keyboard support for the button
-                btn.addEventListener('keydown', function(e){
-                    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); btn.click(); }
-                });
-            });
+            const url = `/Enrollments/${action}`;
+            const token = $('input[name="__RequestVerificationToken"]').first().val();
 
-            // Allow clicking other parts of the .has-submenu row to toggle too (but not links)
-            document.querySelectorAll('.has-submenu').forEach(function(parent){
-                parent.addEventListener('click', function(e){
-                    if (e.target.closest && e.target.closest('.sub-action')) return; // let links navigate
-                    var btn = parent.querySelector('.submenu-toggle');
-                    if (btn) {
-                        // trigger the same behaviour as clicking the button
-                        btn.click();
+            $.ajax({
+                url: url,
+                type: 'POST',
+                headers: {
+                    'RequestVerificationToken': token,
+                    'XSRF-TOKEN': token
+                },
+                data: {
+                    id: id,
+                    __RequestVerificationToken: token
+                },
+                success: function (res) {
+                    if (res && res.success) {
+                        // Remove the row from the table
+                        $('#row-' + id).remove();
+
+                        // Update counters if provided (counter-row -> .counter .value)
+                        if (res.pendingCount !== undefined) $('.counter-row .counter').eq(0).find('.value').text(res.pendingCount);
+                        if (res.completedCount !== undefined) $('.counter-row .counter').eq(1).find('.value').text(res.completedCount);
+                        if (res.failedCount !== undefined) $('.counter-row .counter').eq(2).find('.value').text(res.failedCount);
+
+                        alert(res.message || 'Updated successfully.');
+                    } else {
+                        alert((res && res.message) || "An error occurred.");
                     }
-                });
+                },
+                error: function (xhr) {
+                    // Try to show server-provided message when available
+                    var msg = "Server error. Please ensure you are logged in as an Administrator.";
+                    try {
+                        var json = JSON.parse(xhr.responseText);
+                        if (json && json.message) msg = json.message;
+                    } catch (e) { }
+                    alert(msg);
+                }
             });
-        });
+        }
     </script>
 }
