@@ -108,6 +108,15 @@ namespace UniManage3.Data
                 b.Property(e => e.Province).HasMaxLength(128).HasColumnType("varchar(128)");
                 b.Property(e => e.ContactNumber).HasColumnType("int");
                 b.Property(e => e.ZipCode).HasColumnType("int");
+                // Define BatchId as an optional property
+                b.Property(s => s.BatchId)
+                    .IsRequired(false);
+
+                // Define the relationship between Student and Batch
+                b.HasOne(s => s.Batch)
+                    .WithMany() // Student has one Batch, Batch has many Students
+                    .HasForeignKey(s => s.BatchId)
+                    .OnDelete(DeleteBehavior.SetNull); // Set BatchId to null if the Batch is deleted
             });
 
             modelBuilder.Entity<User>(b =>

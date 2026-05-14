@@ -6,23 +6,16 @@
     ViewData["Title"] = ViewBag.ModuleName ?? "Module Content";
     var moduleName = ViewBag.ModuleName as string;
     var moduleCode = ViewBag.ModuleCode as string;
-    var courseName = ViewBag.CourseName as string;
+    // courseName intentionally omitted to reduce clutter per design guidance
 }
 
-<!-- Header Section -->
-<div class="module-header-card">
-    <div class="d-flex align-items-center mb-3">
-        <span class="badge bg-white text-primary px-3 py-2 rounded-pill fw-bold me-3 shadow-sm">@moduleCode</span>
-        <h5 class="mb-0 opacity-75 fw-normal">@courseName</h5>
-    </div>
-    <h1 class="fw-bold mb-0">@moduleName</h1>
-</div>
+@* Module header removed — page header already displays the module name. *@
 
 <div class="row">
     <div class="col-12">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h4 class="fw-bold text-dark mb-0">
-                <i class="fas fa-folder-open me-2 text-primary"></i>Learning Materials
+            <h4 class="fw-bold text-dark mb-0" style="font-size:1.25rem;">
+                <i class="fas fa-folder-open me-2" style="font-size:1.25rem; color:var(--accent-blue);"></i>Learning Materials
             </h4>
             <span class="badge bg-light text-muted border px-3 py-2">
                 @(Model?.Count() ?? 0) Resources Available
@@ -49,15 +42,30 @@
             <div class="row g-4">
                 @foreach (var material in Model)
                 {
-                    var iconClass = "fas fa-file";
-                    // Mapping MaterialTypeEnum to CSS classes
+                    // Default icon mapping based on MaterialTypeEnum
+                    var iconClass = "fas fa-file-alt";
                     var typeClass = "type-" + ((int)material.MaterialType);
 
-                    switch (material.MaterialType.ToString())
+                    switch (material.MaterialType)
                     {
-                        case "PDF": iconClass = "fas fa-file-pdf"; break;
-                        case "Video": iconClass = "fas fa-play-circle"; break;
-                        case "Link": iconClass = "fas fa-external-link-alt"; break;
+                        case UniManage3.Models.MaterialTypeEnum.PDF:
+                            iconClass = "fas fa-file-pdf";
+                            break;
+                        case UniManage3.Models.MaterialTypeEnum.Video:
+                            iconClass = "fas fa-file-video";
+                            break;
+                        case UniManage3.Models.MaterialTypeEnum.Image:
+                            iconClass = "fas fa-file-image";
+                            break;
+                        case UniManage3.Models.MaterialTypeEnum.PPT:
+                            iconClass = "fas fa-file-powerpoint";
+                            break;
+                        case UniManage3.Models.MaterialTypeEnum.Audio:
+                            iconClass = "fas fa-file-audio";
+                            break;
+                        default:
+                            iconClass = "fas fa-file-alt";
+                            break;
                     }
 
                     <div class="col-md-6 col-lg-4">
@@ -88,20 +96,45 @@
                             <div class="mt-auto">
                                 @if (!string.IsNullOrEmpty(material.FilePath))
                                 {
-                                    <a href="@Url.Action("DownloadMaterial", "MyCourses", new { id = material.Id })" class="btn btn-download w-100">
-                                        @if (material.MaterialType.ToString() == "Link")
-                                        {
+                                    var isUrl = material.FilePath.StartsWith("http://", System.StringComparison.OrdinalIgnoreCase) || material.FilePath.StartsWith("https://", System.StringComparison.OrdinalIgnoreCase);
+                                    if (isUrl)
+                                    {
+                                        <a href="@material.FilePath" target="_blank" rel="noopener noreferrer" class="btn btn-download w-100">
                                             <i class="fas fa-external-link-alt me-2"></i>
-                            
-                                            <span>Open Link</span>
-                                        }
-                                        else
+                                            <span>Open Resource</span>
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        // Local file - show specific download text based on type
+                                        var downloadText = "Download";
+                                        switch (material.MaterialType)
                                         {
-                                            <i class="fas fa-download me-2"></i>
-                            
-                                            <span>Download File</span>
+                                            case UniManage3.Models.MaterialTypeEnum.PDF:
+                                                downloadText = "Download PDF";
+                                                break;
+                                            case UniManage3.Models.MaterialTypeEnum.Video:
+                                                downloadText = "Download Video";
+                                                break;
+                                            case UniManage3.Models.MaterialTypeEnum.Image:
+                                                downloadText = "Download Image";
+                                                break;
+                                            case UniManage3.Models.MaterialTypeEnum.PPT:
+                                                downloadText = "Download PPT";
+                                                break;
+                                            case UniManage3.Models.MaterialTypeEnum.Audio:
+                                                downloadText = "Download Audio";
+                                                break;
+                                            default:
+                                                downloadText = "Download File";
+                                                break;
                                         }
-                                    </a>
+
+                                        <a href="@Url.Action("DownloadMaterial", "MyCourses", new { id = material.Id })" class="btn btn-download w-100">
+                                            <i class="fas fa-download me-2"></i>
+                                            <span>@downloadText</span>
+                                        </a>
+                                    }
                                 }
                                 else
                                 {

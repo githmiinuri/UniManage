@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace UniManage3.Models
 {
@@ -35,5 +36,11 @@ namespace UniManage3.Models
         public string City { get; set; }
 
         public int? ZipCode { get; set; }
+
+        // Add these to your Student class in UniManage3.Models
+        public int? BatchId { get; set; }
+
+        [ForeignKey("BatchId")]
+        public virtual Batch? Batch { get; set; }
     }
 }

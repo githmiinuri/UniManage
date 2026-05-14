@@ -12,6 +12,12 @@ namespace UniManage3.ViewModels
         public int CourseId { get; set; }
         public string CourseName { get; set; } = string.Empty;
         public string CourseCode { get; set; } = string.Empty;
+        public string Status { get; set; } = string.Empty;
+        public DateTime EnrollmentDate { get; set; }
+        // Grade and CompletionDisplay normalized for the view (no nulls)
+        public string Grade { get; set; } = "Pending";
+        public DateTime? CompletionDate { get; set; }
+        public string CompletionDisplay { get; set; } = "TBD";
         public List<SemesterGroupViewModel> Semesters { get; set; } = new();
     }
 

@@ -1,0 +1,105 @@
+@model UniManage3.Models.Assignment
+
+@{
+    Layout = "_StudentLayout";
+    var assignment = ViewData["Assignment"] as UniManage3.Models.Assignment;
+    var submission = ViewData["Submission"] as UniManage3.Models.AssignmentSubmission;
+}
+
+<div class="content-body">
+    <div class="card shadow-sm p-4" style="border:1px solid #e2e8f0; border-left:4px solid #0d6efd;">
+        <div class="d-flex justify-content-between align-items-start">
+            <div>
+                <h3 class="fw-bold">@assignment.AssignmentName</h3>
+                <div class="text-muted">Module: @assignment.Module?.ModuleCode - @assignment.Module?.ModuleName</div>
+                <div class="small text-muted">Issued: @assignment.IssuedDate.ToString("MMM d, yyyy") | Deadline: @assignment.DeadlineDate.ToString("MMM d, yyyy")</div>
+            </div>
+            <div>
+                @if (!string.IsNullOrEmpty(assignment.ResourceFilePath))
+                {
+                    <a href="@Url.Action("DownloadBrief","AssignmentsSubmission", new { id = assignment.Id })" class="btn btn-outline-secondary"> <i class="fas fa-file-download me-1"></i> Download Brief</a>
+                }
+            </div>
+        </div>
+
+        <hr />
+
+        <div class="mt-3">
+            <p>@assignment.Description</p>
+
+            <div>
+                <h5>Submission</h5>
+                @if (submission == null)
+                {
+                    <p class="text-muted">You have not submitted this assignment yet.</p>
+                }
+                else
+                {
+                    <p class="small">Submitted: @submission.SubmittedTime.ToString("g")</p>
+                    <p class="small">Status: @submission.Status.ToString()</p>
+                    @if (!string.IsNullOrEmpty(submission.SubmittedFilePath))
+                    {
+                        <a href="@submission.SubmittedFilePath" class="btn btn-link">Open submitted file</a>
+                    }
+                }
+            </div>
+
+            <hr />
+
+            <div>
+                <h5>Submit / Resubmit</h5>
+                <form id="assignment-upload-form" method="post" enctype="multipart/form-data" asp-controller="AssignmentsSubmission" asp-action="SubmitAssignmentAjax">
+                    <input type="hidden" name="assignmentId" value="@assignment.Id" />
+                    <div class="mb-3">
+                        <input class="form-control" type="file" name="file" id="fileInput" />
+                    </div>
+                    <div class="mb-3">
+                        <button id="uploadBtn" type="submit" class="btn" style="background:#0d6efd; color:white;">Upload</button>
+                    </div>
+                </form>
+
+                <div id="uploadStatus" style="display:none;">
+                    <div class="progress">
+                        <div id="uploadProgress" class="progress-bar" role="progressbar" style="width:0%"></div>
+                    </div>
+                    <div id="uploadMessage" class="mt-2 small text-muted"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('assignment-upload-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+            var form = e.target;
+            var data = new FormData(form);
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', form.action, true);
+            xhr.setRequestHeader('RequestVerificationToken', document.querySelector('input[name="__RequestVerificationToken"]').value);
+
+            xhr.upload.addEventListener('progress', function (evt) {
+                if (evt.lengthComputable) {
+                    var percentComplete = Math.round((evt.loaded / evt.total) * 100);
+                    document.getElementById('uploadProgress').style.width = percentComplete + '%';
+                    document.getElementById('uploadStatus').style.display = 'block';
+                }
+            }, false);
+
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    var res = JSON.parse(xhr.responseText);
+                    document.getElementById('uploadMessage').innerText = res.message || 'Upload completed';
+                    if (res.success) {
+                        setTimeout(function () { window.location.reload(); }, 800);
+                    }
+                } else {
+                    document.getElementById('uploadMessage').innerText = 'Upload failed';
+                }
+            };
+
+            xhr.send(data);
+        });
+    </script>
+}

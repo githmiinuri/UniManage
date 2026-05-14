@@ -21,3 +21,16 @@ body {
   /* remove artificial bottom margin so fixed footer overlays the page cleanly */
   margin-bottom: 0;
 }
+
+/* Styles for material download button in student ModuleContent view */
+.btn-download {
+  background-color: #0d6efd;
+  color: #ffffff;
+  border-radius: 6px;
+  padding: 8px 12px;
+}
+
+.btn-download:hover {
+  background-color: #0d6efd;
+  color: #000000; /* icon + text color on hover */
+}

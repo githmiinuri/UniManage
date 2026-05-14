@@ -21,11 +21,157 @@
 </div>
 
 <div class="content-body">
-    @* Rest of the page is kept empty for now per your instruction *@
-    <div class="card border-0 shadow-sm p-4 mt-3">
-        <div class="text-center py-5">
-            <i class="fa-solid fa-file-arrow-up fa-3x mb-3" style="color: var(--accent-blue); opacity: 0.15;"></i>
-            <p class="text-muted">No upcoming deadlines or active assignments to display.</p>
+    @{
+        var items = ViewData["AssignmentsWithSubmissions"] as IEnumerable<dynamic>;
+    }
+
+    @if (items == null || !items.Any())
+    {
+        <div class="card border-0 shadow-sm p-4 mt-3">
+            <div class="text-center py-5">
+                <i class="fa-solid fa-file-arrow-up fa-3x mb-3" style="color: var(--accent-blue); opacity: 0.15;"></i>
+                <p class="text-muted">No upcoming deadlines or active assignments to display.</p>
+            </div>
         </div>
-    </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            @foreach (var it in items)
+            {
+                var assignment = (UniManage3.Models.Assignment)it.Assignment;
+                var submission = (UniManage3.Models.AssignmentSubmission)it.Submission;
+                var daysRemaining = (assignment.DeadlineDate - DateTime.Now).Days;
+                var status = submission?.Status ?? UniManage3.Models.SubmissionStatus.Pending;
+
+                <div class="col-md-6">
+                    <div class="card shadow-sm p-4" style="border:1px solid #e2e8f0; border-left:4px solid #0d6efd;">
+                        <div class="d-flex justify-content-between mb-2">
+                            <div>
+                                <h5 class="fw-bold mb-1">@assignment.AssignmentName</h5>
+                                <div class="text-muted small">@assignment.Module?.ModuleCode - @assignment.Module?.ModuleName</div>
+                            </div>
+                            <div class="text-end">
+                                <div class="small text-muted">Issued: @assignment.IssuedDate.ToString("MMM d, yyyy")</div>
+                                <div class="mt-2">
+                                    <span class="badge bg-light text-muted">@((daysRemaining >= 0) ? (daysRemaining + " days") : "Deadline passed")</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <p class="text-muted small">@assignment.Description</p>
+
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <div>
+                                @* Status badge *@
+                                @if (status == UniManage3.Models.SubmissionStatus.Pending)
+                                {
+                                    <span class="badge bg-secondary">Pending</span>
+                                }
+                                else if (status == UniManage3.Models.SubmissionStatus.OnTime)
+                                {
+                                    <span class="badge bg-success">Submitted (On Time)</span>
+                                }
+                                else if (status == UniManage3.Models.SubmissionStatus.Late)
+                                {
+                                    <span class="badge bg-warning text-dark">Submitted (Late)</span>
+                                }
+                                else if (status == UniManage3.Models.SubmissionStatus.Graded)
+                                {
+                                    <span class="badge bg-info text-dark">Graded</span>
+                                }
+                            </div>
+
+                            <div class="d-flex align-items-center gap-2">
+                                @if (!string.IsNullOrEmpty(assignment.ResourceFilePath))
+                                {
+                                    <a href="@Url.Action("DownloadBrief","AssignmentsSubmission", new { id = assignment.Id })" class="btn btn-outline-secondary"> <i class="fas fa-file-download me-1"></i> Brief</a>
+                                }
+
+                                @if (status == UniManage3.Models.SubmissionStatus.Pending)
+                                {
+                                <button class="btn" style="background:#0d6efd; color:white;" data-bs-toggle="modal" data-bs-target="#uploadModal-@assignment.Id">Submit</button>
+                                }
+                                else if (status == UniManage3.Models.SubmissionStatus.OnTime)
+                                {
+                                    <button class="btn" style="background:#0d6efd; color:white;" data-bs-toggle="modal" data-bs-target="#uploadModal-@assignment.Id">Resubmit</button>
+                                }
+                                else if (status == UniManage3.Models.SubmissionStatus.Late)
+                                {
+                                    <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#uploadModal-@assignment.Id">Late Submit</button>
+                                }
+                                else if (status == UniManage3.Models.SubmissionStatus.Graded)
+                                {
+                                    <a href="@Url.Action("Grades","Student")" class="btn btn-info text-dark">View Grade & Feedback</a>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Modal -->
+                        <div class="modal fade" id="uploadModal-@assignment.Id" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Submit: @assignment.AssignmentName</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form id="upload-form-@assignment.Id" method="post" enctype="multipart/form-data" asp-controller="AssignmentsSubmission" asp-action="SubmitAssignmentAjax">
+                                            <input type="hidden" name="assignmentId" value="@assignment.Id" />
+                                            <div class="mb-3">
+                                                <input class="form-control" type="file" name="file" id="fileInput-@assignment.Id" />
+                                            </div>
+                                            <div class="progress mb-2" style="height:8px; display:none;" id="progress-@assignment.Id">
+                                                <div class="progress-bar" id="progressBar-@assignment.Id" role="progressbar" style="width:0%"></div>
+                                            </div>
+                                            <div class="text-end">
+                                            <button type="submit" class="btn" style="background:#0d6efd; color:white;">Upload</button>
+                                            </div>
+                                        </form>
+                                        <div id="uploadMsg-@assignment.Id" class="mt-2 small text-muted"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <script>
+                            (function(){
+                                var form = document.getElementById('upload-form-@assignment.Id');
+                                var progress = document.getElementById('progress-@assignment.Id');
+                                var bar = document.getElementById('progressBar-@assignment.Id');
+                                var msg = document.getElementById('uploadMsg-@assignment.Id');
+
+                                form.addEventListener('submit', function (e) {
+                                    e.preventDefault();
+                                    var data = new FormData(form);
+                                    var xhr = new XMLHttpRequest();
+                                    xhr.open('POST', form.action, true);
+                                    xhr.setRequestHeader('RequestVerificationToken', document.querySelector('input[name="__RequestVerificationToken"]').value);
+                                    xhr.upload.addEventListener('progress', function (evt) {
+                                        if (evt.lengthComputable) {
+                                            var percentComplete = Math.round((evt.loaded / evt.total) * 100);
+                                            progress.style.display = 'block';
+                                            bar.style.width = percentComplete + '%';
+                                        }
+                                    }, false);
+                                    xhr.onload = function () {
+                                        if (xhr.status === 200) {
+                                            var res = JSON.parse(xhr.responseText);
+                                            msg.innerText = res.message || 'Upload completed';
+                                            if (res.success) {
+                                                setTimeout(function () { window.location.reload(); }, 800);
+                                            }
+                                        } else {
+                                            msg.innerText = 'Upload failed';
+                                        }
+                                    };
+                                    xhr.send(data);
+                                });
+                            })();
+                        </script>
+                    </div>
+                </div>
+            }
+        </div>
+    }
 </div>

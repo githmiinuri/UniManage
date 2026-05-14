@@ -25,7 +25,7 @@
         border-radius: 8px;
         padding: 15px;
         margin-bottom: 10px;
-        border-left: 4px solid var(--accent-blue);
+        border-left: 4px solid #0d6efd;
         box-shadow: 0 2px 4px rgba(0,0,0,0.02);
         transition: transform 0.2s;
     }
@@ -36,7 +36,7 @@
         }
 
     .btn-view {
-        background-color: var(--accent-blue);
+        background-color: #0d6efd; 
         color: white;
         border-radius: 6px;
         padding: 5px 15px;
@@ -44,8 +44,8 @@
     }
 
         .btn-view:hover {
-            background-color: #083d6b;
-            color: white;
+            background-color: #0d6efd; 
+            color: #000000;
         }
 
     .semester-badge {
@@ -59,12 +59,16 @@
 </style>
 
 <div class="content-body">
+    @* Debug information removed for production (cleaned up) *@
     @if (!vm.EnrolledCourses.Any())
     {
         <div class="card border-0 shadow-sm p-5 text-center">
             <i class="fa-solid fa-graduation-cap fa-3x mb-3 text-muted opacity-25"></i>
             <h5 class="text-dark fw-bold">No Active Courses</h5>
-            <p class="text-muted mb-0">Your admin hasn't approved any course enrollments for you yet.</p>
+            <p class="text-muted mb-0">You are not enrolled in any active or completed courses. Browse the catalog to enroll.</p>
+            <div class="mt-3">
+                <a href="@Url.Action("BrowseCourses", "MyCourses")" class="btn btn-view">Browse Courses</a>
+            </div>
         </div>
     }
     else
@@ -77,6 +81,9 @@
                         <div>
                             <span class="text-muted small fw-bold uppercase">@course.CourseCode</span>
                             <h4 class="fw-bold text-dark mb-1">@course.CourseName</h4>
+                            <div class="small text-muted">Applied: @course.EnrollmentDate.ToString("MMM dd, yyyy")
+                                @if (!string.IsNullOrEmpty(course.Grade)) { <span>&middot; Grade: <strong>@course.Grade</strong></span> }
+                            </div>
                         </div>
                         <i class="fas fa-chevron-down text-muted"></i>
                     </div>
@@ -116,6 +123,8 @@
                                     </div>
                                 }
                             </div>
+
+
                         </div>
                     }
                 </div>

@@ -62,7 +62,7 @@ namespace UniManage3.Controllers
             return View(viewModel);
         }
 
-        public IActionResult MyCourses() => View();
+        public IActionResult MyCourses() => RedirectToAction("Index", "MyCourses", new { area = "" });
         public IActionResult Assignments() => View();
         public IActionResult Grades() => View();
         public IActionResult Calendar() => View();
