@@ -4,75 +4,93 @@
     ViewData["Title"] = "Grade Submission";
 }
 
-<h1>Grade Submission</h1>
+<div class="bg-light rounded-3 shadow-sm p-4 p-md-5 mb-4">
+    <div class="col-lg-8 mx-auto">
+        <header class="mb-4 text-center text-lg-start">
+            <h1 class="h3 fw-bold text-dark mb-1">Grade submission</h1>
+            <p class="text-muted mb-0 small">Review the uploaded file, then record marks and feedback below.</p>
+        </header>
 
-@if (TempData["SuccessMessage"] != null)
-{
-    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
-}
-else if (TempData["ErrorMessage"] != null)
-{
-    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
-}
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success border-0 shadow-sm rounded-3" role="alert">@TempData["SuccessMessage"]</div>
+        }
+        else if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger border-0 shadow-sm rounded-3" role="alert">@TempData["ErrorMessage"]</div>
+        }
 
-<div class="row">
-    <div class="col-md-5">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Details</h5>
-                <p><strong>Student:</strong> @Model.StudentName</p>
-                <p><strong>Assignment:</strong> @Model.AssignmentName</p>
-                <p><strong>Submitted:</strong> @Model.SubmittedTime.ToString("yyyy-MM-dd HH:mm")</p>
-                <p>
-                    <strong>Status:</strong>
-                    @if (Model.Status == UniManage3.Models.SubmissionStatus.OnTime)
-                    {
-                        <span class="badge bg-success">On Time</span>
-                    }
-                    else if (Model.Status == UniManage3.Models.SubmissionStatus.Late)
-                    {
-                        <span class="badge bg-danger">Late</span>
-                    }
-                    else
-                    {
-                        <span class="badge bg-secondary">Pending</span>
-                    }
-                </p>
-
-                <a asp-controller="Submissions" asp-action="DownloadSubmission" asp-route-id="@Model.Id" class="btn btn-outline-primary">Download Submission</a>
+        <div class="card bg-white border-0 shadow-sm rounded-3 mb-4">
+            <div class="card-body p-4 p-md-4">
+                <div class="d-flex flex-wrap align-items-start justify-content-between gap-3 mb-4">
+                    <div>
+                        <h2 class="h6 text-uppercase text-secondary fw-semibold mb-3">Submission details</h2>
+                        <dl class="row mb-0 gy-2">
+                            <dt class="col-sm-4 text-muted small fw-semibold">Student</dt>
+                            <dd class="col-sm-8 fw-semibold text-dark mb-0">@Model.StudentName</dd>
+                            <dt class="col-sm-4 text-muted small fw-semibold">Assignment</dt>
+                            <dd class="col-sm-8 mb-0">@Model.AssignmentName</dd>
+                            <dt class="col-sm-4 text-muted small fw-semibold">Submitted</dt>
+                            <dd class="col-sm-8 mb-0 text-secondary">@Model.SubmittedTime.ToString("yyyy-MM-dd HH:mm")</dd>
+                            <dt class="col-sm-4 text-muted small fw-semibold">Status</dt>
+                            <dd class="col-sm-8 mb-0">
+                                @if (Model.Status == UniManage3.Models.SubmissionStatus.OnTime)
+                                {
+                                    <span class="badge rounded-pill bg-success">On Time</span>
+                                }
+                                else if (Model.Status == UniManage3.Models.SubmissionStatus.Late)
+                                {
+                                    <span class="badge rounded-pill bg-warning text-dark">Late Submission</span>
+                                }
+                                else
+                                {
+                                    <span class="badge rounded-pill bg-secondary">Pending</span>
+                                }
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+                <div class="d-grid d-md-block">
+                    <a asp-controller="Submissions" asp-action="DownloadSubmission" asp-route-id="@Model.Id" class="btn btn-outline-primary btn-lg rounded-3 px-4 shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="me-2 align-text-bottom" viewBox="0 0 16 16" aria-hidden="true"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/></svg>
+                        Download student file
+                    </a>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="col-md-7">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Grading</h5>
+        <div class="card bg-white border-0 shadow-sm rounded-3">
+            <div class="card-body p-4 p-md-4">
+                <h2 class="h6 text-uppercase text-secondary fw-semibold mb-4">Grading</h2>
 
                 <form id="gradeForm" method="post" action="@Context.Request.Path">
                     @Html.AntiForgeryToken()
 
-                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3 small"></div>
 
                     <input type="hidden" asp-for="Id" />
 
-                    <div class="mb-3">
-                        <label class="form-label">Marks</label>
-                        <input asp-for="Marks" class="form-control" type="number" step="0.01" />
-                        <span asp-validation-for="Marks" class="text-danger"></span>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small">Marks</label>
+                            <input asp-for="Marks" class="form-control form-control-lg rounded-3" type="number" step="0.01" />
+                            <span asp-validation-for="Marks" class="text-danger d-block small mt-1"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small">Grade</label>
+                            <input asp-for="Grade" class="form-control form-control-lg rounded-3" />
+                            <span asp-validation-for="Grade" class="text-danger d-block small mt-1"></span>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Grade</label>
-                        <input asp-for="Grade" class="form-control" />
-                        <span asp-validation-for="Grade" class="text-danger"></span>
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold small">Review / feedback</label>
+                        <textarea asp-for="Review" class="form-control rounded-3" rows="6"></textarea>
+                        <span asp-validation-for="Review" class="text-danger d-block small mt-1"></span>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Review</label>
-                        <textarea asp-for="Review" class="form-control" rows="5"></textarea>
-                        <span asp-validation-for="Review" class="text-danger"></span>
+                    <div class="d-flex flex-wrap gap-2 pt-2 border-top border-light">
+                        <button type="submit" id="submitBtn" class="btn btn-success rounded-3 px-4">Save grades</button>
+                        <a asp-controller="Submissions" asp-action="Index" class="btn btn-outline-secondary rounded-3 px-4">Cancel / Back to List</a>
                     </div>
-                    <button type="submit" id="submitBtn" class="btn btn-success">Save</button>
-                    <a asp-controller="Submissions" asp-action="Index" class="btn btn-secondary">Cancel</a>
                 </form>
             </div>
         </div>
