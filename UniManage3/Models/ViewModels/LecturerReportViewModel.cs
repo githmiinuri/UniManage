@@ -16,7 +16,8 @@ namespace UniManage3.Models.ViewModels
 
         // KPIs
         public int TotalSubmissions { get; set; }
-        public double? AverageMarks { get; set; }
+        // Class average of graded submissions. Defaults to 0 when there are no graded submissions.
+        public double ClassAverage { get; set; }
         public int LateSubmissions { get; set; }
     }
 }

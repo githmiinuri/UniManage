@@ -11,13 +11,13 @@
             <form method="get" class="row g-3 align-items-end">
                 <div class="col-md-5">
                     <label class="form-label">Module</label>
-                    <select asp-for="SelectedModuleId" asp-items="Model.Modules" class="form-select">
+                    <select name="moduleId" asp-for="SelectedModuleId" asp-items="Model.Modules" class="form-select">
                         <option value="">-- Select Module --</option>
                     </select>
                 </div>
                 <div class="col-md-5">
                     <label class="form-label">Batch</label>
-                    <select asp-for="SelectedBatchId" asp-items="Model.Batches" class="form-select">
+                    <select name="batchId" asp-for="SelectedBatchId" asp-items="Model.Batches" class="form-select">
                         <option value="">-- Select Batch --</option>
                     </select>
                 </div>
@@ -60,7 +60,7 @@
                     </div>
                     <div>
                         <div class="text-muted small">Class Average</div>
-                        <div class="h4 mb-0">@(Model.AverageMarks.HasValue ? Model.AverageMarks.Value.ToString("0.##") : "N/A")</div>
+                        <div class="h4 mb-0">@(Model.ClassAverage > 0 ? Model.ClassAverage.ToString("0.##") : "N/A")</div>
                     </div>
                 </div>
             </div>

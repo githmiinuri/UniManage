@@ -48,7 +48,10 @@ namespace UniManage3.Controllers.Lecture
                 Modules = new SelectList(modules, "Id", "ModuleName", moduleId),
                 Batches = new SelectList(batches, "Id", "BatchName", batchId),
                 SelectedModuleId = moduleId,
-                SelectedBatchId = batchId
+                SelectedBatchId = batchId,
+                TotalSubmissions = 0,
+                ClassAverage = 0,
+                LateSubmissions = 0
             };
 
             // If filters provided, query submissions
@@ -56,18 +59,23 @@ namespace UniManage3.Controllers.Lecture
             {
                 var query = _db.AssignmentSubmissions
                     .Include(s => s.Student)
-                    .Include(s => s.Assignment).ThenInclude(a => a.Module)
-                    .Where(s => s.Assignment.ModuleId == moduleId.Value && s.Assignment.BatchId == batchId.Value)
-                    .AsQueryable();
+                    .Include(s => s.Assignment)
+                        .ThenInclude(a => a.Module)
+                    .Where(s => s.Assignment.ModuleId == moduleId.Value && s.Assignment.BatchId == batchId.Value);
 
                 var submissions = await query.OrderByDescending(s => s.SubmittedTime).ToListAsync();
 
                 vm.Submissions = submissions;
 
+                // KPIs
                 vm.TotalSubmissions = submissions.Count;
-                var marksList = submissions.Where(s => s.Marks.HasValue).Select(s => s.Marks.Value).ToList();
-                vm.AverageMarks = marksList.Count == 0 ? (double?)null : marksList.Average();
-                vm.LateSubmissions = submissions.Count(s => s.Status == SubmissionStatus.Late);
+
+                var graded = submissions.Where(s => s.Marks.HasValue).ToList();
+                vm.ClassAverage = graded.Any() ? graded.Average(s => s.Marks!.Value) : 0.0;
+
+                vm.LateSubmissions = submissions.Count(s => 
+                    (s.Assignment != null && s.SubmittedTime > s.Assignment.DeadlineDate) 
+                    || s.Status == SubmissionStatus.Late);
             }
 
             return View(vm);
