@@ -3,126 +3,162 @@
     ViewData["Title"] = "Profile Management";
 }
 
-<div class="container py-4">
-    <h2 class="mb-3">Profile Management</h2>
+<div class="bg-light rounded-3 shadow-sm p-4 p-md-4 mb-4">
+    <header class="mb-4">
+        <h1 class="h3 fw-bold text-dark mb-1">Profile management</h1>
+        <p class="text-muted mb-0 small">Update your teaching profile, sign-in email, and password in one place.</p>
+    </header>
 
     @if (TempData["SuccessMessage"] != null)
     {
-        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm rounded-3" role="alert">
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            @TempData["SuccessMessage"]
+        </div>
     }
     @if (TempData["ErrorMessage"] != null)
     {
-        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+        <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm rounded-3" role="alert">
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            @TempData["ErrorMessage"]
+        </div>
+    }
+    @if (ViewData.ModelState.TryGetValue(string.Empty, out var rootState) && rootState.Errors.Count > 0)
+    {
+        <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm rounded-3" role="alert">
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <ul class="mb-0 ps-3 small">
+                @foreach (var err in rootState.Errors)
+                {
+                    <li>@err.ErrorMessage</li>
+                }
+            </ul>
+        </div>
     }
 
-    <div class="row">
-        <div class="col-lg-4 mb-3">
-            <div class="list-group" id="profileTabs" role="tablist">
-                <a class="list-group-item list-group-item-action active" data-bs-toggle="list" href="#personal" role="tab">Personal Information</a>
-                <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#email" role="tab">Email Settings</a>
-                <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#security" role="tab">Security</a>
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="card bg-white border-0 shadow-sm rounded-3 h-100">
+                <div class="card-header bg-white border-bottom fw-bold py-3 rounded-top-3">
+                    Basic details
+                </div>
+                <div class="card-body p-4">
+                    <form asp-controller="LecturerProfile" asp-action="UpdateProfile" method="post">
+                        @Html.AntiForgeryToken()
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small" asp-for="Profile.FirstName"></label>
+                                <input asp-for="Profile.FirstName" class="form-control rounded-3" />
+                                <span asp-validation-for="Profile.FirstName" class="text-danger small d-block"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small" asp-for="Profile.LastName"></label>
+                                <input asp-for="Profile.LastName" class="form-control rounded-3" />
+                                <span asp-validation-for="Profile.LastName" class="text-danger small d-block"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small" asp-for="Profile.ContactNumber"></label>
+                                <input asp-for="Profile.ContactNumber" class="form-control rounded-3" />
+                                <span asp-validation-for="Profile.ContactNumber" class="text-danger small d-block"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small" asp-for="Profile.NICNumber"></label>
+                                <input asp-for="Profile.NICNumber" class="form-control rounded-3" />
+                                <span asp-validation-for="Profile.NICNumber" class="text-danger small d-block"></span>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-semibold small" asp-for="Profile.AddressLine1"></label>
+                                <input asp-for="Profile.AddressLine1" class="form-control rounded-3" />
+                                <span asp-validation-for="Profile.AddressLine1" class="text-danger small d-block"></span>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-semibold small" asp-for="Profile.AddressLine2"></label>
+                                <input asp-for="Profile.AddressLine2" class="form-control rounded-3" />
+                                <span asp-validation-for="Profile.AddressLine2" class="text-danger small d-block"></span>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold small" asp-for="Profile.Province"></label>
+                                <input asp-for="Profile.Province" class="form-control rounded-3" />
+                                <span asp-validation-for="Profile.Province" class="text-danger small d-block"></span>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold small" asp-for="Profile.City"></label>
+                                <input asp-for="Profile.City" class="form-control rounded-3" />
+                                <span asp-validation-for="Profile.City" class="text-danger small d-block"></span>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold small" asp-for="Profile.ZipCode"></label>
+                                <input asp-for="Profile.ZipCode" class="form-control rounded-3" />
+                                <span asp-validation-for="Profile.ZipCode" class="text-danger small d-block"></span>
+                            </div>
+                        </div>
+                        <div class="mt-4 pt-3 border-top border-light text-end">
+                            <button type="submit" class="btn btn-primary rounded-3 px-4">Save profile</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
-        <div class="col-lg-8">
-            <div class="tab-content">
-                <div class="tab-pane fade show active" id="personal" role="tabpanel">
-                    <div class="card">
-                        <div class="card-body">
-                            <form asp-controller="LecturerProfile" asp-action="UpdateProfile" method="post">
-                                @Html.AntiForgeryToken()
-                                <div class="row g-2">
-                                    <div class="col-md-6">
-                                        <label class="form-label">First Name</label>
-                                        <input asp-for="Profile.FirstName" class="form-control" />
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Last Name</label>
-                                        <input asp-for="Profile.LastName" class="form-control" />
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Contact Number</label>
-                                        <input asp-for="Profile.ContactNumber" class="form-control" />
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">NIC Number</label>
-                                        <input asp-for="Profile.NICNumber" class="form-control" />
-                                    </div>
-                                    <div class="col-12">
-                                        <label class="form-label">Address Line 1</label>
-                                        <input asp-for="Profile.AddressLine1" class="form-control" />
-                                    </div>
-                                    <div class="col-12">
-                                        <label class="form-label">Address Line 2</label>
-                                        <input asp-for="Profile.AddressLine2" class="form-control" />
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label class="form-label">Province</label>
-                                        <input asp-for="Profile.Province" class="form-control" />
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label class="form-label">City</label>
-                                        <input asp-for="Profile.City" class="form-control" />
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label class="form-label">Zip Code</label>
-                                        <input asp-for="Profile.ZipCode" class="form-control" />
-                                    </div>
-                                </div>
-                                <div class="mt-3 text-end">
-                                    <button type="submit" class="btn btn-primary">Save Changes</button>
-                                </div>
-                            </form>
-                        </div>
+
+        <div class="col-lg-5">
+            <div class="d-flex flex-column gap-4">
+                <div class="card bg-white border-0 shadow-sm rounded-3">
+                    <div class="card-header bg-white border-bottom fw-bold py-3 rounded-top-3">
+                        Update email
+                    </div>
+                    <div class="card-body p-4">
+                        <form asp-controller="LecturerProfile" asp-action="UpdateEmail" method="post">
+                            @Html.AntiForgeryToken()
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold small" asp-for="Email.CurrentEmail"></label>
+                                <input asp-for="Email.CurrentEmail" class="form-control rounded-3" />
+                                <span asp-validation-for="Email.CurrentEmail" class="text-danger small d-block"></span>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold small" asp-for="Email.NewEmail"></label>
+                                <input asp-for="Email.NewEmail" class="form-control rounded-3" />
+                                <span asp-validation-for="Email.NewEmail" class="text-danger small d-block"></span>
+                            </div>
+                            <div class="text-end pt-2">
+                                <button type="submit" class="btn btn-primary rounded-3 px-4">Update email</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
 
-                <div class="tab-pane fade" id="email" role="tabpanel">
-                    <div class="card">
-                        <div class="card-body">
-                            <form asp-controller="LecturerProfile" asp-action="UpdateEmail" method="post">
-                                @Html.AntiForgeryToken()
-                                <div class="mb-3">
-                                    <label class="form-label">Current Email</label>
-                                    <input asp-for="Email.CurrentEmail" class="form-control" />
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">New Email</label>
-                                    <input asp-for="Email.NewEmail" class="form-control" />
-                                </div>
-                                <div class="text-end">
-                                    <button type="submit" class="btn btn-primary">Update Email</button>
-                                </div>
-                            </form>
-                        </div>
+                <div class="card bg-white border-0 shadow-sm rounded-3">
+                    <div class="card-header bg-white border-bottom fw-bold py-3 rounded-top-3">
+                        Update password
+                    </div>
+                    <div class="card-body p-4">
+                        <form asp-controller="LecturerProfile" asp-action="ChangePassword" method="post">
+                            @Html.AntiForgeryToken()
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold small" asp-for="Password.CurrentPassword"></label>
+                                <input asp-for="Password.CurrentPassword" class="form-control rounded-3" type="password" autocomplete="current-password" />
+                                <span asp-validation-for="Password.CurrentPassword" class="text-danger small d-block"></span>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold small" asp-for="Password.NewPassword"></label>
+                                <input asp-for="Password.NewPassword" class="form-control rounded-3" type="password" autocomplete="new-password" />
+                                <span asp-validation-for="Password.NewPassword" class="text-danger small d-block"></span>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold small" asp-for="Password.ConfirmPassword"></label>
+                                <input asp-for="Password.ConfirmPassword" class="form-control rounded-3" type="password" autocomplete="new-password" />
+                                <span asp-validation-for="Password.ConfirmPassword" class="text-danger small d-block"></span>
+                            </div>
+                            <div class="text-end pt-2">
+                                <button type="submit" class="btn btn-primary rounded-3 px-4">Change password</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
-
-                <div class="tab-pane fade" id="security" role="tabpanel">
-                    <div class="card">
-                        <div class="card-body">
-                            <form asp-controller="LecturerProfile" asp-action="ChangePassword" method="post">
-                                @Html.AntiForgeryToken()
-                                <div class="mb-3">
-                                    <label class="form-label">Current Password</label>
-                                    <input asp-for="Password.CurrentPassword" class="form-control" type="password" />
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">New Password</label>
-                                    <input asp-for="Password.NewPassword" class="form-control" type="password" />
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Confirm New Password</label>
-                                    <input asp-for="Password.ConfirmPassword" class="form-control" type="password" />
-                                </div>
-                                <div class="text-end">
-                                    <button type="submit" class="btn btn-primary">Change Password</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-
             </div>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -23,13 +23,12 @@ namespace UniManage3.Controllers.Lecture
             _context = context;
         }
 
-        // GET: Lecture/Profile
+        // GET: Lecture/LecturerProfile/Index
         public async Task<IActionResult> Index()
         {
             var vm = new LecturerProfileIndexViewModel();
 
-            // identify current user by email claim or name
-            var email = User?.Identity?.Name ?? User?.FindFirst(ClaimTypes.Email)?.Value;
+            var email = GetCurrentLoginEmail();
             if (string.IsNullOrEmpty(email)) return Challenge();
 
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
@@ -43,21 +42,11 @@ namespace UniManage3.Controllers.Lecture
             if (lecturer == null)
             {
                 TempData["ErrorMessage"] = "No lecturer profile found for the current user.";
+                vm.Email.CurrentEmail = user.Email;
                 return View(vm);
             }
 
-            vm.Profile.FirstName = lecturer.FirstName;
-            vm.Profile.LastName = lecturer.LastName;
-            vm.Profile.ContactNumber = lecturer.ContactNumber?.ToString();
-            vm.Profile.NICNumber = lecturer.NICNumber;
-            vm.Profile.AddressLine1 = lecturer.AddressLine1;
-            vm.Profile.AddressLine2 = lecturer.AddressLine2;
-            vm.Profile.Province = lecturer.Province;
-            vm.Profile.City = lecturer.City;
-            vm.Profile.ZipCode = lecturer.ZipCode;
-
-            vm.Email.CurrentEmail = user.Email;
-
+            PopulateViewModel(vm, user, lecturer);
             return View(vm);
         }
 
@@ -65,30 +54,33 @@ namespace UniManage3.Controllers.Lecture
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateProfile([Bind(Prefix = "Profile")] ProfileUpdateViewModel model)
         {
-            if (!ModelState.IsValid)
-            {
-                TempData["ErrorMessage"] = "Please correct the highlighted errors.";
-                return RedirectToAction(nameof(Index));
-            }
-
-            var email = User?.Identity?.Name ?? User?.FindFirst(ClaimTypes.Email)?.Value;
+            var email = GetCurrentLoginEmail();
             if (string.IsNullOrEmpty(email)) return Challenge();
 
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
             if (user == null)
             {
-                TempData["ErrorMessage"] = "Unable to locate your user profile.";
-                return RedirectToAction(nameof(Index));
+                ModelState.AddModelError(string.Empty, "Unable to locate your user profile.");
+                return ReturnIndexView(new LecturerProfileIndexViewModel { Profile = model });
             }
 
             var lecturer = await _context.Lecturers.FirstOrDefaultAsync(l => l.UserId == user.Id);
             if (lecturer == null)
             {
-                TempData["ErrorMessage"] = "No lecturer profile found for the current user.";
-                return RedirectToAction(nameof(Index));
+                ModelState.AddModelError(string.Empty, "No lecturer profile found for the current user.");
+                var vmMissing = new LecturerProfileIndexViewModel { Profile = model };
+                vmMissing.Email.CurrentEmail = user.Email;
+                return ReturnIndexView(vmMissing);
             }
 
-            // update lecturer fields
+            if (!ModelState.IsValid)
+            {
+                var vm = new LecturerProfileIndexViewModel();
+                PopulateViewModel(vm, user, lecturer);
+                vm.Profile = model;
+                return ReturnIndexView(vm);
+            }
+
             lecturer.FirstName = model.FirstName?.Trim();
             lecturer.LastName = model.LastName?.Trim();
             if (int.TryParse(model.ContactNumber, out var contactParsed))
@@ -106,96 +98,130 @@ namespace UniManage3.Controllers.Lecture
             lecturer.City = model.City?.Trim();
             lecturer.ZipCode = model.ZipCode;
 
-            // update user's full name
             user.FullName = (model.FirstName + " " + model.LastName).Trim();
 
             try
             {
                 await _context.SaveChangesAsync();
                 TempData["SuccessMessage"] = "Profile updated successfully.";
+                return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = "Unable to save changes. " + ex.Message;
+                ModelState.AddModelError(string.Empty, "Unable to save changes. " + ex.Message);
+                var vm = new LecturerProfileIndexViewModel();
+                PopulateViewModel(vm, user, lecturer);
+                vm.Profile = model;
+                return ReturnIndexView(vm);
             }
-
-            return RedirectToAction(nameof(Index));
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateEmail([Bind(Prefix = "Email")] EmailUpdateViewModel model)
         {
-            if (!ModelState.IsValid)
-            {
-                TempData["ErrorMessage"] = "Please correct the highlighted errors.";
-                return RedirectToAction(nameof(Index));
-            }
-
-            var email = User?.Identity?.Name ?? User?.FindFirst(ClaimTypes.Email)?.Value;
+            var email = GetCurrentLoginEmail();
             if (string.IsNullOrEmpty(email)) return Challenge();
 
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
             if (user == null)
             {
-                TempData["ErrorMessage"] = "Unable to locate your user profile.";
-                return RedirectToAction(nameof(Index));
+                ModelState.AddModelError(string.Empty, "Unable to locate your user profile.");
+                return ReturnIndexView(new LecturerProfileIndexViewModel { Email = model });
             }
 
-            // verify current email matches
+            var lecturer = await _context.Lecturers.FirstOrDefaultAsync(l => l.UserId == user.Id);
+            if (lecturer == null)
+            {
+                ModelState.AddModelError(string.Empty, "No lecturer profile found for the current user.");
+                var vmMissing = new LecturerProfileIndexViewModel { Email = model };
+                vmMissing.Email.CurrentEmail = model.CurrentEmail ?? user.Email;
+                return ReturnIndexView(vmMissing);
+            }
+
+            if (!ModelState.IsValid)
+            {
+                var vm = new LecturerProfileIndexViewModel();
+                PopulateViewModel(vm, user, lecturer);
+                vm.Email = model;
+                return ReturnIndexView(vm);
+            }
+
             if (!string.Equals(model.CurrentEmail?.Trim(), user.Email, StringComparison.OrdinalIgnoreCase))
             {
-                TempData["ErrorMessage"] = "Current email does not match our records.";
-                return RedirectToAction(nameof(Index));
+                ModelState.AddModelError("Email.CurrentEmail", "Current email does not match our records.");
+                var vm = new LecturerProfileIndexViewModel();
+                PopulateViewModel(vm, user, lecturer);
+                vm.Email = model;
+                return ReturnIndexView(vm);
             }
 
-            // check unique
-            var exists = await _context.Users.AnyAsync(u => u.Email == model.NewEmail && u.Id != user.Id);
+            var newEmailTrimmed = model.NewEmail.Trim();
+            var exists = await _context.Users.AnyAsync(u => u.Email == newEmailTrimmed && u.Id != user.Id);
             if (exists)
             {
-                TempData["ErrorMessage"] = "The new email is already in use by another account.";
-                return RedirectToAction(nameof(Index));
+                ModelState.AddModelError("Email.NewEmail", "The new email is already in use by another account.");
+                var vm = new LecturerProfileIndexViewModel();
+                PopulateViewModel(vm, user, lecturer);
+                vm.Email = model;
+                return ReturnIndexView(vm);
             }
 
-            user.Email = model.NewEmail.Trim();
+            user.Email = newEmailTrimmed;
             try
             {
                 await _context.SaveChangesAsync();
                 TempData["SuccessMessage"] = "Email updated successfully.";
+                return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = "Unable to update email. " + ex.Message;
+                ModelState.AddModelError(string.Empty, "Unable to update email. " + ex.Message);
+                var vm = new LecturerProfileIndexViewModel();
+                PopulateViewModel(vm, user, lecturer);
+                vm.Email = model;
+                return ReturnIndexView(vm);
             }
-
-            return RedirectToAction(nameof(Index));
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ChangePassword([Bind(Prefix = "Password")] PasswordUpdateViewModel model)
         {
-            if (!ModelState.IsValid)
-            {
-                TempData["ErrorMessage"] = "Please correct the highlighted errors.";
-                return RedirectToAction(nameof(Index));
-            }
-
-            var email = User?.Identity?.Name ?? User?.FindFirst(ClaimTypes.Email)?.Value;
+            var email = GetCurrentLoginEmail();
             if (string.IsNullOrEmpty(email)) return Challenge();
 
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
             if (user == null)
             {
-                TempData["ErrorMessage"] = "Unable to locate your user profile.";
-                return RedirectToAction(nameof(Index));
+                ModelState.AddModelError(string.Empty, "Unable to locate your user profile.");
+                return ReturnIndexView(new LecturerProfileIndexViewModel { Password = model });
             }
 
-            // verify current password - users.Password assumed hashed with SHA256 or similar
+            var lecturer = await _context.Lecturers.FirstOrDefaultAsync(l => l.UserId == user.Id);
+            if (lecturer == null)
+            {
+                ModelState.AddModelError(string.Empty, "No lecturer profile found for the current user.");
+                var vmMissing = new LecturerProfileIndexViewModel { Password = model };
+                vmMissing.Email.CurrentEmail = user.Email;
+                return ReturnIndexView(vmMissing);
+            }
+
+            if (!ModelState.IsValid)
+            {
+                var vm = new LecturerProfileIndexViewModel();
+                PopulateViewModel(vm, user, lecturer);
+                vm.Password = model;
+                return ReturnIndexView(vm);
+            }
+
             if (!VerifyHashedPassword(user.Password, model.CurrentPassword))
             {
-                TempData["ErrorMessage"] = "Current password is incorrect.";
-                return RedirectToAction(nameof(Index));
+                ModelState.AddModelError("Password.CurrentPassword", "Current password is incorrect.");
+                var vm = new LecturerProfileIndexViewModel();
+                PopulateViewModel(vm, user, lecturer);
+                vm.Password = model;
+                return ReturnIndexView(vm);
             }
 
             user.Password = HashPassword(model.NewPassword);
@@ -203,13 +229,37 @@ namespace UniManage3.Controllers.Lecture
             {
                 await _context.SaveChangesAsync();
                 TempData["SuccessMessage"] = "Password changed successfully.";
+                return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = "Unable to change password. " + ex.Message;
+                ModelState.AddModelError(string.Empty, "Unable to change password. " + ex.Message);
+                var vm = new LecturerProfileIndexViewModel();
+                PopulateViewModel(vm, user, lecturer);
+                vm.Password = model;
+                return ReturnIndexView(vm);
             }
+        }
 
-            return RedirectToAction(nameof(Index));
+        private IActionResult ReturnIndexView(LecturerProfileIndexViewModel vm) =>
+            View("Index", vm);
+
+        private string? GetCurrentLoginEmail() =>
+            User?.Identity?.Name ?? User?.FindFirst(ClaimTypes.Email)?.Value;
+
+        private void PopulateViewModel(LecturerProfileIndexViewModel vm, User user, Lecturer lecturer)
+        {
+            vm.Profile.FirstName = lecturer.FirstName;
+            vm.Profile.LastName = lecturer.LastName;
+            vm.Profile.ContactNumber = lecturer.ContactNumber?.ToString();
+            vm.Profile.NICNumber = lecturer.NICNumber;
+            vm.Profile.AddressLine1 = lecturer.AddressLine1;
+            vm.Profile.AddressLine2 = lecturer.AddressLine2;
+            vm.Profile.Province = lecturer.Province;
+            vm.Profile.City = lecturer.City;
+            vm.Profile.ZipCode = lecturer.ZipCode;
+
+            vm.Email.CurrentEmail = user.Email;
         }
 
         private static string HashPassword(string password)
