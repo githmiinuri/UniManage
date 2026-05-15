@@ -1,9 +1,10 @@
 using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
+using System.Collections.Generic;
 
 namespace UniManage3.Models
 {
-    public class AssignmentUploadViewModel
+    public class AssignmentUploadViewModel : IValidatableObject
     {
         public int Id { get; set; }
 
@@ -42,5 +43,40 @@ namespace UniManage3.Models
         // File upload
         [Display(Name = "Upload Brief (PDF)")]
         public IFormFile UploadedFile { get; set; }
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            var results = new List<ValidationResult>();
+            var now = DateTime.Now;
+
+            // Deadline must be after issued date
+            if (DeadlineDate <= IssuedDate)
+            {
+                results.Add(new ValidationResult("Deadline date must be after the issued date.", new[] { nameof(DeadlineDate) }));
+            }
+
+            // Deadline must be in the future
+            if (DeadlineDate < now)
+            {
+                results.Add(new ValidationResult("Deadline date must be in the future.", new[] { nameof(DeadlineDate) }));
+            }
+
+            if (LateSubmitDate.HasValue)
+            {
+                // Late submit date must be after deadline
+                if (LateSubmitDate.Value <= DeadlineDate)
+                {
+                    results.Add(new ValidationResult("Late submit date must be after the deadline date.", new[] { nameof(LateSubmitDate) }));
+                }
+
+                // Late submit date must be in the future
+                if (LateSubmitDate.Value < now)
+                {
+                    results.Add(new ValidationResult("Late submit date must be in the future.", new[] { nameof(LateSubmitDate) }));
+                }
+            }
+
+            return results;
+        }
     }
 }

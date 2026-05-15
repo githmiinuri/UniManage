@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace UniManage3.Models.ViewModels
 {
@@ -12,8 +13,14 @@ namespace UniManage3.Models.ViewModels
         public string DownloadPath { get; set; }
 
         // Grading inputs
+        [Range(0, 100, ErrorMessage = "Marks must be between {1} and {2}.")]
+        [Display(Name = "Marks")]
         public double? Marks { get; set; }
+
+        [StringLength(8, ErrorMessage = "Grade cannot be longer than {1} characters.")]
         public string Grade { get; set; }
+
+        [StringLength(2000, ErrorMessage = "Review cannot be longer than {1} characters.")]
         public string Review { get; set; }
     }
 }
