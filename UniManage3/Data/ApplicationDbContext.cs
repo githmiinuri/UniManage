@@ -23,6 +23,7 @@ namespace UniManage3.Data
         public DbSet<Batch> Batches { get; set; }
         public DbSet<AssignmentSubmission> AssignmentSubmissions { get; set; }
         public DbSet<Semester> Semesters { get; set; }
+        public DbSet<CommunicationHub> CommunicationHubs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -394,6 +395,23 @@ namespace UniManage3.Data
                  .WithMany()
                  .HasForeignKey(c => c.SemesterId)
                  .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // Configuration for CommunicationHub
+            modelBuilder.Entity<CommunicationHub>(b =>
+            {
+                b.HasKey(c => c.Id);
+                b.Property(c => c.StudentId).HasColumnType("int");
+                b.Property(c => c.LecturerId).HasColumnType("int");
+                b.Property(c => c.SubjectCategory).HasConversion<int>().HasColumnType("int");
+                b.Property(c => c.MessageContent).HasColumnType("longtext");
+                b.Property(c => c.AdminReply).HasColumnType("longtext");
+                b.Property(c => c.SentAt).HasColumnType("datetime");
+                b.Property(c => c.RepliedAt).HasColumnType("datetime");
+                b.Property(c => c.IsReadByStudent).HasColumnType("tinyint(1)");
+
+                b.HasOne<Student>().WithMany().HasForeignKey("StudentId").OnDelete(DeleteBehavior.Cascade);
+                b.HasOne<Lecturer>().WithMany().HasForeignKey("LecturerId").OnDelete(DeleteBehavior.SetNull);
             });
         }
     }
