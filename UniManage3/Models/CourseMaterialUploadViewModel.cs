@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
+using System.Collections.Generic;
+using System.IO;
 
 namespace UniManage3.Models
 {
-    public class CourseMaterialUploadViewModel
+    public class CourseMaterialUploadViewModel : IValidatableObject
     {
         public int Id { get; set; }
 
@@ -33,5 +35,39 @@ namespace UniManage3.Models
         // For file upload
         [Display(Name = "Upload File")]
         public IFormFile UploadedFile { get; set; }
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            var results = new List<ValidationResult>();
+
+            if (UploadedFile != null && UploadedFile.Length > 0)
+            {
+                var allowedExt = new HashSet<string>(System.StringComparer.OrdinalIgnoreCase)
+                {
+                    ".pdf",
+                    ".ppt",
+                    ".pptx",
+                    ".mp4",
+                    ".mp3",
+                    ".mov",
+                    ".wmv",
+                    ".mpeg",
+                    ".mpg",
+                    ".jpg",
+                    ".jpeg",
+                    ".png",
+                    ".gif"
+                };
+
+                var fileExt = Path.GetExtension(UploadedFile.FileName) ?? string.Empty;
+
+                if (!allowedExt.Contains(fileExt))
+                {
+                    results.Add(new ValidationResult("Invalid file format. Only PDF, PPT, Images, and Video files are allowed.", new[] { nameof(UploadedFile) }));
+                }
+            }
+
+            return results;
+        }
     }
 }
