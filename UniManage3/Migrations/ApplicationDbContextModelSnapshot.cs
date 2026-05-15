@@ -76,8 +76,7 @@ namespace UniManage3.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId")
-                        .IsUnique();
+                    b.HasIndex("UserId");
 
                     b.ToTable("Administrators");
                 });
@@ -99,29 +98,26 @@ namespace UniManage3.Migrations
                         .HasColumnType("int");
 
                     b.Property<DateTime>("DeadlineDate")
-                        .HasColumnType("datetime");
+                        .HasColumnType("datetime(6)");
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("longtext");
 
                     b.Property<DateTime>("IssuedDate")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                        .HasColumnType("datetime(6)");
 
                     b.Property<DateTime?>("LateSubmitDate")
-                        .HasColumnType("datetime");
+                        .HasColumnType("datetime(6)");
 
                     b.Property<int>("ModuleId")
                         .HasColumnType("int");
 
                     b.Property<string>("ResourceFilePath")
-                        .IsRequired()
-                        .HasColumnType("varchar(500)");
+                        .HasColumnType("longtext");
 
                     b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("datetime");
+                        .HasColumnType("datetime(6)");
 
                     b.HasKey("Id");
 
@@ -166,7 +162,7 @@ namespace UniManage3.Migrations
                         .HasColumnType("varchar(1024)");
 
                     b.Property<DateTime>("SubmittedTime")
-                        .HasColumnType("datetime");
+                        .HasColumnType("datetime(6)");
 
                     b.HasKey("Id");
 
@@ -186,9 +182,7 @@ namespace UniManage3.Migrations
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<bool>("AllowExceptions")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("tinyint(1)")
-                        .HasDefaultValue(false);
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<string>("BatchCode")
                         .IsRequired()
@@ -201,17 +195,13 @@ namespace UniManage3.Migrations
                         .HasColumnType("varchar(255)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime");
+                        .HasColumnType("datetime(6)");
 
                     b.Property<int>("MaxStudents")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(30);
+                        .HasColumnType("int");
 
                     b.Property<int>("MinStudents")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(10);
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -234,15 +224,12 @@ namespace UniManage3.Migrations
                         .HasColumnType("longtext");
 
                     b.Property<TimeSpan>("EndTime")
-                        .HasColumnType("time");
+                        .HasColumnType("time(6)");
 
                     b.Property<int>("LecturerId")
                         .HasColumnType("int");
 
                     b.Property<int>("ModuleId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("ModuleId1")
                         .HasColumnType("int");
 
                     b.Property<string>("RoomNumber")
@@ -254,7 +241,7 @@ namespace UniManage3.Migrations
                         .HasColumnType("int");
 
                     b.Property<TimeSpan>("StartTime")
-                        .HasColumnType("time");
+                        .HasColumnType("time(6)");
 
                     b.HasKey("Id");
 
@@ -263,8 +250,6 @@ namespace UniManage3.Migrations
                     b.HasIndex("LecturerId");
 
                     b.HasIndex("ModuleId");
-
-                    b.HasIndex("ModuleId1");
 
                     b.HasIndex("SemesterId");
 
@@ -294,10 +279,10 @@ namespace UniManage3.Migrations
                         .HasColumnType("longtext");
 
                     b.Property<DateTime?>("RepliedAt")
-                        .HasColumnType("datetime");
+                        .HasColumnType("datetime(6)");
 
                     b.Property<DateTime>("SentAt")
-                        .HasColumnType("datetime");
+                        .HasColumnType("datetime(6)");
 
                     b.Property<int>("StudentId")
                         .HasColumnType("int");
@@ -306,10 +291,6 @@ namespace UniManage3.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("LecturerId");
-
-                    b.HasIndex("StudentId");
 
                     b.ToTable("CommunicationHubs");
                 });
@@ -343,19 +324,14 @@ namespace UniManage3.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Duration")
                         .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)")
-                        .HasDefaultValue("Not Specified");
+                        .HasColumnType("longtext");
 
                     b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("tinyint(1)")
-                        .HasDefaultValue(true);
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<int?>("PrerequisiteCourseId")
                         .HasColumnType("int");
@@ -418,36 +394,27 @@ namespace UniManage3.Migrations
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                        .HasColumnType("datetime(6)");
 
                     b.Property<string>("DepartmentCode")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("DepartmentName")
                         .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("varchar(255)");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("longtext");
 
                     b.Property<int?>("HeadOfDepartmentId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("UpdatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
+                        .HasColumnType("datetime(6)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("DepartmentCode")
-                        .IsUnique();
 
                     b.HasIndex("HeadOfDepartmentId");
 
@@ -469,9 +436,7 @@ namespace UniManage3.Migrations
                         .HasColumnType("int");
 
                     b.Property<DateTime>("EnrollmentDate")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                        .HasColumnType("datetime(6)");
 
                     b.Property<string>("Grade")
                         .HasMaxLength(5)
@@ -492,48 +457,6 @@ namespace UniManage3.Migrations
                     b.HasIndex("StudentId");
 
                     b.ToTable("Enrollments");
-                });
-
-            modelBuilder.Entity("UniManage3.Models.Event", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("CreatedByAdminId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("EventDate")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("Location")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("varchar(255)");
-
-                    b.Property<string>("TargetAudience")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("varchar(255)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CreatedByAdminId");
-
-                    b.HasIndex("EventDate");
-
-                    b.ToTable("Event");
                 });
 
             modelBuilder.Entity("UniManage3.Models.Lecturer", b =>
@@ -590,53 +513,9 @@ namespace UniManage3.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId")
-                        .IsUnique();
+                    b.HasIndex("UserId");
 
                     b.ToTable("Lecturers");
-                });
-
-            modelBuilder.Entity("UniManage3.Models.LibraryResource", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Author")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("varchar(255)");
-
-                    b.Property<int?>("DepartmentId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("FilePath")
-                        .IsRequired()
-                        .HasMaxLength(1024)
-                        .HasColumnType("varchar(1024)");
-
-                    b.Property<string>("ResourceType")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("varchar(255)");
-
-                    b.Property<DateTime>("UploadDate")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime(6)")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DepartmentId");
-
-                    b.ToTable("LibraryResource");
                 });
 
             modelBuilder.Entity("UniManage3.Models.Module", b =>
@@ -655,20 +534,18 @@ namespace UniManage3.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("longtext");
 
                     b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("tinyint(1)")
-                        .HasDefaultValue(true);
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<int?>("LecturerId")
                         .HasColumnType("int");
 
                     b.Property<string>("ModuleCode")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)");
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
 
                     b.Property<string>("ModuleName")
                         .IsRequired()
@@ -704,23 +581,6 @@ namespace UniManage3.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Roles");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Administrator"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Lecturer"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "Student"
-                        });
                 });
 
             modelBuilder.Entity("UniManage3.Models.Semester", b =>
@@ -743,9 +603,7 @@ namespace UniManage3.Migrations
                         .HasColumnType("varchar(100)");
 
                     b.Property<int>("SemesterNumber")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(1);
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime(6)");
@@ -811,8 +669,7 @@ namespace UniManage3.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId")
-                        .IsUnique();
+                    b.HasIndex("UserId");
 
                     b.ToTable("Students");
                 });
@@ -826,17 +683,15 @@ namespace UniManage3.Migrations
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime");
+                        .HasColumnType("datetime(6)");
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("varchar(256)");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("FullName")
                         .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("varchar(256)");
+                        .HasColumnType("longtext");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("tinyint(1)");
@@ -845,12 +700,11 @@ namespace UniManage3.Migrations
                         .HasColumnType("tinyint(1)");
 
                     b.Property<DateTime?>("LastLogin")
-                        .HasColumnType("datetime");
+                        .HasColumnType("datetime(6)");
 
                     b.Property<string>("Password")
                         .IsRequired()
-                        .HasMaxLength(512)
-                        .HasColumnType("varchar(512)");
+                        .HasColumnType("longtext");
 
                     b.Property<int>("RoleId")
                         .HasColumnType("int");
@@ -914,29 +768,25 @@ namespace UniManage3.Migrations
                     b.HasOne("UniManage3.Models.Batch", "Batch")
                         .WithMany()
                         .HasForeignKey("BatchId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("UniManage3.Models.Lecturer", "Lecturer")
                         .WithMany()
                         .HasForeignKey("LecturerId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("UniManage3.Models.Module", "Module")
-                        .WithMany()
-                        .HasForeignKey("ModuleId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("UniManage3.Models.Module", null)
                         .WithMany("Classes")
-                        .HasForeignKey("ModuleId1");
+                        .HasForeignKey("ModuleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("UniManage3.Models.Semester", "Semester")
                         .WithMany()
                         .HasForeignKey("SemesterId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Batch");
@@ -948,36 +798,19 @@ namespace UniManage3.Migrations
                     b.Navigation("Semester");
                 });
 
-            modelBuilder.Entity("UniManage3.Models.CommunicationHub", b =>
-                {
-                    b.HasOne("UniManage3.Models.Lecturer", null)
-                        .WithMany()
-                        .HasForeignKey("LecturerId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.HasOne("UniManage3.Models.Student", null)
-                        .WithMany()
-                        .HasForeignKey("StudentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("UniManage3.Models.Course", b =>
                 {
                     b.HasOne("UniManage3.Models.Lecturer", "Coordinator")
                         .WithMany()
-                        .HasForeignKey("CoordinatorId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("CoordinatorId");
 
                     b.HasOne("UniManage3.Models.Department", "Department")
                         .WithMany()
-                        .HasForeignKey("DepartmentId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("DepartmentId");
 
                     b.HasOne("UniManage3.Models.Course", "PrerequisiteCourse")
                         .WithMany()
-                        .HasForeignKey("PrerequisiteCourseId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("PrerequisiteCourseId");
 
                     b.Navigation("Coordinator");
 
@@ -1001,8 +834,7 @@ namespace UniManage3.Migrations
                 {
                     b.HasOne("UniManage3.Models.Lecturer", "HeadOfDepartment")
                         .WithMany()
-                        .HasForeignKey("HeadOfDepartmentId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("HeadOfDepartmentId");
 
                     b.Navigation("HeadOfDepartment");
                 });
@@ -1026,16 +858,6 @@ namespace UniManage3.Migrations
                     b.Navigation("Student");
                 });
 
-            modelBuilder.Entity("UniManage3.Models.Event", b =>
-                {
-                    b.HasOne("UniManage3.Models.Administrator", "CreatedBy")
-                        .WithMany()
-                        .HasForeignKey("CreatedByAdminId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("CreatedBy");
-                });
-
             modelBuilder.Entity("UniManage3.Models.Lecturer", b =>
                 {
                     b.HasOne("UniManage3.Models.User", "User")
@@ -1045,16 +867,6 @@ namespace UniManage3.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("UniManage3.Models.LibraryResource", b =>
-                {
-                    b.HasOne("UniManage3.Models.Department", "Department")
-                        .WithMany()
-                        .HasForeignKey("DepartmentId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("Department");
                 });
 
             modelBuilder.Entity("UniManage3.Models.Module", b =>
@@ -1067,13 +879,11 @@ namespace UniManage3.Migrations
 
                     b.HasOne("UniManage3.Models.Lecturer", "Lecturer")
                         .WithMany()
-                        .HasForeignKey("LecturerId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("LecturerId");
 
                     b.HasOne("UniManage3.Models.Semester", "Semester")
                         .WithMany("Modules")
-                        .HasForeignKey("SemesterId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("SemesterId");
 
                     b.Navigation("Course");
 

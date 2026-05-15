@@ -8,6 +8,7 @@ using System.Security.Claims;
 namespace UniManage3.Controllers.Lecture
 {
     [Authorize(Roles = "Lecturer")]
+    [Route("Lecture/[controller]/[action]")]
     public class ChatController : Controller
     {
         private readonly ApplicationDbContext _db;
@@ -76,8 +77,6 @@ namespace UniManage3.Controllers.Lecture
                 .OrderBy(c => c.SentAt)
                 .ToList();
 
-            // mark unread messages as read for student view? Keep logic minimal: mark any where AdminReply != null as handled
-
             var result = thread.Select(c => new
             {
                 c.Id,
@@ -105,7 +104,7 @@ namespace UniManage3.Controllers.Lecture
             if (lecturer == null) return Forbid();
 
             // Look for an open communication (MessageContent present but AdminReply null)
-            var open = _db.CommunicationHubs.FirstOrDefault(c => c.StudentId == studentId && c.LecturerId == lecturer.Id && string.IsNullOrEmpty(c.AdminReply));
+            var open = _db.CommunicationHubs.FirstOrDefault(c => c.StudentId == studentId && c.LecturerId == lecturer.Id && (c.AdminReply == null || c.AdminReply == string.Empty));
 
             if (open != null)
             {
