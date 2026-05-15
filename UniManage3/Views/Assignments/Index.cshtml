@@ -52,14 +52,14 @@
                                         <td>
                                             @if (!string.IsNullOrEmpty(item.Module?.ModuleCode))
                                             {
-                                                <span class="badge rounded-pill text-bg-primary me-1">@item.Module.ModuleCode</span>
+                                                <span class="badge rounded-pill bg-primary bg-opacity-10 text-primary me-1">@item.Module.ModuleCode</span>
                                             }
                                             <span class="small text-muted">@item.Module?.ModuleName</span>
                                         </td>
                                         <td>
                                             @if (item.Batch != null)
                                             {
-                                                <span class="badge rounded-pill text-bg-secondary">@(item.Batch.BatchName ?? item.Batch.BatchCode)</span>
+                                                <span class="badge rounded-pill bg-secondary bg-opacity-10 text-secondary">@(item.Batch.BatchName ?? item.Batch.BatchCode)</span>
                                             }
                                             else
                                             {
