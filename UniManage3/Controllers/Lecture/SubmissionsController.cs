@@ -177,15 +177,37 @@ namespace UniManage3.Controllers.Lecture
         public async Task<IActionResult> DownloadSubmission(int id)
         {
             var submission = await _db.AssignmentSubmissions.FindAsync(id);
-            if (submission == null || string.IsNullOrEmpty(submission.SubmittedFilePath)) return NotFound();
+            if (submission == null || string.IsNullOrWhiteSpace(submission.SubmittedFilePath))
+            {
+                _logger.LogWarning("DownloadSubmission: submission missing or no path for Id={Id}", id);
+                return NotFound();
+            }
 
-            var filePath = Path.Combine(_env.WebRootPath ?? string.Empty, submission.SubmittedFilePath.Replace("/", Path.DirectorySeparatorChar.ToString()));
-            if (!System.IO.File.Exists(filePath)) return NotFound();
+            // Ensure we don't treat a stored path with a leading slash as a rooted path that would ignore web root.
+            var relativePath = submission.SubmittedFilePath.TrimStart('~', '/', '\\');
+            // Normalize separators to platform specific char
+            relativePath = relativePath.Replace('/', Path.DirectorySeparatorChar);
 
-            var contentType = "application/octet-stream";
+            var webRoot = _env.WebRootPath ?? string.Empty;
+            var filePath = Path.Combine(webRoot, relativePath);
+
+            if (!System.IO.File.Exists(filePath))
+            {
+                _logger.LogWarning("DownloadSubmission: file not found. Expected path={Path} (submission id={Id})", filePath, id);
+                return NotFound();
+            }
+
             var ext = Path.GetExtension(filePath).ToLowerInvariant();
-            if (ext == ".pdf") contentType = "application/pdf";
-            else if (ext == ".doc" || ext == ".docx") contentType = "application/msword";
+            var contentType = ext switch
+            {
+                ".pdf" => "application/pdf",
+                ".doc" => "application/msword",
+                ".docx" => "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                ".txt" => "text/plain",
+                ".jpg" or ".jpeg" => "image/jpeg",
+                ".png" => "image/png",
+                _ => "application/octet-stream",
+            };
 
             var fileName = Path.GetFileName(filePath);
             return PhysicalFile(filePath, contentType, fileName);
