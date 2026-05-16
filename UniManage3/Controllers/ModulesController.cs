@@ -47,7 +47,6 @@ namespace UniManage3.Controllers
         // GET: Modules/Create?courseId=5 (AJAX modal)
         public IActionResult CreateForCourse(int courseId)
         {
-            // This action is removed — module management is decoupled from the course dashboard.
             return NotFound();
         }
 
@@ -56,7 +55,6 @@ namespace UniManage3.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,ModuleCode,ModuleName,Description,Credits,CourseId,LecturerId")] Module module, [FromForm] List<Module> Modules, int? CourseId)
         {
-            // remove navigation validation - only IDs are posted
             ModelState.Remove("Lecturer");
             ModelState.Remove("Assignments");
             ModelState.Remove("CourseMaterials");
@@ -64,14 +62,11 @@ namespace UniManage3.Controllers
             {
                 try
                 {
-                    // If a collection of Modules was posted, save them all
                     if (Modules != null && Modules.Any())
                     {
                         foreach (var m in Modules)
                         {
-                            // ensure CourseId is provided (either from param or field on module)
                             if (CourseId.HasValue) m.CourseId = CourseId.Value;
-                            // new modules should be active by default
                             m.IsActive = true;
                             _db.Modules.Add(m);
                         }
@@ -80,7 +75,6 @@ namespace UniManage3.Controllers
                         return RedirectToAction(nameof(Index));
                     }
 
-                    // fallback: single module post
                     module.IsActive = true;
                     _db.Modules.Add(module);
                     await _db.SaveChangesAsync();
@@ -96,7 +90,6 @@ namespace UniManage3.Controllers
                     ModelState.AddModelError(string.Empty, "An error occurred while saving the module.");
                 }
             }
-            // validation failed -> return JSON errors if AJAX
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
             {
                 var errors = ModelState.Where(x => x.Value.Errors.Count > 0).ToDictionary(k => k.Key, v => v.Value.Errors.Select(e => e.ErrorMessage).ToArray());
@@ -122,7 +115,6 @@ namespace UniManage3.Controllers
         public async Task<IActionResult> Edit(int id, [Bind("Id,ModuleCode,ModuleName,Description,Credits,CourseId,LecturerId")] Module module)
         {
             if (id != module.Id) return NotFound();
-            // remove navigation validation
             ModelState.Remove("Lecturer");
             ModelState.Remove("Assignments");
             ModelState.Remove("CourseMaterials");
@@ -130,7 +122,6 @@ namespace UniManage3.Controllers
             {
                 try
                 {
-                    // fetch tracked entity and apply changes
                     var existing = await _db.Modules.FirstOrDefaultAsync(m => m.Id == id);
                     if (existing == null) return NotFound();
                     existing.ModuleCode = module.ModuleCode;

@@ -18,7 +18,6 @@ namespace UniManage3.Controllers.Lecture
             _db = db;
         }
 
-        // Index: show student directory for this lecturer's modules
         [HttpGet]
         public IActionResult Index()
         {
@@ -27,11 +26,9 @@ namespace UniManage3.Controllers.Lecture
 
             int userId = int.Parse(userIdClaim);
 
-            // find lecturer record
             var lecturer = _db.Lecturers.FirstOrDefault(l => l.UserId == userId);
             if (lecturer == null) return Forbid();
 
-            // students enrolled in modules where this lecturer is assigned as Module.LecturerId
             var studentIds = _db.Modules
                 .Where(m => m.LecturerId == lecturer.Id)
                 .SelectMany(m => _db.Enrollments.Where(e => e.CourseId == m.CourseId).Select(e => e.StudentId))
@@ -62,7 +59,6 @@ namespace UniManage3.Controllers.Lecture
             return View(vm);
         }
 
-        // AJAX: get chat thread for a student
         [HttpGet]
         public IActionResult GetChatThread(int studentId)
         {
@@ -92,7 +88,6 @@ namespace UniManage3.Controllers.Lecture
             return Json(result);
         }
 
-        // AJAX: send message as lecturer
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult SendMessage([FromForm] int studentId, [FromForm] int subjectCategory, [FromForm] string message)
@@ -103,7 +98,6 @@ namespace UniManage3.Controllers.Lecture
             var lecturer = _db.Lecturers.FirstOrDefault(l => l.UserId == userId);
             if (lecturer == null) return Forbid();
 
-            // Look for an open communication (MessageContent present but AdminReply null)
             var open = _db.CommunicationHubs.FirstOrDefault(c => c.StudentId == studentId && c.LecturerId == lecturer.Id && (c.AdminReply == null || c.AdminReply == string.Empty));
 
             if (open != null)
@@ -115,7 +109,6 @@ namespace UniManage3.Controllers.Lecture
             }
             else
             {
-                // Create a new record representing lecturer-initiated message (set MessageContent empty and put reply in AdminReply)
                 var comm = new CommunicationHub
                 {
                     StudentId = studentId,

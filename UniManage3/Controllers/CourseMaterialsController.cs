@@ -56,7 +56,6 @@ namespace UniManage3.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CourseMaterialUploadViewModel vm)
         {
-            // Ignore FilePath validation coming from the entity's Required attribute
             ModelState.Remove("FilePath");
 
             ViewData["ModuleId"] = new SelectList(_context.Modules, "Id", "ModuleName", vm.ModuleId);
@@ -64,7 +63,6 @@ namespace UniManage3.Controllers
 
             if (!ModelState.IsValid)
             {
-                // Log validation errors to console so developer can see which fields failed
                 Debug.WriteLine("ModelState is invalid in Create action (initial). Errors:");
                 foreach (var kvp in ModelState)
                 {
@@ -105,7 +103,7 @@ namespace UniManage3.Controllers
                     await vm.UploadedFile.CopyToAsync(stream);
                 }
 
-                var relativePath = $"/{UploadsFolder}/{fileName}"; // for storing in DB
+                var relativePath = $"/{UploadsFolder}/{fileName}";
 
                 Debug.WriteLine($"Created relativePath: {relativePath}");
 
@@ -115,12 +113,10 @@ namespace UniManage3.Controllers
                     MaterialType = vm.MaterialType,
                     Description = vm.Description,
                     Duration = vm.Duration,
-                    // DO NOT leave FilePath empty — assign the path you just saved
                     FilePath = relativePath,
                     ModuleId = vm.ModuleId
                 };
 
-                // Re-check ModelState after programmatically setting FilePath (if needed)
                 if (!ModelState.IsValid)
                 {
                     Debug.WriteLine("ModelState is invalid in Create action after assigning FilePath. Errors:");
@@ -134,7 +130,6 @@ namespace UniManage3.Controllers
                         }
                     }
 
-                    // Surface errors to the view
                     ModelState.AddModelError(string.Empty, "Model validation failed after assigning file path. See debug output for details.");
                     return View(vm);
                 }
@@ -196,7 +191,6 @@ namespace UniManage3.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, CourseMaterialUploadViewModel vm)
         {
-            // If the entity enforces FilePath as Required, ignore it in ModelState so we can assign programmatically
             ModelState.Remove("FilePath");
 
             if (id != vm.Id) return NotFound();
@@ -225,7 +219,6 @@ namespace UniManage3.Controllers
 
             try
             {
-                // Handle file replacement
                 if (vm.UploadedFile != null && vm.UploadedFile.Length > 0)
                 {
                     var uploadsRoot = Path.Combine(_env.WebRootPath ?? "wwwroot", UploadsFolder.Replace('/', Path.DirectorySeparatorChar));
@@ -235,7 +228,6 @@ namespace UniManage3.Controllers
                         Directory.CreateDirectory(uploadsRoot);
                     }
 
-                    // delete old file
                     if (!string.IsNullOrEmpty(material.FilePath))
                     {
                         var oldPath = material.FilePath.TrimStart('/').Replace(',', Path.DirectorySeparatorChar);
@@ -246,7 +238,6 @@ namespace UniManage3.Controllers
                         }
                     }
 
-                    // save new file
                     var ext = Path.GetExtension(vm.UploadedFile.FileName);
                     var fileName = $"{Guid.NewGuid()}{ext}";
                     var fullPath = Path.Combine(uploadsRoot, fileName);
@@ -255,18 +246,15 @@ namespace UniManage3.Controllers
                         await vm.UploadedFile.CopyToAsync(stream);
                     }
 
-                    // assign new path before saving
                     material.FilePath = $"/{UploadsFolder}/{fileName}";
                 }
 
-                // update other properties
                 material.MaterialName = vm.MaterialName;
                 material.MaterialType = vm.MaterialType;
                 material.Description = vm.Description;
                 material.Duration = vm.Duration;
                 material.ModuleId = vm.ModuleId;
 
-                // Re-check ModelState here too before saving
                 if (!ModelState.IsValid)
                 {
                     Debug.WriteLine("ModelState is invalid in Edit action after updates. Errors:");
@@ -337,7 +325,6 @@ namespace UniManage3.Controllers
 
             try
             {
-                // delete file from disk
                 if (!string.IsNullOrEmpty(material.FilePath))
                 {
                     var path = material.FilePath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar);

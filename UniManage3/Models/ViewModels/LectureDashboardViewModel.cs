@@ -4,28 +4,18 @@ using UniManage3.Models;
 
 namespace UniManage3.Models.ViewModels
 {
-    /// <summary>
-    /// ViewModel for the Lecturer Dashboard.
-    /// Contains KPIs and lists of assigned courses and modules.
-    /// Includes dummy structures for frontend previews.
-    /// </summary>
     public class LectureDashboardViewModel
     {
         public string LecturerName { get; set; }
-
-        // KPIs
         public int TotalEnrolledStudents { get; set; }
         public int OngoingAssignments { get; set; }
         public int TotalModulesAssigned { get; set; }
 
-        // Collections
         public IEnumerable<Course> AssignedCourses { get; set; } = new List<Course>();
         public IEnumerable<Module> AssignedModules { get; set; } = new List<Module>();
 
-        // Optional
         public string ErrorMessage { get; set; }
 
-        // Recent submissions structure
         public class DummyStudentSubmission
         {
             public int SubmissionId { get; set; }
@@ -36,7 +26,6 @@ namespace UniManage3.Models.ViewModels
             public string Status { get; set; }
         }
 
-        // New assignment-based grading progress
         public class AssignmentGradingProgress
         {
             public string AssignmentName { get; set; }

@@ -12,7 +12,6 @@ namespace UniManage3.Models.ViewModels
         public UniManage3.Models.SubmissionStatus Status { get; set; }
         public string DownloadPath { get; set; }
 
-        // Grading inputs
         [Range(0, 100, ErrorMessage = "Marks must be between {1} and {2}.")]
         [Display(Name = "Marks")]
         public double? Marks { get; set; }

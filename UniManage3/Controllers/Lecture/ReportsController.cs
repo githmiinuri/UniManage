@@ -24,7 +24,6 @@ namespace UniManage3.Controllers.Lecture
         // GET: Lecture/Reports
         public async Task<IActionResult> Index(int? moduleId, int? batchId)
         {
-            // Identify current user by email or name
             var email = User?.Identity?.Name ?? User?.FindFirst(ClaimTypes.Email)?.Value;
             if (string.IsNullOrEmpty(email)) return Challenge();
 
@@ -34,7 +33,6 @@ namespace UniManage3.Controllers.Lecture
             var lecturer = await _db.Lecturers.FirstOrDefaultAsync(l => l.UserId == user.Id);
             if (lecturer == null) return Forbid();
 
-            // Modules assigned to lecturer
             var modules = await _db.Modules
                 .Where(m => m.LecturerId == lecturer.Id)
                 .OrderBy(m => m.ModuleName)
@@ -54,7 +52,6 @@ namespace UniManage3.Controllers.Lecture
                 LateSubmissions = 0
             };
 
-            // If filters provided, query submissions
             if (moduleId.HasValue && batchId.HasValue)
             {
                 var query = _db.AssignmentSubmissions
@@ -67,7 +64,6 @@ namespace UniManage3.Controllers.Lecture
 
                 vm.Submissions = submissions;
 
-                // KPIs
                 vm.TotalSubmissions = submissions.Count;
 
                 var graded = submissions.Where(s => s.Marks.HasValue).ToList();

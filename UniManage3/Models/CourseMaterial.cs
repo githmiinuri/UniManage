@@ -18,7 +18,6 @@ namespace UniManage3.Models
         public string Description { get; set; }
 
         [StringLength(50)]
-        // Optional: "Week 1", "Module 2"
         public string Duration { get; set; }
 
         // Stores the local path, e.g., "/uploads/materials/intro-video.mp4"

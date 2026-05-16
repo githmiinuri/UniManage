@@ -96,7 +96,6 @@ namespace UniManage3.Controllers.Lecture
             _logger.LogInformation("Received grading data: Id={Id}, Marks={Marks}, Grade={Grade}, ReviewLength={ReviewLength}",
                 vm.Id, vm.Marks, vm.Grade, vm.Review?.Length ?? 0);
 
-            // Remove ModelState entries for fields that are not posted by the form
             ModelState.Remove(nameof(vm.StudentName));
             ModelState.Remove(nameof(vm.AssignmentName));
             ModelState.Remove(nameof(vm.SubmittedTime));
@@ -117,7 +116,6 @@ namespace UniManage3.Controllers.Lecture
                     }
                 }
 
-                // reload for view if validation fails
                 var existing = await _db.AssignmentSubmissions
                     .Include(s => s.Student)
                     .Include(s => s.Assignment)
@@ -141,7 +139,6 @@ namespace UniManage3.Controllers.Lecture
                 return NotFound();
             }
 
-            // Update fields explicitly
             submission.Marks = vm.Marks;
             submission.Grade = vm.Grade;
             submission.Review = vm.Review;
@@ -158,7 +155,6 @@ namespace UniManage3.Controllers.Lecture
                 _logger.LogError(ex, "Error saving grading for submission {Id}", vm.Id);
                 TempData["ErrorMessage"] = "Unable to save grading. " + ex.Message;
 
-                // repopulate and return view so user can retry
                 var existing = await _db.AssignmentSubmissions
                     .Include(s => s.Student)
                     .Include(s => s.Assignment)
@@ -187,7 +183,6 @@ namespace UniManage3.Controllers.Lecture
             if (!System.IO.File.Exists(filePath)) return NotFound();
 
             var contentType = "application/octet-stream";
-            // simple content type guessing by extension
             var ext = Path.GetExtension(filePath).ToLowerInvariant();
             if (ext == ".pdf") contentType = "application/pdf";
             else if (ext == ".doc" || ext == ".docx") contentType = "application/msword";

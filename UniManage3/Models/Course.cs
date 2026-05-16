@@ -21,27 +21,21 @@ namespace UniManage3.Models
         public string Description { get; set; }
 
         [Required]
-        // Expanded range to support high-value credits like 120, 360, etc.
         [Range(1, 1000, ErrorMessage = "Credits must be between 1 and 1000")]
         public int Credits { get; set; }
         public string Duration { get; set; } = "Not Specified";
 
-        // Foreign Key for the Prerequisite Course
         public int? PrerequisiteCourseId { get; set; }
 
-        // Navigation property to the actual Course object acting as a prerequisite
         [ForeignKey("PrerequisiteCourseId")]
         public virtual Course PrerequisiteCourse { get; set; }
 
-        // Active flag
         public bool IsActive { get; set; } = true;
 
-        // Coordinator (Lecturer)
         public int? CoordinatorId { get; set; }
         [ForeignKey("CoordinatorId")]
         public virtual Lecturer Coordinator { get; set; }
 
-        // Department relationship
         public int? DepartmentId { get; set; }
         [ForeignKey("DepartmentId")]
         public virtual Department Department { get; set; }

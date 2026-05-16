@@ -8,12 +8,10 @@ namespace UniManage3.Models
     {
         public int Id { get; set; }
 
-        // Reference to the User (student)
         [Required]
         public int StudentId { get; set; }
         public virtual User Student { get; set; }
 
-        // Reference to Assignment
         [Required]
         public int AssignmentId { get; set; }
         public virtual Assignment Assignment { get; set; }
@@ -26,7 +24,6 @@ namespace UniManage3.Models
         [StringLength(1024)]
         public string SubmittedFilePath { get; set; }
 
-        // Grading fields
         public double? Marks { get; set; }
         [StringLength(8)]
         public string? Grade { get; set; }

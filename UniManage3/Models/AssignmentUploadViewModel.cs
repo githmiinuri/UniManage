@@ -28,19 +28,16 @@ namespace UniManage3.Models
 
         public DateTime? UpdatedDate { get; set; }
 
-        // Not exposed for input; used when editing to show current file in view
         public string? ResourceFilePath { get; set; }
 
         [Required]
         [Display(Name = "Module")]
         public int ModuleId { get; set; }
 
-        // New BatchId for selecting batch in Create/Edit
         [Required]
         [Display(Name = "Batch")]
         public int BatchId { get; set; }
 
-        // File upload
         [Display(Name = "Upload Brief (PDF)")]
         public IFormFile UploadedFile { get; set; }
 
@@ -49,13 +46,11 @@ namespace UniManage3.Models
             var results = new List<ValidationResult>();
             var now = DateTime.Now;
 
-            // Deadline must be after issued date
             if (DeadlineDate <= IssuedDate)
             {
                 results.Add(new ValidationResult("Deadline date must be after the issued date.", new[] { nameof(DeadlineDate) }));
             }
 
-            // Deadline must be in the future
             if (DeadlineDate < now)
             {
                 results.Add(new ValidationResult("Deadline date must be in the future.", new[] { nameof(DeadlineDate) }));
@@ -63,13 +58,11 @@ namespace UniManage3.Models
 
             if (LateSubmitDate.HasValue)
             {
-                // Late submit date must be after deadline
                 if (LateSubmitDate.Value <= DeadlineDate)
                 {
                     results.Add(new ValidationResult("Late submit date must be after the deadline date.", new[] { nameof(LateSubmitDate) }));
                 }
 
-                // Late submit date must be in the future
                 if (LateSubmitDate.Value < now)
                 {
                     results.Add(new ValidationResult("Late submit date must be in the future.", new[] { nameof(LateSubmitDate) }));

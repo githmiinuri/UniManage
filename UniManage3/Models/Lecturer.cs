@@ -5,11 +5,9 @@ namespace UniManage3.Models
     public class Lecturer
     {
         public int Id { get; set; }
-        // Reference to the shared Users table
         public int UserId { get; set; }
         public virtual User User { get; set; }
 
-        // Additional profile fields
         [Required, StringLength(128)]
         public string FirstName { get; set; }
 

@@ -28,7 +28,6 @@ namespace UniManage3.Controllers.Lecture
 
             try
             {
-                // Identify current user by common claims
                 var email = User?.Identity?.Name ?? User?.FindFirst(ClaimTypes.Email)?.Value;
                 if (string.IsNullOrEmpty(email))
                 {
@@ -53,7 +52,6 @@ namespace UniManage3.Controllers.Lecture
                     ? user.FullName
                     : (lecturer.FirstName + " " + lecturer.LastName).Trim();
 
-                // Fetch modules assigned to this lecturer. Include Course and Assignments.
                 var modules = await _context.Modules
                     .Where(m => m.LecturerId == lecturer.Id)
                     .Include(m => m.Course)
@@ -61,12 +59,10 @@ namespace UniManage3.Controllers.Lecture
                     .AsNoTracking()
                     .ToListAsync();
 
-                // Protect against null
                 modules = modules ?? new System.Collections.Generic.List<Module>();
 
                 vm.AssignedModules = modules;
 
-                // Derive distinct courses
                 var courses = modules
                     .Where(m => m.Course != null)
                     .Select(m => m.Course)
@@ -76,22 +72,18 @@ namespace UniManage3.Controllers.Lecture
 
                 vm.AssignedCourses = courses;
 
-                // KPIs
                 vm.TotalModulesAssigned = modules.Count;
 
-                // Count ongoing assignments: deadline >= now
                 var now = DateTime.Now;
                 vm.OngoingAssignments = modules
                     .Where(m => m.Assignments != null)
                     .SelectMany(m => m.Assignments)
                     .Count(a => a.DeadlineDate >= now);
 
-                // Dummy total enrolled students: random between 50 and 200 scaled by number of courses (simple heuristic)
                 var rnd = new Random();
                 var baseValue = rnd.Next(50, 201);
                 vm.TotalEnrolledStudents = Math.Max(50, baseValue + (courses.Count * 5));
 
-                // --- Fetch latest 3 real submissions from DB related to this lecturer ---
                 var latestAnonymous = await _context.AssignmentSubmissions
                     .AsNoTracking()
                     .Include(s => s.Student)
@@ -124,7 +116,6 @@ namespace UniManage3.Controllers.Lecture
 
                 vm.RecentSubmissions = latestSubmissions;
 
-                // --- Real assignment-wise grading progress (two-step: server-side aggregate, client-side mapping/sort) ---
                 var grouped = await _context.AssignmentSubmissions
                     .AsNoTracking()
                     .Include(s => s.Assignment).ThenInclude(a => a.Module)
@@ -143,7 +134,7 @@ namespace UniManage3.Controllers.Lecture
                         TotalSubmissions = g.Count(),
                         GradedCount = g.Count(s => s.Marks != null)
                     })
-                    .ToListAsync(); // execute on DB
+                    .ToListAsync();
 
                 var gradingSummaries = grouped
                     .Select(x => new LectureDashboardViewModel.AssignmentGradingProgress
@@ -153,7 +144,7 @@ namespace UniManage3.Controllers.Lecture
                         TotalSubmissions = x.TotalSubmissions,
                         GradedCount = x.GradedCount
                     })
-                    .OrderByDescending(x => x.PendingCount) // in-memory
+                    .OrderByDescending(x => x.PendingCount)
                     .Take(5)
                     .ToList();
 

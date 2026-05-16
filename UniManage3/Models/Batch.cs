@@ -11,7 +11,6 @@ namespace UniManage3.Models
 
         [Required]
         [StringLength(50)]
-        // e.g. "B001"
         public string BatchCode { get; set; }
 
         [Required]

@@ -59,7 +59,6 @@ namespace UniManage3.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(AssignmentUploadViewModel vm)
         {
-            // Ignore server-side required validations for fields we set programmatically
             ModelState.Remove("ResourceFilePath");
             ModelState.Remove("UpdatedDate");
 
@@ -79,7 +78,6 @@ namespace UniManage3.Controllers
                 return View(vm);
             }
 
-            // Validate uploaded file if present
             if (vm.UploadedFile != null && vm.UploadedFile.Length > 0)
             {
                 var ext = Path.GetExtension(vm.UploadedFile.FileName)?.ToLowerInvariant();
@@ -201,7 +199,6 @@ namespace UniManage3.Controllers
 
             try
             {
-                // Handle file replacement
                 if (vm.UploadedFile != null && vm.UploadedFile.Length > 0)
                 {
                     var ext = Path.GetExtension(vm.UploadedFile.FileName)?.ToLowerInvariant();
@@ -215,7 +212,6 @@ namespace UniManage3.Controllers
                     var uploadsRoot = Path.Combine(_env.WebRootPath ?? "wwwroot", AssignmentsUploadsFolder.Replace('/', Path.DirectorySeparatorChar));
                     if (!Directory.Exists(uploadsRoot)) Directory.CreateDirectory(uploadsRoot);
 
-                    // delete old file if exists
                     if (!string.IsNullOrEmpty(material.ResourceFilePath))
                     {
                         var oldPath = material.ResourceFilePath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar);
@@ -233,7 +229,6 @@ namespace UniManage3.Controllers
                     material.ResourceFilePath = $"/{AssignmentsUploadsFolder}/{fileName}";
                 }
 
-                // update other properties
                 material.AssignmentName = vm.AssignmentName;
                 material.Description = vm.Description;
                 material.IssuedDate = vm.IssuedDate == default ? material.IssuedDate : vm.IssuedDate;

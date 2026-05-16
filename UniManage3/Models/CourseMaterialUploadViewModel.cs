@@ -25,14 +25,12 @@ namespace UniManage3.Models
         [Display(Name = "Duration")]
         public string Duration { get; set; }
 
-        // FilePath is not exposed to the user - used internally
-        public string FilePath { get; set; }
+       public string FilePath { get; set; }
 
         [Required]
         [Display(Name = "Module")]
         public int ModuleId { get; set; }
 
-        // For file upload
         [Display(Name = "Upload File")]
         public IFormFile UploadedFile { get; set; }
 
