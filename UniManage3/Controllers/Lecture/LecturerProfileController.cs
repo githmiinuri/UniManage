@@ -12,6 +12,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Identity;
 
 namespace UniManage3.Controllers.Lecture
 {
@@ -219,7 +220,10 @@ namespace UniManage3.Controllers.Lecture
                 return ReturnIndexView(vm);
             }
 
-            if (!VerifyHashedPassword(user.Password, model.CurrentPassword))
+            // Use Identity's PasswordHasher to verify and hash passwords so it matches other parts of the app
+            var hasher = new PasswordHasher<object>();
+            var verifyResult = hasher.VerifyHashedPassword(null, user.Password, model.CurrentPassword);
+            if (verifyResult != PasswordVerificationResult.Success && verifyResult != PasswordVerificationResult.SuccessRehashNeeded)
             {
                 ModelState.AddModelError("Password.CurrentPassword", "Current password is incorrect.");
                 var vm = new LecturerProfileIndexViewModel();
@@ -228,7 +232,7 @@ namespace UniManage3.Controllers.Lecture
                 return ReturnIndexView(vm);
             }
 
-            user.Password = HashPassword(model.NewPassword);
+            user.Password = hasher.HashPassword(null, model.NewPassword);
             try
             {
                 await _context.SaveChangesAsync();
@@ -264,21 +268,6 @@ namespace UniManage3.Controllers.Lecture
             vm.Profile.ZipCode = lecturer.ZipCode;
 
             vm.Email.CurrentEmail = user.Email;
-        }
-
-        private static string HashPassword(string password)
-        {
-            using var sha = SHA256.Create();
-            var bytes = Encoding.UTF8.GetBytes(password);
-            var hash = sha.ComputeHash(bytes);
-            return Convert.ToHexString(hash);
-        }
-
-        private static bool VerifyHashedPassword(string hashed, string providedPassword)
-        {
-            if (string.IsNullOrEmpty(hashed) || string.IsNullOrEmpty(providedPassword)) return false;
-            var providedHash = HashPassword(providedPassword);
-            return string.Equals(hashed, providedHash, StringComparison.OrdinalIgnoreCase);
         }
     }
 }
