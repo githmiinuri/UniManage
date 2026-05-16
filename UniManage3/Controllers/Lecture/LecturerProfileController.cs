@@ -10,6 +10,8 @@ using System;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace UniManage3.Controllers.Lecture
 {
@@ -171,8 +173,10 @@ namespace UniManage3.Controllers.Lecture
             try
             {
                 await _context.SaveChangesAsync();
-                TempData["SuccessMessage"] = "Email updated successfully.";
-                return RedirectToAction(nameof(Index));
+                // Sign the user out so they must sign in again using the new email address
+                TempData["SuccessMessage"] = "Email updated successfully. Please sign in with your new email.";
+                await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                return RedirectToAction("Login", "Account");
             }
             catch (Exception ex)
             {
