@@ -80,9 +80,21 @@ namespace UniManage3.Controllers.Lecture
                     .SelectMany(m => m.Assignments)
                     .Count(a => a.DeadlineDate >= now);
 
-                var rnd = new Random();
-                var baseValue = rnd.Next(50, 201);
-                vm.TotalEnrolledStudents = Math.Max(50, baseValue + (courses.Count * 5));
+                // Replace previously hardcoded/random value with a real count from the Enrollments table.
+                var courseIds = courses.Select(c => c.Id).ToList();
+                if (courseIds.Any())
+                {
+                    vm.TotalEnrolledStudents = await _context.Enrollments
+                        .AsNoTracking()
+                        .Where(e => courseIds.Contains(e.CourseId))
+                        .Select(e => e.StudentId)
+                        .Distinct()
+                        .CountAsync();
+                }
+                else
+                {
+                    vm.TotalEnrolledStudents = 0;
+                }
 
                 var latestAnonymous = await _context.AssignmentSubmissions
                     .AsNoTracking()
