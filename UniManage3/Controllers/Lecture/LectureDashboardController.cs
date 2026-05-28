@@ -80,7 +80,6 @@ namespace UniManage3.Controllers.Lecture
                     .SelectMany(m => m.Assignments)
                     .Count(a => a.DeadlineDate >= now);
 
-                // Replace previously hardcoded/random value with a real count from the Enrollments table.
                 var courseIds = courses.Select(c => c.Id).ToList();
                 if (courseIds.Any())
                 {
@@ -108,7 +107,7 @@ namespace UniManage3.Controllers.Lecture
                         s.Id,
                         StudentName = s.Student != null ? s.Student.FullName : null,
                         AssignmentName = s.Assignment != null ? s.Assignment.AssignmentName : null,
-                        ModuleName = s.Assignment.Module.ModuleName,
+                        ModuleName = s.Assignment != null ? s.Assignment.Module.ModuleName : null,
                         s.SubmittedTime,
                         StatusInt = (int)s.Status
                     })

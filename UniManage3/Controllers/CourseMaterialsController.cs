@@ -77,7 +77,6 @@ namespace UniManage3.Controllers
                 return View(vm);
             }
 
-            // Debug check for uploaded file
             if (vm.UploadedFile == null || vm.UploadedFile.Length == 0)
             {
                 Debug.WriteLine("UploadedFile is null or empty in Create action.");
@@ -130,7 +129,7 @@ namespace UniManage3.Controllers
                         }
                     }
 
-                    ModelState.AddModelError(string.Empty, "Model validation failed after assigning file path. See debug output for details.");
+                    ModelState.AddModelError(string.Empty, "Validation failed after assigning file path.");
                     return View(vm);
                 }
 
